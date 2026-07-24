@@ -1,8 +1,9 @@
 # Choi Space
 
-최지웅의 개인 웹 공간. 공개 소개 홈과 Life 아카이브, Career 서류, 비공개 Health·Write 도구로 구성됩니다.
+최지웅의 **기록 운영** 공간. 일반에게는 Life 블로그, 관리자에게는 일·커리어·서류·금융·기타 축이 열린다.
 
-저장소: [github.com/choiju0321/choi-space.dev](https://github.com/choiju0321/choi-space.dev)
+저장소: [github.com/choiju0321/choi-space.dev](https://github.com/choiju0321/choi-space.dev)  
+방향성 · 로드맵 · 할 일: [`docs/DIRECTION.md`](docs/DIRECTION.md)
 
 ## Stack
 
@@ -20,20 +21,24 @@ npm run dev
 
 | URL | 설명 |
 |-----|------|
-| `/` | 공개 홈 (About / Career / Life / Work / Contact) |
-| `/life/reading` · `/running` · `/culture` · `/food` · `/cafe` · `/travel` | Life 도메인 아카이브 |
-| `/write` | 기록 작성 스튜디오 (비밀번호) |
-| `/health` | 건강검진 아카이브 (비밀번호, 공개 홈 비노출) |
+| `/` | 공개 홈 — 일반은 Life 중심, 로그인 시 Career 등 관리 섹션 |
+| `/life/...` | Life 블로그 아카이브 |
+| `/write` | 로그인 · 기록 작성 (`LIFE_WRITE_SECRET`) |
+| `/work` · `/career` · `/documents` · `/finance` · `/records` | 관리자 축 허브 (로드맵 Phase별 구현) |
+| `/health` | 건강검진 (기타 기록 하위, 세션 필요) |
 
-## 공개 vs 비공개
+## 권한 · 메뉴
 
-| 구분 | 라우트 그룹 | 접근 |
-|------|-------------|------|
-| 공개 | `src/app/(public)/` | 누구나 |
-| 플랫폼 | `src/app/(platform)/` | `LIFE_WRITE_SECRET` 세션 |
+| 상태 | 헤더 메뉴 |
+|------|-----------|
+| **일반** | Home · About · Life ▾ · Growth · Notes · Contact · Login |
+| **관리자** | (위) + Work · Career · Documents · Finance · Records · Write · Logout |
 
-- `/write`와 `/health`는 같은 세션 쿠키를 씁니다.
-- 원본 PDF·증명서는 `private/`에 두고 gitignore합니다. 메타·요약만 저장소에 올립니다.
+Life 하위: Overview · Reading · Running · Culture · Food · Cafe · Travel  
+공개 콘텐츠 축: **Life**(경험) · **Growth**(성장) · **Notes**(정보글). 자세한 IA·할 일 순서는 [`docs/DIRECTION.md`](docs/DIRECTION.md).
+
+- `/write`·플랫폼·`/health`는 같은 세션 쿠키.
+- 원본 PDF는 `private/` + gitignore.
 
 ## 구현된 기능 요약
 

@@ -7,6 +7,9 @@ type HeroSectionProps = {
   profile: Pick<Profile, "brandName" | "siteHeadline" | "siteSummary">;
 };
 
+/**
+ * 첫 화면은 한 덩어리: 브랜드 · 공간 소개 · About / 기록 보기 CTA
+ */
 export function HeroSection({ profile }: HeroSectionProps) {
   return (
     <section className="relative overflow-hidden">
@@ -14,7 +17,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,var(--color-glow),transparent_60%),linear-gradient(180deg,var(--color-background)_0%,var(--color-surface)_100%)]"
       />
-      <Container className="flex min-h-[min(88vh,820px)] flex-col justify-center py-28 sm:py-36">
+      <Container className="flex min-h-[min(100svh,900px)] flex-col justify-center py-28 sm:py-36">
         <FadeIn>
           <p className="font-[family-name:var(--font-display)] text-sm font-medium tracking-[0.18em] text-[var(--color-accent)] uppercase">
             {profile.brandName}
@@ -33,10 +36,10 @@ export function HeroSection({ profile }: HeroSectionProps) {
         <FadeIn delayMs={240}>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <Button href="#about" size="lg">
-              소개 보기
+              About
             </Button>
-            <Button href="#work" variant="secondary" size="lg">
-              경험 보기
+            <Button href="#life" variant="secondary" size="lg">
+              Life
             </Button>
           </div>
         </FadeIn>
