@@ -10,10 +10,9 @@ import type { Profile } from "@/types/content";
 export const profile: Profile = {
   brandName: "Choi Space",
 
-  // Hero — 이 홈페이지(공간)를 소개
-  siteHeadline: "나를 담아 두는 디지털 공간",
+  siteHeadline: "오늘의 기록이 내일의 나를 만듭니다.",
   siteSummary:
-    "Choi Space는 이력서 대신, 내가 어떤 사람인지와 어떤 일을 해왔는지를 차분히 보여주는 개인 홈페이지입니다. 지금은 소개에서 시작하지만, 앞으로는 나만의 플랫폼으로 계속 확장해 나갈 예정입니다.",
+    "소개는 한 페이지지만, 기록은 한 사람을 보여줍니다.",
 
   // About — 나에 대한 소개
   name: "최지웅",

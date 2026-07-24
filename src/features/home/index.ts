@@ -1,4 +1,8 @@
 export { HeroSection } from "./hero-section";
+export { BrandStorySection } from "./brand-story-section";
+export { AboutCardSection } from "./about-card-section";
+export { ExploreSection } from "./explore-section";
+export { AboutModalProvider, useAboutModal } from "./about-modal-context";
 export { AboutSection } from "./about-section";
 export { CareerSection } from "./career-section";
 export { LifeSection } from "./life-section";

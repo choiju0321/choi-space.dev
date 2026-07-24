@@ -1,29 +1,30 @@
 import type { Metadata } from "next";
-import { Container } from "@/components/ui/container";
+import { SpaceOverview } from "@/features/content/space-overview";
+import { NOTES_NAV } from "@/content/nav";
+import {
+  getFeaturedPosts,
+  getLatestPosts,
+} from "@/lib/content/get-posts";
 
 export const metadata: Metadata = {
   title: "Notes",
   description: "정보·칼럼·청약·팁 정리 글을 모아 둡니다.",
 };
 
-export default function NotesPage() {
+export default function NotesOverviewPage() {
+  const featured = getFeaturedPosts("notes", 1)[0] ?? null;
+  const latest = getLatestPosts("notes", 6).filter(
+    (post) => post.id !== featured?.id,
+  );
+
   return (
-    <div className="pb-24 pt-10 sm:pt-14">
-      <Container className="max-w-3xl">
-        <p className="text-sm font-medium tracking-[0.14em] text-[var(--color-accent)] uppercase">
-          Notes
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--color-foreground)] sm:text-4xl">
-          Notes
-        </h1>
-        <p className="mt-4 max-w-2xl text-base text-[var(--color-muted)]">
-          청약·기사형 정리, 팁, 스크랩 해설처럼 정보성 글을 둡니다. 개인 자산
-          관리(Finance)와는 별개입니다.
-        </p>
-        <p className="mt-10 text-sm text-[var(--color-muted-soft)]">
-          글 목록은 곧 연결합니다.
-        </p>
-      </Container>
-    </div>
+    <SpaceOverview
+      section={NOTES_NAV}
+      title="Notes"
+      summary="정보를 정리하는 공간입니다. 금융, 부동산, 생산성, 팁, 아카이브."
+      featured={featured}
+      latest={latest}
+      exploreHint="필요한 기록만 골라 읽으세요."
+    />
   );
 }

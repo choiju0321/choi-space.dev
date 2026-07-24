@@ -1,40 +1,21 @@
 import {
-  AboutSection,
-  CareerSection,
-  ContactSection,
-  FeaturedWorkSection,
+  AboutCardSection,
+  BrandStorySection,
+  ExploreSection,
   HeroSection,
-  LifeSection,
 } from "@/features/home";
-import {
-  getAboutMdxSource,
-  getCareerWithDocumentStatus,
-  getFeaturedProjects,
-  getLife,
-  getProfile,
-} from "@/lib/content";
-import { hasWriteSession } from "@/lib/write/auth";
+import { AboutModalProvider } from "@/features/home/about-modal-context";
+import { getProfile } from "@/lib/content";
 
-export const dynamic = "force-dynamic";
-
-export default async function HomePage() {
+export default function HomePage() {
   const profile = getProfile();
-  const life = getLife();
-  const projects = getFeaturedProjects();
-  const aboutSource = await getAboutMdxSource();
-  const authenticated = await hasWriteSession();
-
-  // 일반: 블로그성 Life 중심. Career·상세 서류는 관리자(또는 향후 이직 패키지)용.
-  const career = authenticated ? getCareerWithDocumentStatus() : null;
 
   return (
-    <>
-      <HeroSection profile={profile} />
-      <AboutSection profile={profile} source={aboutSource} />
-      <LifeSection life={life} />
-      {career ? <CareerSection career={career} profile={profile} /> : null}
-      {authenticated ? <FeaturedWorkSection projects={projects} /> : null}
-      <ContactSection profile={profile} />
-    </>
+    <AboutModalProvider email={profile.email} image={profile.image}>
+      <HeroSection />
+      <BrandStorySection />
+      <AboutCardSection profile={profile} />
+      <ExploreSection />
+    </AboutModalProvider>
   );
 }

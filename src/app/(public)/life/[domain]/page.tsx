@@ -1,36 +1,34 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Container } from "@/components/ui/container";
-import { PlaceArchiveExplorer } from "@/features/place/place-archive-explorer";
+import { CategoryPageTemplate } from "@/features/content/category-page-template";
+import { LIFE_NAV } from "@/content/nav";
 import {
-  getPlaceListItems,
-} from "@/lib/content/get-place";
+  getPlacePostsAsList,
+  paginateArchivePosts,
+} from "@/lib/content/archive-as-posts";
 import type { PlaceDomain } from "@/types/place";
 
 const DOMAIN_META: Record<
   PlaceDomain,
-  { label: string; title: string; description: string }
+  { label: string; summary: string }
 > = {
   food: {
     label: "Food",
-    title: "맛집 기록",
-    description: "식사와 맛집 기록을 모읍니다.",
+    summary: "식사와 맛집의 기록을 남깁니다.",
   },
   cafe: {
     label: "Cafe",
-    title: "카페 기록",
-    description: "카페와 공간의 기록을 모읍니다.",
+    summary: "카페와 공간의 기록을 남깁니다.",
   },
   travel: {
     label: "Travel",
-    title: "여행 기록",
-    description: "여행의 장면들을 모읍니다.",
+    summary: "여행의 장면들을 기록합니다.",
   },
 };
 
 type PageProps = {
   params: Promise<{ domain: string }>;
+  searchParams: Promise<{ page?: string }>;
 };
 
 function asDomain(value: string): PlaceDomain | null {
@@ -49,48 +47,33 @@ export async function generateMetadata({
   const domain = asDomain(raw);
   if (!domain) return { title: "Life" };
   return {
-    title: DOMAIN_META[domain].label,
-    description: DOMAIN_META[domain].description,
+    title: `${DOMAIN_META[domain].label} · Life`,
+    description: DOMAIN_META[domain].summary,
   };
 }
 
-export default async function PlaceArchivePage({ params }: PageProps) {
+export default async function PlaceArchivePage({
+  params,
+  searchParams,
+}: PageProps) {
   const { domain: raw } = await params;
+  const { page: pageParam } = await searchParams;
   const domain = asDomain(raw);
   if (!domain) notFound();
 
   const meta = DOMAIN_META[domain];
-  const items = getPlaceListItems(domain);
+  const page = Number(pageParam ?? "1") || 1;
+  const paged = paginateArchivePosts(getPlacePostsAsList(domain), page);
 
   return (
-    <div className="pb-24 pt-10 sm:pt-14">
-      <Container className="max-w-3xl">
-        <p className="text-sm text-[var(--color-muted)]">
-          <Link href="/#life" className="transition-opacity hover:opacity-70">
-            Life
-          </Link>
-          <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-          {meta.label}
-        </p>
-        <header className="mt-6">
-          <p className="text-sm font-medium tracking-[0.14em] text-[var(--color-accent)] uppercase">
-            {meta.label}
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--color-foreground)] sm:text-4xl">
-            {meta.title}
-          </h1>
-          <p className="mt-4 max-w-2xl text-base text-[var(--color-muted)]">
-            {meta.description}
-          </p>
-        </header>
-        <div className="mt-10">
-          <PlaceArchiveExplorer
-            domain={domain}
-            domainLabel={meta.title}
-            items={items}
-          />
-        </div>
-      </Container>
-    </div>
+    <CategoryPageTemplate
+      section={LIFE_NAV}
+      categoryLabel={meta.label}
+      categoryHref={`/life/${domain}`}
+      summary={meta.summary}
+      posts={paged.items}
+      page={paged.page}
+      totalPages={paged.totalPages}
+    />
   );
 }

@@ -3,9 +3,9 @@ import { cn } from "@/lib/utils/cn";
 
 const variantStyles = {
   primary:
-    "bg-[var(--color-accent)] text-[var(--color-accent-foreground)] hover:bg-[var(--color-accent-hover)]",
+    "bg-[var(--color-foreground)] text-[var(--color-background)] hover:opacity-80",
   secondary:
-    "bg-transparent text-[var(--color-foreground)] ring-1 ring-[var(--color-border)] hover:bg-[var(--color-surface-muted)]",
+    "bg-transparent text-[var(--color-foreground)] underline-offset-[6px] hover:underline",
   ghost:
     "bg-transparent text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
 } as const;
@@ -47,7 +47,7 @@ function buttonClassName(
   className?: string,
 ) {
   return cn(
-    "inline-flex items-center justify-center gap-2 rounded-md font-medium tracking-tight transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)] disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-sm font-medium tracking-tight transition-[opacity,color,text-decoration] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-foreground)]/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)] disabled:pointer-events-none disabled:opacity-50",
     variantStyles[variant],
     sizeStyles[size],
     className,

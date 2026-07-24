@@ -1,7 +1,7 @@
 # Roadmap
 
-전체 방향성 · Phase · **할 일 순서**는 여기로 모았습니다.
+→ **[`docs/DIRECTION.md`](docs/DIRECTION.md)** (완료 현황 · NEXT TODO · Phase)
 
-→ **[`docs/DIRECTION.md`](docs/DIRECTION.md)**
+### 지금 한 줄
 
-이 파일은 짧은 입구만 남깁니다.
+**타입별 세부 게시글 템플릿(Content Architecture + Detail Template)** 이 다음 작업이다.

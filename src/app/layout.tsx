@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Noto_Sans_KR, Sora } from "next/font/google";
+import { Noto_Sans_KR, Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 
-const sora = Sora({
+const notoSerifKr = Noto_Serif_KR({
   variable: "--font-display",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
 const notoSansKr = Noto_Sans_KR({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -21,11 +22,11 @@ export const metadata: Metadata = {
     template: "%s · Choi Space",
   },
   description:
-    "최지웅의 개인 공간 Choi Space. 금융 시스템 엔지니어로서의 경험과 가치관을 소개합니다.",
+    "소개는 한 페이지지만, 기록은 한 사람을 보여줍니다. 최지웅의 개인 아카이브 Choi Space.",
   openGraph: {
     title: "Choi Space · 최지웅",
     description:
-      "문제를 구조로 바라보는 금융 시스템 엔지니어, 최지웅을 소개합니다.",
+      "소개는 한 페이지지만, 기록은 한 사람을 보여줍니다.",
     type: "website",
     locale: "ko_KR",
     siteName: "Choi Space",
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: "Choi Space · 최지웅",
     description:
-      "문제를 구조로 바라보는 금융 시스템 엔지니어, 최지웅을 소개합니다.",
+      "소개는 한 페이지지만, 기록은 한 사람을 보여줍니다.",
   },
 };
 
@@ -46,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${sora.variable} ${notoSansKr.variable} h-full antialiased`}
+      className={`${notoSerifKr.variable} ${notoSansKr.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">{children}</body>
     </html>

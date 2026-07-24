@@ -3,21 +3,20 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils/cn";
+import type { NavSection } from "@/content/nav";
 
-export const LIFE_SUBNAV = [
-  { href: "/life/reading", label: "Reading" },
-  { href: "/life/running", label: "Running" },
-  { href: "/life/culture", label: "Culture" },
-  { href: "/life/food", label: "Food" },
-  { href: "/life/cafe", label: "Cafe" },
-  { href: "/life/travel", label: "Travel" },
-] as const;
-
-type LifeNavMenuProps = {
+type NavDropdownProps = {
+  section: NavSection;
+  /** 드롭다운이 화면 오른쪽 밖으로 안 나가게 */
+  align?: "left" | "right";
   className?: string;
 };
 
-export function LifeNavMenu({ className }: LifeNavMenuProps) {
+export function NavDropdown({
+  section,
+  align = "right",
+  className,
+}: NavDropdownProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLLIElement>(null);
   const menuId = useId();
@@ -53,7 +52,7 @@ export function LifeNavMenu({ className }: LifeNavMenuProps) {
       <button
         type="button"
         className={cn(
-          "inline-flex h-9 items-center gap-1.5 text-sm whitespace-nowrap",
+          "inline-flex h-8 items-center gap-1 text-[0.8125rem] tracking-wide whitespace-nowrap",
           "text-[var(--color-muted)] transition-colors",
           open
             ? "text-[var(--color-foreground)]"
@@ -64,7 +63,7 @@ export function LifeNavMenu({ className }: LifeNavMenuProps) {
         aria-controls={menuId}
         onClick={() => setOpen((value) => !value)}
       >
-        Life
+        {section.label}
         <svg
           aria-hidden
           viewBox="0 0 12 12"
@@ -88,21 +87,23 @@ export function LifeNavMenu({ className }: LifeNavMenuProps) {
         <div
           id={menuId}
           role="menu"
-          className="absolute top-full right-0 z-50 pt-1"
+          className={cn(
+            "absolute top-full z-50 pt-1",
+            align === "right" ? "right-0" : "left-0",
+          )}
         >
           <ul
             className={cn(
-              "min-w-[11rem] overflow-hidden rounded-lg py-1.5",
+              "min-w-[11rem] overflow-hidden py-2",
               "border border-[var(--color-border)]",
               "bg-[var(--color-background)]",
-              "shadow-[0_8px_24px_rgba(20,23,28,0.08)]",
             )}
           >
             <li role="none">
               <Link
                 role="menuitem"
-                href="/#life"
-                className="block px-3.5 py-2 text-sm text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-surface)]"
+                href={section.overviewHref}
+                className="block px-3.5 py-2 text-[0.8125rem] text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-surface)]"
                 onClick={() => setOpen(false)}
               >
                 Overview
@@ -112,7 +113,7 @@ export function LifeNavMenu({ className }: LifeNavMenuProps) {
               role="separator"
               className="my-1.5 border-t border-[var(--color-border)]/70"
             />
-            {LIFE_SUBNAV.map((item) => (
+            {section.items.map((item) => (
               <li key={item.href} role="none">
                 <Link
                   role="menuitem"

@@ -21,7 +21,7 @@ export function AboutSection({ profile, source }: AboutSectionProps) {
           About
         </p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--color-foreground)] sm:text-4xl">
-          저는 이런 사람입니다
+          조금 더 자세히
         </h2>
       </FadeIn>
 

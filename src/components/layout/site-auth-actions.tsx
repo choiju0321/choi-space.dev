@@ -16,7 +16,7 @@ export function SiteAuthActions({ authenticated }: SiteAuthActionsProps) {
     return (
       <Link
         href="/write"
-        className="inline-flex h-9 items-center text-sm font-medium text-[var(--color-accent)] transition-opacity hover:opacity-70"
+        className="inline-flex h-8 items-center text-[0.8125rem] tracking-wide text-[var(--color-muted)] transition-colors hover:text-[var(--color-foreground)]"
       >
         Login
       </Link>
@@ -35,7 +35,7 @@ export function SiteAuthActions({ authenticated }: SiteAuthActionsProps) {
       type="button"
       onClick={onLogout}
       disabled={pending}
-      className="inline-flex h-9 items-center text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-foreground)] disabled:opacity-60"
+      className="inline-flex h-8 items-center text-[0.8125rem] tracking-wide text-[var(--color-muted)] transition-colors hover:text-[var(--color-foreground)] disabled:opacity-60"
     >
       {pending ? "…" : "Logout"}
     </button>

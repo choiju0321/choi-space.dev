@@ -1,45 +1,34 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Container } from "@/components/ui/container";
-import { RunningArchiveExplorer } from "@/features/running/running-archive-explorer";
-import { getRunningListItems } from "@/lib/content/get-running";
+import { CategoryPageTemplate } from "@/features/content/category-page-template";
+import { LIFE_NAV } from "@/content/nav";
+import {
+  getRunningPostsAsList,
+  paginateArchivePosts,
+} from "@/lib/content/archive-as-posts";
 
 export const metadata: Metadata = {
-  title: "Running",
-  description: "마라톤 대회와 일상 러닝 기록을 모읍니다.",
+  title: "Running · Life",
+  description: "마라톤과 러닝 기록.",
 };
 
-export default function RunningArchivePage() {
-  const items = getRunningListItems();
+type PageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
+
+export default async function RunningArchivePage({ searchParams }: PageProps) {
+  const { page: pageParam } = await searchParams;
+  const page = Number(pageParam ?? "1") || 1;
+  const paged = paginateArchivePosts(getRunningPostsAsList(), page);
 
   return (
-    <div className="pb-24 pt-10 sm:pt-14">
-      <Container className="max-w-3xl">
-        <p className="text-sm text-[var(--color-muted)]">
-          <Link href="/#life" className="transition-opacity hover:opacity-70">
-            Life
-          </Link>
-          <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-          Running
-        </p>
-
-        <header className="mt-6">
-          <p className="text-sm font-medium tracking-[0.14em] text-[var(--color-accent)] uppercase">
-            Running
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--color-foreground)] sm:text-4xl">
-            러닝 기록
-          </h1>
-          <p className="mt-4 max-w-2xl text-base text-[var(--color-muted)]">
-            대회 완주와 일상 러닝을 모아 둡니다. 기록지·후기는 상세에서 하나씩
-            채울 수 있습니다.
-          </p>
-        </header>
-
-        <div className="mt-10">
-          <RunningArchiveExplorer items={items} />
-        </div>
-      </Container>
-    </div>
+    <CategoryPageTemplate
+      section={LIFE_NAV}
+      categoryLabel="Running"
+      categoryHref="/life/running"
+      summary="대회 완주와 일상 러닝을 기록합니다."
+      posts={paged.items}
+      page={paged.page}
+      totalPages={paged.totalPages}
+    />
   );
 }

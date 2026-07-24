@@ -17,7 +17,7 @@ export function SiteShell({
     <div className="flex min-h-full flex-1 flex-col">
       <SiteHeader brandName={profile.brandName} authenticated={authenticated} />
       <main className="flex-1">{children}</main>
-      <SiteFooter brandName={profile.brandName} name={profile.name} />
+      <SiteFooter brandName={profile.brandName} />
     </div>
   );
 }

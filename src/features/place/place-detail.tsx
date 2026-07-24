@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { FadeIn } from "@/components/ui/fade-in";
+import { ArchiveDetailHeader } from "@/features/content/archive-detail-header";
+import { ReadingProgress } from "@/features/content/reading-progress";
 import type { PlaceDomain, PlaceEntry } from "@/types/place";
 
 type PlaceDetailProps = {
@@ -21,79 +24,98 @@ export function PlaceDetail({
   hasReview,
   reviewBody,
 }: PlaceDetailProps) {
+  const cover = photos[0] ?? null;
+  const gallery = cover ? photos.slice(1) : photos;
+
   return (
-    <article className="pb-24 pt-10 sm:pt-14">
-      <Container className="max-w-3xl">
-        <p className="text-sm text-[var(--color-muted)]">
-          <Link
-            href={`/life/${domain}`}
-            className="transition-opacity hover:opacity-70"
+    <>
+      <ReadingProgress />
+      <article data-reading-root className="pb-28 pt-10 sm:pt-14">
+        <Container className="max-w-3xl">
+          <div
+            className={
+              cover
+                ? "grid grid-cols-1 gap-8 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-start sm:gap-10"
+                : undefined
+            }
           >
-            {domainLabel}
-          </Link>
-          <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-          {entry.title}
-        </p>
+            {cover ? (
+              <FadeIn>
+                <div className="relative mx-auto aspect-[4/3] w-full max-w-xs overflow-hidden bg-[var(--color-surface-muted)] sm:mx-0 sm:max-w-none">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={cover}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </FadeIn>
+            ) : null}
 
-        <header className="mt-6 border-b border-[var(--color-border)] pb-8">
-          <p className="text-sm font-medium tracking-[0.14em] text-[var(--color-accent)] uppercase">
-            {domainLabel}
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[var(--color-foreground)] sm:text-4xl">
-            {entry.title}
-          </h1>
-          <p className="mt-3 text-base text-[var(--color-muted)]">{entry.place}</p>
-          <p className="mt-2 text-sm tabular-nums text-[var(--color-muted-soft)]">
-            {displayDate}
-          </p>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
-            {entry.excerpt}
-          </p>
-        </header>
+            <ArchiveDetailHeader
+              categoryLabel={domainLabel}
+              categoryHref={`/life/${domain}`}
+              title={entry.title}
+              supporting={entry.place}
+              excerpt={entry.excerpt}
+              publishedOn={entry.visitedOn}
+              displayDate={displayDate}
+            />
+          </div>
 
-        {photos.length > 0 ? (
-          <section className="mt-10">
-            <h2 className="text-lg font-semibold tracking-tight text-[var(--color-foreground)]">
-              사진
-            </h2>
-            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {photos.map((src) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={src}
-                  src={src}
-                  alt=""
-                  className="aspect-[4/3] w-full rounded-sm object-cover ring-1 ring-[var(--color-border)]"
-                />
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <section className="mt-10">
-          <h2 className="text-lg font-semibold tracking-tight text-[var(--color-foreground)]">
-            후기
-          </h2>
-          {hasReview && reviewBody ? (
-            <div className="mt-4 space-y-4 text-sm leading-7 text-[var(--color-muted)] sm:text-base">
-              {reviewBody
-                .replace(/\r\n/g, "\n")
-                .split(/\n{2,}/)
-                .map((part) => part.trim())
-                .filter(Boolean)
-                .map((paragraph, index) => (
-                  <p key={index} className="whitespace-pre-wrap">
-                    {paragraph}
-                  </p>
+          {gallery.length > 0 ? (
+            <FadeIn delayMs={80} className="mt-14">
+              <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
+                Photos
+              </p>
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {gallery.map((src) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={src}
+                    src={src}
+                    alt=""
+                    className="aspect-[4/3] w-full object-cover"
+                  />
                 ))}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm leading-7 text-[var(--color-muted-soft)]">
-              후기는 아직 없습니다. `/write`에서 남길 수 있어요.
+              </div>
+            </FadeIn>
+          ) : null}
+
+          <FadeIn delayMs={100} className="mt-14">
+            <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
+              Review
             </p>
-          )}
-        </section>
-      </Container>
-    </article>
+            {hasReview && reviewBody ? (
+              <div className="mt-6 max-w-[var(--measure)] space-y-6 text-[1.05rem] leading-8 text-[var(--color-muted)] sm:text-lg sm:leading-9">
+                {reviewBody
+                  .replace(/\r\n/g, "\n")
+                  .split(/\n{2,}/)
+                  .map((part) => part.trim())
+                  .filter(Boolean)
+                  .map((paragraph, index) => (
+                    <p key={index} className="whitespace-pre-wrap">
+                      {paragraph}
+                    </p>
+                  ))}
+              </div>
+            ) : (
+              <p className="mt-6 text-sm text-[var(--color-muted-soft)]">
+                후기는 아직 없습니다.
+              </p>
+            )}
+          </FadeIn>
+
+          <p className="mt-16 text-sm text-[var(--color-muted-soft)]">
+            <Link
+              href={`/life/${domain}`}
+              className="transition-opacity hover:opacity-70"
+            >
+              ← {domainLabel}
+            </Link>
+          </p>
+        </Container>
+      </article>
+    </>
   );
 }

@@ -1,47 +1,37 @@
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { FadeIn } from "@/components/ui/fade-in";
-import type { Profile } from "@/types/content";
-
-type HeroSectionProps = {
-  profile: Pick<Profile, "brandName" | "siteHeadline" | "siteSummary">;
-};
+import { homeContent } from "@/content/home";
 
 /**
- * 첫 화면은 한 덩어리: 브랜드 · 공간 소개 · About / 기록 보기 CTA
+ * 첫 화면: 브랜드가 주인공.
+ * 버튼 두 개짜리 랜딩 템플릿을 쓰지 않는다.
  */
-export function HeroSection({ profile }: HeroSectionProps) {
+export function HeroSection() {
+  const { hero } = homeContent;
+
   return (
-    <section className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,var(--color-glow),transparent_60%),linear-gradient(180deg,var(--color-background)_0%,var(--color-surface)_100%)]"
-      />
-      <Container className="flex min-h-[min(100svh,900px)] flex-col justify-center py-28 sm:py-36">
+    <section className="relative flex min-h-[100svh] flex-col justify-end pb-16 pt-28 sm:pb-20 sm:pt-32">
+      <Container>
         <FadeIn>
-          <p className="font-[family-name:var(--font-display)] text-sm font-medium tracking-[0.18em] text-[var(--color-accent)] uppercase">
-            {profile.brandName}
-          </p>
-        </FadeIn>
-        <FadeIn delayMs={80}>
-          <h1 className="mt-6 max-w-3xl font-[family-name:var(--font-display)] text-4xl leading-[1.15] font-semibold tracking-tight text-[var(--color-foreground)] sm:text-5xl lg:text-6xl lg:leading-[1.1]">
-            {profile.siteHeadline}
+          <h1 className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,8vw,5.5rem)] leading-[1.05] font-semibold tracking-[-0.03em] text-[var(--color-foreground)]">
+            {hero.brand}
           </h1>
         </FadeIn>
-        <FadeIn delayMs={160}>
-          <p className="mt-6 max-w-2xl text-base leading-7 text-[var(--color-muted)] sm:text-lg sm:leading-8">
-            {profile.siteSummary}
+        <FadeIn delayMs={120}>
+          <p className="mt-8 max-w-[22rem] text-[1.05rem] leading-8 text-[var(--color-muted)] sm:max-w-md sm:text-lg sm:leading-9">
+            {hero.line}
           </p>
         </FadeIn>
-        <FadeIn delayMs={240}>
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Button href="#about" size="lg">
-              About
-            </Button>
-            <Button href="#life" variant="secondary" size="lg">
-              Life
-            </Button>
-          </div>
+        <FadeIn delayMs={220}>
+          <a
+            href={hero.continueHref}
+            className="mt-12 inline-flex items-center gap-2 text-sm tracking-wide text-[var(--color-foreground)] underline-offset-[6px] transition-opacity hover:opacity-55"
+          >
+            {hero.continueLabel}
+            <span aria-hidden className="translate-y-px text-[0.7rem]">
+              ↓
+            </span>
+          </a>
         </FadeIn>
       </Container>
     </section>

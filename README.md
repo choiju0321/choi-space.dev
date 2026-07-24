@@ -3,7 +3,8 @@
 최지웅의 **기록 운영** 공간. 일반에게는 Life 블로그, 관리자에게는 일·커리어·서류·금융·기타 축이 열린다.
 
 저장소: [github.com/choiju0321/choi-space.dev](https://github.com/choiju0321/choi-space.dev)  
-방향성 · 로드맵 · 할 일: [`docs/DIRECTION.md`](docs/DIRECTION.md)
+방향성 · 로드맵 · 할 일: [`docs/DIRECTION.md`](docs/DIRECTION.md)  
+디자인 헌법: [`docs/design/`](docs/design/README.md)
 
 ## Stack
 
@@ -31,11 +32,10 @@ npm run dev
 
 | 상태 | 헤더 메뉴 |
 |------|-----------|
-| **일반** | Home · About · Life ▾ · Growth · Notes · Contact · Login |
+| **일반** | Home · About · Life ▾ · Growth ▾ · Notes ▾ · Contact · Login |
 | **관리자** | (위) + Work · Career · Documents · Finance · Records · Write · Logout |
 
-Life 하위: Overview · Reading · Running · Culture · Food · Cafe · Travel  
-공개 콘텐츠 축: **Life**(경험) · **Growth**(성장) · **Notes**(정보글). 자세한 IA·할 일 순서는 [`docs/DIRECTION.md`](docs/DIRECTION.md).
+Phase 1 메뉴 트리·할 일: [`docs/DIRECTION.md`](docs/DIRECTION.md) · 설정 [`src/content/nav.ts`](src/content/nav.ts)
 
 - `/write`·플랫폼·`/health`는 같은 세션 쿠키.
 - 원본 PDF는 `private/` + gitignore.

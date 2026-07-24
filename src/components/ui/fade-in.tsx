@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils/cn";
 
 type FadeInProps = {
@@ -9,6 +9,7 @@ type FadeInProps = {
   delayMs?: number;
 };
 
+/** Motion은 존재감이 없어야 함 — opacity만, 짧게 */
 export function FadeIn({ children, className, delayMs = 0 }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -19,6 +20,13 @@ export function FadeIn({ children, className, delayMs = 0 }: FadeInProps) {
 
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (media.matches) {
+      setVisible(true);
+      return;
+    }
+
+    const rect = node.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+      setVisible(true);
       return;
     }
 
@@ -29,7 +37,7 @@ export function FadeIn({ children, className, delayMs = 0 }: FadeInProps) {
           observer.disconnect();
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      { threshold: 0.08, rootMargin: "0px 0px -6% 0px" },
     );
 
     observer.observe(node);
@@ -40,8 +48,8 @@ export function FadeIn({ children, className, delayMs = 0 }: FadeInProps) {
     <div
       ref={ref}
       className={cn(
-        "transition-[opacity,transform] duration-700 ease-out motion-reduce:translate-y-0 motion-reduce:opacity-100 motion-reduce:transition-none",
-        visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0",
+        "transition-opacity duration-500 ease-out motion-reduce:opacity-100 motion-reduce:transition-none",
+        visible ? "opacity-100" : "opacity-0",
         className,
       )}
       style={{ transitionDelay: visible ? `${delayMs}ms` : "0ms" }}

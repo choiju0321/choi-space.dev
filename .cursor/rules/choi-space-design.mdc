@@ -1,0 +1,17 @@
+---
+description: Choi Space design constitution — evolve, don't redesign
+alwaysApply: true
+---
+
+# Choi Space Design
+
+Before adding or restyling any UI page/component:
+
+1. Read `docs/design/README.md` and the relevant docs in `docs/design/` (brand, system, type, layout, components, motion, writing, pages).
+2. **Never redesign** Choi Space. **Evolve** the existing language so every page feels like the same designer.
+3. Source of truth for values: `src/app/globals.css`, `src/app/layout.tsx`, `src/content/home.ts`, `src/content/nav.ts`.
+4. Prefer typography + whitespace over cards, shadows, gradients, pill clusters, and loud motion.
+5. Home is a brand landing (Hero → Manifesto → About → Archive index), not a content feed.
+6. Slogan (immutable): 소개는 한 페이지지만, / 기록은 한 사람을 보여줍니다.
+7. If a section looks like a generic AI/portfolio template, redesign it to match the system before shipping.
+8. Self-review the nine scores in `docs/design/08-page-guidelines.md`; fix anything under 90 before done.
