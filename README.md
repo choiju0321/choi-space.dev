@@ -1,62 +1,125 @@
 # Choi Space
 
-Personal web home for Choi — starting as a calm introduction page, designed to grow into a private digital platform over time.
+최지웅의 개인 웹 공간. 공개 소개 홈과 Life 아카이브, Career 서류, 비공개 Health·Write 도구로 구성됩니다.
+
+저장소: [github.com/choiju0321/choi-space.dev](https://github.com/choiju0321/choi-space.dev)
 
 ## Stack
 
-- Next.js (App Router)
-- React + TypeScript
-- Tailwind CSS
+- Next.js 16 (App Router) · React 19 · TypeScript
+- Tailwind CSS 4
+- 콘텐츠는 파일 기반 (`src/content`, JSON/TS/MDX). DB는 아직 없음
 
-## Scripts
+## 시작하기
 
 ```bash
-npm run dev    # local development
-npm run build  # production build
-npm run start  # serve production build
-npm run lint   # ESLint
+npm install
+cp .env.example .env.local   # LIFE_WRITE_SECRET 설정
+npm run dev
 ```
 
-## Project structure
+| URL | 설명 |
+|-----|------|
+| `/` | 공개 홈 (About / Career / Life / Work / Contact) |
+| `/life/reading` · `/running` · `/culture` · `/food` · `/cafe` · `/travel` | Life 도메인 아카이브 |
+| `/write` | 기록 작성 스튜디오 (비밀번호) |
+| `/health` | 건강검진 아카이브 (비밀번호, 공개 홈 비노출) |
+
+## 공개 vs 비공개
+
+| 구분 | 라우트 그룹 | 접근 |
+|------|-------------|------|
+| 공개 | `src/app/(public)/` | 누구나 |
+| 플랫폼 | `src/app/(platform)/` | `LIFE_WRITE_SECRET` 세션 |
+
+- `/write`와 `/health`는 같은 세션 쿠키를 씁니다.
+- 원본 PDF·증명서는 `private/`에 두고 gitignore합니다. 메타·요약만 저장소에 올립니다.
+
+## 구현된 기능 요약
+
+### 홈 · Career
+
+- Hero / About / Career / Life / Featured work / Contact
+- Career: 학력·자격·수상·경력 + **병역** (육군 기갑 · 전차조종수)
+- 서류는 `private/documents/` + `/api/documents/...` (학력 PDF, 병역증명서 등)
+
+### Life
+
+| 도메인 | 내용 |
+|--------|------|
+| **Reading** | 트레바리/개인 독서, 클럽·놀러가기·개인 필터, 독후감·발제 PDF |
+| **Running** | 대회/일상, 기록지 PDF 슬롯 |
+| **Culture** | 뮤지컬 관람 (포도알 기반), 포스터·캐스트·좌석 |
+| **Food / Cafe / Travel** | 장소 아카이브 + 후기·사진 |
+
+개인 아카이브 루트는 `D:\개인`을 기준으로 sync 스크립트가 맞춥니다.
+
+### Write (`/write`)
+
+- 카테고리: 독서 · 러닝 · 문화 · 맛집 · 카페 · 여행
+- 후기(md) · 사진 · 일부 도메인은 신규 엔트리 JSON 추가
+- API: `/api/write`, `/api/write/login|logout|session`
+
+### Health (`/health`) — 비공개
+
+- 연도별 KMI 검진 메타 (`src/content/health/checkups.json`)
+- 목록 · 상세 · 이상소견(`findings`) · 참고용 요약(`aiSummary`)
+- PDF 사본: `private/health/checkups/` (`npm run sync:health`)
+- PDF 비밀번호는 저장하지 않음 (`passwordHint`만)
+- **AI 자동 해석 버튼은 아직 비활성** (나중에 연결 예정). 현재 소견은 PDF를 보고 시드해 둔 상태
+
+## 콘텐츠 수정 위치
+
+UI가 아니라 content 파일을 고칩니다. 상세는 [`src/content/README.md`](src/content/README.md).
+
+| 무엇 | 어디 |
+|------|------|
+| 프로필 · 연락처 | `src/content/profile.ts` |
+| Career · 병역 · 서류 매핑 | `src/content/career.ts`, `document-forms.ts` |
+| Reading | `src/content/reading/` |
+| Running | `src/content/running/` |
+| Culture | `src/content/culture/entries.json` |
+| Food / Cafe / Travel | `src/content/{food,cafe,travel}/entries.json` |
+| Health | `src/content/health/checkups.json` |
+| About 본문 | `src/content/mdx/about.mdx` |
+| 프로필·포스터 이미지 | `public/images/` |
+
+## private / sync
 
 ```text
-src/
-  app/
-    (public)/     # Public marketing / introduction surface
-    (platform)/   # Reserved for future private platform (no routes yet)
-  components/
-    ui/           # Reusable primitives (Button, Container, Section, …)
-    layout/       # Site shell (header, footer)
-  features/
-    home/         # Landing page sections
-  content/        # Typed content + MDX prose
-  lib/
-    content/      # Content repositories (swap to DB/API later without rewriting UI)
-  types/          # Shared domain types
+private/
+  documents/              # Career 서류 PDF (gitignore)
+  reading/presentations/  # 발제 PDF
+  running/certificates/   # 대회 기록지
+  health/checkups/        # 검진 PDF 사본
 ```
 
-### Design principles
+```bash
+npx tsx scripts/sync-reading-from-archive.ts   # 독후감·발제
+npm run sync:health                              # 건강검진 PDF
+```
 
-- Pages assemble features; features receive data from repositories.
-- UI does not import content files directly.
-- Public vs platform route groups keep future auth boundaries clear.
+## 스크립트
 
-## Editing content (Phase 1)
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run sync:health
+```
 
-프로필·문구·사진은 UI 코드가 아니라 content 파일에서 수정합니다. 자세한 안내는 [`src/content/README.md`](src/content/README.md)를 보세요.
+## 설계 원칙
 
-| What | Where |
-|------|--------|
-| 이름, 소개, 이메일, 사진 경로 | [`src/content/profile.ts`](src/content/profile.ts) |
-| 연혁 (학력·자격·수상) | [`src/content/career.ts`](src/content/career.ts) |
-| 대표 경험 / 프로젝트 | [`src/content/projects.ts`](src/content/projects.ts) |
-| About 본문 | [`src/content/mdx/about.mdx`](src/content/mdx/about.mdx) |
-| 프로필 사진 파일 | [`public/images/profile/portrait.jpg`](public/images/profile/portrait.jpg) |
+- Pages → features → `lib/content` 저장소. UI가 content 파일을 직접 import하지 않음
+- 공개 마케팅과 비공개 플랫폼 라우트 그룹을 분리
+- 건강·병역 등 민감 원본은 공개 홈에 올리지 않음
 
-## Roadmap (not in this phase)
+## 다음으로 (미구현)
 
-- Authentication
+- Health 「이 검진 해석」 자동 파이프라인 (스캔 PDF·암호 PDF 처리 포함)
+- 인증을 세션 비밀번호 이상으로 확장
 - PostgreSQL + Prisma
-- Private dashboard modules (career, blog, files, AI, …)
+- 공개 홈에 Health 노출하지 않음 (의도적)
 
-Keep `(platform)` empty until those land — do not mix public marketing into that group.
+Keep sensitive PDFs and `.env.local` out of git.
