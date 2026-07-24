@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# private career documents (keep README, ignore PDFs)
+/private/documents/**/*.pdf
+/private/documents/**/*.PDF
+/private/reading/presentations/**/*.pdf
+/private/reading/presentations/**/*.PDF
+/private/running/certificates/**/*.pdf
+/private/running/certificates/**/*.PDF
+/private/health/checkups/**/*.pdf
+/private/health/checkups/**/*.PDF
+/private/health/_extract/

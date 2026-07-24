@@ -1,0 +1,484 @@
+{
+  "checkups": [
+    {
+      "id": "2019-07-15-kmi",
+      "slug": "2019-07-15-kmi",
+      "checkedOn": "2019-07-15",
+      "provider": "KMI",
+      "place": "수원센터",
+      "packageName": "건강검진",
+      "documents": [
+        {
+          "id": "2019-07-15-kmi-result",
+          "kind": "result",
+          "fileName": "20190715_건강검진결과_KMI(수원센터).pdf",
+          "sourcePath": "04_Personal/04. Health/1. 건강검진/2019/20190715_건강검진결과_KMI(수원센터).pdf",
+          "privateFileName": "2019-07-15-kmi-result.pdf"
+        }
+      ],
+      "panels": ["안저", "체성분", "복부초음파", "위내시경", "대장내시경", "지질", "간염"],
+      "findings": [
+        {
+          "id": "2019-retinal-hemorrhage",
+          "name": "좌안 망막점상출혈반 의심",
+          "flag": "followup",
+          "panel": "안저",
+          "note": "이전 미관찰 소견. 3개월 후 추적검사 권고"
+        },
+        {
+          "id": "2019-abdominal-obesity",
+          "name": "복부비만",
+          "flag": "abnormal",
+          "panel": "체성분",
+          "note": "허리둘레 증가 — 만성질환 위험 상승"
+        },
+        {
+          "id": "2019-obesity",
+          "name": "비만 (근육량·체지방률 증가)",
+          "flag": "abnormal",
+          "panel": "체성분",
+          "note": "식사·유산소/근력 운동으로 관리"
+        },
+        {
+          "id": "2019-pancreas-us-limited",
+          "name": "복부초음파 췌장 평가 제한",
+          "flag": "followup",
+          "panel": "복부초음파",
+          "note": "장내가스·비만으로 췌장체부·미부 관찰 제한. CT 등 재평가 권고"
+        },
+        {
+          "id": "2019-gastritis",
+          "name": "위염",
+          "flag": "followup",
+          "panel": "위내시경",
+          "note": "1년 후 위내시경 권고"
+        },
+        {
+          "id": "2019-colon-normal",
+          "name": "전대장내시경 특이소견 없음",
+          "flag": "normal",
+          "panel": "대장내시경",
+          "note": "3–5년 후 재검 권고"
+        },
+        {
+          "id": "2019-triglyceride",
+          "name": "중성지방 경계",
+          "flag": "followup",
+          "panel": "지질",
+          "note": "2–3개월 후 추적검사 권고"
+        },
+        {
+          "id": "2019-hbsab",
+          "name": "HBsAb 약양성",
+          "flag": "followup",
+          "panel": "간염",
+          "note": "면역 역가 낮음 또는 위양성 가능. 필요시 접종·전문의 상담"
+        }
+      ],
+      "aiSummary": "2019년 KMI 수원 검진에서는 좌안 망막점상출혈반 의심(단기 추적), 비만·복부비만, 위염, 중성지방 경계, HBsAb 약양성이 주요 관리 포인트로 정리됩니다. 대장내시경은 정상이었고, 복부초음파는 췌장 관찰이 제한되어 필요 시 추가 영상 평가가 언급되었습니다. 이 요약은 PDF 종합소견을 참고용으로 정리한 것이며 의료 자문이 아닙니다."
+    },
+    {
+      "id": "2021-07-03-kmi",
+      "slug": "2021-07-03-kmi",
+      "checkedOn": "2021-07-03",
+      "provider": "KMI",
+      "place": "수원센터",
+      "packageName": "건강검진",
+      "passwordHint": "생년월일 6자리",
+      "documents": [
+        {
+          "id": "2021-07-03-kmi-result",
+          "kind": "result",
+          "fileName": "20210703_건강검진결과_KMI(수원센터)_PW(910321).pdf",
+          "sourcePath": "04_Personal/04. Health/1. 건강검진/2021/20210703_건강검진결과_KMI(수원센터)_PW(910321).pdf",
+          "privateFileName": "2021-07-03-kmi-result.pdf"
+        }
+      ],
+      "panels": ["갑상선초음파", "위내시경", "체성분", "심전도", "혈액", "지질", "당뇨", "간염"],
+      "findings": [
+        {
+          "id": "2021-thyroid-cyst",
+          "name": "갑상선 낭종",
+          "flag": "followup",
+          "panel": "갑상선초음파",
+          "note": "양성 병변으로 기술. 매년 추적관찰 권고 (C12)"
+        },
+        {
+          "id": "2021-gastritis",
+          "name": "만성 표재성 위염",
+          "flag": "followup",
+          "panel": "위내시경",
+          "note": "생활습관 관리 · C12"
+        },
+        {
+          "id": "2021-obesity",
+          "name": "비만 (근육량·체지방률 증가)",
+          "flag": "abnormal",
+          "panel": "체성분",
+          "note": "BMI 경과관찰 C12"
+        },
+        {
+          "id": "2021-bradycardia",
+          "name": "동성서맥 (sinus bradycardia)",
+          "flag": "followup",
+          "panel": "심전도",
+          "note": "증상 없으면 임상적 의의 제한적 · C12"
+        },
+        {
+          "id": "2021-anemia",
+          "name": "빈혈 (혈색소 저하)",
+          "flag": "abnormal",
+          "panel": "혈액",
+          "note": "원인 진단·치료 상담 권고 (E)"
+        },
+        {
+          "id": "2021-ifg",
+          "name": "공복혈당장애",
+          "flag": "followup",
+          "panel": "당뇨",
+          "note": "정상보다 다소 높음. 3개월 후 재검 (C3)"
+        },
+        {
+          "id": "2021-abdominal-obesity",
+          "name": "복부비만",
+          "flag": "abnormal",
+          "panel": "체성분"
+        },
+        {
+          "id": "2021-hbsab",
+          "name": "HBsAb 약양성",
+          "flag": "followup",
+          "panel": "간염",
+          "note": "간기능·간염 C6"
+        },
+        {
+          "id": "2021-ldl-note",
+          "name": "LDL-콜레스테롤",
+          "flag": "normal",
+          "panel": "지질",
+          "note": "당시 수치로는 임상적 의의 크지 않다고 기술"
+        }
+      ],
+      "aiSummary": "2021년 수원 검진의 사후관리에서 두드러진 항목은 빈혈(E), 공복혈당장애(C3), 비만·복부비만, 갑상선 낭종·위염·동성서맥의 경과관찰입니다. HBsAb 약양성은 이전과 같이 면역/접종 확인이 권고되었습니다. 종합소견상 그 외 대부분 항목은 특이 이상으로 묶이지 않았습니다. 참고용 정리이며 진단·처방 대체가 아닙니다."
+    },
+    {
+      "id": "2023-11-27-kmi",
+      "slug": "2023-11-27-kmi",
+      "checkedOn": "2023-11-27",
+      "provider": "KMI",
+      "place": "강남센터",
+      "packageName": "건강검진",
+      "passwordHint": "생년월일 6자리",
+      "documents": [
+        {
+          "id": "2023-11-27-kmi-result",
+          "kind": "result",
+          "fileName": "20231127_건강검진결과_KMI(강남센터)_PW(910321).pdf",
+          "sourcePath": "04_Personal/04. Health/1. 건강검진/2023/20231127_건강검진결과_KMI(강남센터)_PW(910321).pdf",
+          "privateFileName": "2023-11-27-kmi-result.pdf"
+        }
+      ],
+      "panels": ["흉부X선", "위내시경", "대장내시경", "체성분", "혈액", "지질", "췌장", "간염"],
+      "findings": [
+        {
+          "id": "2023-chest-xray",
+          "name": "흉부 X-선 특이소견 없음",
+          "flag": "normal",
+          "panel": "흉부X선"
+        },
+        {
+          "id": "2023-gastritis",
+          "name": "만성 표재성 위염",
+          "flag": "followup",
+          "panel": "위내시경"
+        },
+        {
+          "id": "2023-colon-prep",
+          "name": "대장내시경 — 일부 관찰 제한",
+          "flag": "followup",
+          "panel": "대장내시경",
+          "note": "장정결 부족으로 맹장·일부 관찰 어려움. 관찰부위 특이소견 없음. 2년 이내 재검 권고 (C24)"
+        },
+        {
+          "id": "2023-obesity",
+          "name": "비만 (근육량·체지방률 증가)",
+          "flag": "abnormal",
+          "panel": "체성분",
+          "note": "BMI C12"
+        },
+        {
+          "id": "2023-ferritin",
+          "name": "훼리틴 저하",
+          "flag": "abnormal",
+          "panel": "혈액",
+          "note": "철결핍 진행 전 가능. 전문의 상담·추적 (E)"
+        },
+        {
+          "id": "2023-hav",
+          "name": "A형간염 항체 양성",
+          "flag": "normal",
+          "panel": "간염",
+          "note": "면역항체로 추정. 증상·간기능 이상 시 확인"
+        },
+        {
+          "id": "2023-ldl",
+          "name": "LDL-콜레스테롤 상승",
+          "value": "149",
+          "unit": "mg/dL",
+          "flag": "abnormal",
+          "panel": "지질",
+          "note": "참고치 상한 초과. 위험인자·전문의 상담 (E)"
+        },
+        {
+          "id": "2023-triglyceride",
+          "name": "중성지방 경계",
+          "value": "165",
+          "unit": "mg/dL",
+          "flag": "followup",
+          "panel": "지질",
+          "note": "2–3개월 후 추적"
+        },
+        {
+          "id": "2023-amylase",
+          "name": "혈청 아밀라제 상승",
+          "flag": "abnormal",
+          "panel": "췌장",
+          "note": "추가·추적 검사 권고 (E)"
+        },
+        {
+          "id": "2023-hbsab",
+          "name": "HBsAb 약양성",
+          "flag": "followup",
+          "panel": "간염",
+          "note": "C6"
+        }
+      ],
+      "aiSummary": "2023년 강남 검진에서는 LDL 상승·훼리틴 저하·아밀라제 상승 등 E(상담·정밀) 항목과, 비만·중성지방 경계·위염·대장 재검(장정결 이슈)이 함께 눈에 띕니다. 흉부 X-선은 특이소견 없음으로 기록되었습니다. 지질·철분·췌장 관련은 생활습관과 함께 전문의 확인이 권고된 상태입니다. PDF 종합소견 기반 참고 요약이며 의료 자문이 아닙니다."
+    },
+    {
+      "id": "2025-02-07-kmi",
+      "slug": "2025-02-07-kmi",
+      "checkedOn": "2025-02-07",
+      "provider": "KMI",
+      "place": "강남센터",
+      "packageName": "건강검진",
+      "passwordHint": "생년월일 6자리",
+      "documents": [
+        {
+          "id": "2025-02-07-kmi-result",
+          "kind": "result",
+          "fileName": "20250207_건강검진결과_KMI(강남센터)_PW(910321).pdf",
+          "sourcePath": "04_Personal/04. Health/1. 건강검진/2025/20250207_건강검진결과_KMI(강남센터)_PW(910321).pdf",
+          "privateFileName": "2025-02-07-kmi-result.pdf"
+        },
+        {
+          "id": "2025-02-07-kmi-extra",
+          "kind": "extra",
+          "fileName": "20250207_별도검진결과_KMI(강남센터)_PW(910321).pdf.pdf",
+          "sourcePath": "04_Personal/04. Health/1. 건강검진/2025/20250207_별도검진결과_KMI(강남센터)_PW(910321).pdf.pdf",
+          "privateFileName": "2025-02-07-kmi-extra.pdf"
+        }
+      ],
+      "panels": ["계측", "지질", "당뇨", "생활습관", "뇌심혈관위험"],
+      "findings": [
+        {
+          "id": "2025-bmi",
+          "name": "과체중·비만 구간 (BMI)",
+          "value": "25.8",
+          "unit": "kg/㎡",
+          "flag": "abnormal",
+          "panel": "계측",
+          "note": "168.8cm / 73.5kg. 공단 통보서: 비만관리 권고"
+        },
+        {
+          "id": "2025-waist",
+          "name": "허리둘레",
+          "value": "79.5",
+          "unit": "cm",
+          "flag": "normal",
+          "panel": "계측",
+          "note": "복부비만 기준(남 90) 미만"
+        },
+        {
+          "id": "2025-bp",
+          "name": "혈압",
+          "value": "101/60",
+          "unit": "mmHg",
+          "flag": "normal",
+          "panel": "계측"
+        },
+        {
+          "id": "2025-glucose",
+          "name": "공복혈당",
+          "value": "87",
+          "unit": "mg/dL",
+          "flag": "normal",
+          "panel": "당뇨"
+        },
+        {
+          "id": "2025-ldl",
+          "name": "LDL-콜레스테롤",
+          "value": "148",
+          "unit": "mg/dL",
+          "flag": "abnormal",
+          "panel": "지질",
+          "note": "총콜레스테롤 225. 이상지질 관련 생활습관 개선·1년 이내 재평가"
+        },
+        {
+          "id": "2025-tg",
+          "name": "중성지방",
+          "value": "85",
+          "unit": "mg/dL",
+          "flag": "normal",
+          "panel": "지질"
+        },
+        {
+          "id": "2025-hdl",
+          "name": "HDL-콜레스테롤",
+          "value": "60",
+          "unit": "mg/dL",
+          "flag": "normal",
+          "panel": "지질"
+        },
+        {
+          "id": "2025-drinking",
+          "name": "고위험 음주",
+          "flag": "abnormal",
+          "panel": "생활습관",
+          "note": "절주 또는 금주 권고"
+        },
+        {
+          "id": "2025-cv-risk",
+          "name": "뇌심혈관질환 발병위험",
+          "flag": "normal",
+          "panel": "뇌심혈관위험",
+          "note": "1-저위험군 (10년 위험 약 0.6%)"
+        },
+        {
+          "id": "2025-suspect",
+          "name": "고혈압·당뇨·이상지질 질환의심",
+          "flag": "normal",
+          "panel": "종합",
+          "note": "공단 통보서상 의심·유질환 해당 없음. 판정은 정상 A / 정상 B(경계) 표기"
+        }
+      ],
+      "aiSummary": "2025-02-07 건은 KMI 상세결과 PDF가 스캔본이라 텍스트 추출이 거의 되지 않았고, 별도(공단·부가) 결과통보서 기준으로 정리했습니다. 혈압·공복혈당은 정상에 가깝고, BMI 25.8·LDL 148·고위험 음주가 관리 포인트입니다. 뇌심혈관 위험은 저위험군으로 기록되었습니다. 상세 내시경·초음파 소견은 원본 결과 PDF를 직접 확인해야 합니다. 참고용이며 의료 자문이 아닙니다."
+    },
+    {
+      "id": "2026-02-06-kmi",
+      "slug": "2026-02-06-kmi",
+      "checkedOn": "2026-02-06",
+      "provider": "KMI",
+      "place": "강남센터",
+      "packageName": "건강검진",
+      "passwordHint": "생년월일 6자리",
+      "documents": [
+        {
+          "id": "2026-02-06-kmi-result",
+          "kind": "result",
+          "fileName": "20250206_건강검진결과_KMI(강남센터)_PW(910321).pdf.pdf",
+          "sourcePath": "04_Personal/04. Health/1. 건강검진/2026/20250206_건강검진결과_KMI(강남센터)_PW(910321).pdf.pdf",
+          "privateFileName": "2026-02-06-kmi-result.pdf"
+        },
+        {
+          "id": "2026-02-06-kmi-extra",
+          "kind": "extra",
+          "fileName": "20250206_별도검진결과_KMI(강남센터)_PW(910321).pdf.pdf",
+          "sourcePath": "04_Personal/04. Health/1. 건강검진/2026/20250206_별도검진결과_KMI(강남센터)_PW(910321).pdf.pdf",
+          "privateFileName": "2026-02-06-kmi-extra.pdf"
+        }
+      ],
+      "panels": ["계측", "지질", "당뇨", "생활습관", "뇌심혈관위험", "베타아밀로이드"],
+      "findings": [
+        {
+          "id": "2026-bmi",
+          "name": "과체중·비만 구간 (BMI)",
+          "value": "27.6",
+          "unit": "kg/㎡",
+          "flag": "abnormal",
+          "panel": "계측",
+          "note": "168.9cm / 78.6kg. 비만관리 권고"
+        },
+        {
+          "id": "2026-waist",
+          "name": "허리둘레",
+          "value": "80.0",
+          "unit": "cm",
+          "flag": "normal",
+          "panel": "계측"
+        },
+        {
+          "id": "2026-bp",
+          "name": "혈압",
+          "value": "115/67",
+          "unit": "mmHg",
+          "flag": "normal",
+          "panel": "계측"
+        },
+        {
+          "id": "2026-glucose",
+          "name": "공복혈당",
+          "value": "92",
+          "unit": "mg/dL",
+          "flag": "normal",
+          "panel": "당뇨"
+        },
+        {
+          "id": "2026-ldl",
+          "name": "LDL-콜레스테롤",
+          "value": "157",
+          "unit": "mg/dL",
+          "flag": "abnormal",
+          "panel": "지질",
+          "note": "총콜레스테롤 234. 생활습관 개선·1년 이내 재평가"
+        },
+        {
+          "id": "2026-tg",
+          "name": "중성지방",
+          "value": "104",
+          "unit": "mg/dL",
+          "flag": "normal",
+          "panel": "지질"
+        },
+        {
+          "id": "2026-hdl",
+          "name": "HDL-콜레스테롤",
+          "value": "56",
+          "unit": "mg/dL",
+          "flag": "normal",
+          "panel": "지질"
+        },
+        {
+          "id": "2026-drinking",
+          "name": "고위험 음주",
+          "flag": "abnormal",
+          "panel": "생활습관",
+          "note": "절주 또는 금주 권고"
+        },
+        {
+          "id": "2026-cv-risk",
+          "name": "뇌심혈관질환 발병위험",
+          "flag": "normal",
+          "panel": "뇌심혈관위험",
+          "note": "1-저위험군 (10년 위험 약 0.7%)"
+        },
+        {
+          "id": "2026-amyloid",
+          "name": "베타 아밀로이드 응집",
+          "value": "0.57",
+          "flag": "normal",
+          "panel": "베타아밀로이드",
+          "note": "낮음으로 기술. 확진 검사 아님"
+        },
+        {
+          "id": "2026-suspect",
+          "name": "고혈압·당뇨·이상지질 질환의심",
+          "flag": "normal",
+          "panel": "종합",
+          "note": "의심·유질환 해당 없음 (공단 통보서)"
+        }
+      ],
+      "aiSummary": "아카이브 파일명은 20250206이지만 PDF 본문 검진일은 2026-02-06입니다. 상세결과 PDF는 스캔본이라 텍스트가 거의 없고, 별도 결과·공단 통보서 기준으로 정리했습니다. BMI 27.6·LDL 157·고위험 음주가 전년 대비 더 두드러지고, 혈압·공복혈당·베타아밀로이드(낮음)는 비교적 양호하게 기록되었습니다. KMI 상세 종합소견(내시경 등)은 원본 PDF 확인이 필요합니다. 참고용이며 의료 자문이 아닙니다."
+    }
+  ]
+}

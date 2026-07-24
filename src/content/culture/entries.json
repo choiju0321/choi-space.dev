@@ -1,0 +1,232 @@
+[
+  {
+    "id": "seopyeonje-2026-06-10",
+    "slug": "2026-06-10-seopyeonje",
+    "title": "서편제",
+    "watchedOn": "2026-06-10",
+    "watchedAt": "19:30",
+    "place": "광림아트센터 BBCH홀",
+    "seat": "1층 H열 19번",
+    "cast": [
+      "이자람",
+      "유현석",
+      "박호산",
+      "채태인"
+    ],
+    "excerpt": "광림아트센터에서 본 서편제.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2026-06-10-seopyeonje.jpg"
+  },
+  {
+    "id": "lempicka-2026-04-21",
+    "slug": "2026-04-21-lempicka",
+    "title": "렘피카",
+    "watchedOn": "2026-04-21",
+    "watchedAt": "19:30",
+    "place": "코엑스아티움",
+    "cast": [
+      "김선영",
+      "김현숙",
+      "김혜미",
+      "손승연"
+    ],
+    "excerpt": "렘피카 두 번째 관람.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2026-04-21-lempicka.jpg"
+  },
+  {
+    "id": "lempicka-2026-04-16",
+    "slug": "2026-04-16-lempicka",
+    "title": "렘피카",
+    "watchedOn": "2026-04-16",
+    "watchedAt": "19:30",
+    "place": "코엑스 신한카드 아티움",
+    "seat": "1층 B구역 15열 3번",
+    "cast": [
+      "김우형",
+      "김호영",
+      "윤사봉",
+      "정선아"
+    ],
+    "excerpt": "렘피카 첫 관람.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2026-04-16-lempicka.jpg"
+  },
+  {
+    "id": "rent-2026-02-19",
+    "slug": "2026-02-19-rent",
+    "title": "렌트",
+    "watchedOn": "2026-02-19",
+    "watchedAt": "19:30",
+    "place": "코엑스 신한카드 아티움",
+    "seat": "1층 B구역 13열 11번",
+    "cast": [
+      "유태양",
+      "진태화",
+      "김수하",
+      "조권"
+    ],
+    "excerpt": "코엑스아티움에서 본 렌트.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2026-02-19-rent.jpg"
+  },
+  {
+    "id": "kinky-boots-2026-01-18",
+    "slug": "2026-01-18-kinky-boots",
+    "title": "킹키부츠",
+    "watchedOn": "2026-01-18",
+    "watchedAt": "19:00",
+    "place": "샤롯데씨어터",
+    "seat": "1층 A구역 11열 12번",
+    "cast": [
+      "김호영",
+      "백형훈",
+      "한재아",
+      "심재현"
+    ],
+    "excerpt": "샤롯데씨어터에서 본 킹키부츠.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2026-01-18-kinky-boots.jpg"
+  },
+  {
+    "id": "jekyll-and-hyde-2025-03-16",
+    "slug": "2025-03-16-jekyll-and-hyde",
+    "title": "지킬앤하이드",
+    "watchedOn": "2025-03-16",
+    "watchedAt": "14:00",
+    "place": "블루스퀘어 신한카드홀",
+    "cast": [
+      "신성록",
+      "아이비",
+      "손지수",
+      "김봉환"
+    ],
+    "excerpt": "블루스퀘어에서 본 지킬앤하이드.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2025-03-16-jekyll-and-hyde.jpg"
+  },
+  {
+    "id": "les-miserables-2024-01-21",
+    "slug": "2024-01-21-les-miserables",
+    "title": "레미제라블",
+    "watchedOn": "2024-01-21",
+    "watchedAt": "19:00",
+    "place": "블루스퀘어 신한카드홀",
+    "cast": [
+      "민우혁",
+      "카이",
+      "조정은",
+      "육현욱"
+    ],
+    "excerpt": "블루스퀘어에서 본 레미제라블.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2024-01-21-les-miserables.jpg"
+  },
+  {
+    "id": "death-note-2023-04-11",
+    "slug": "2023-04-11-death-note",
+    "title": "데스노트",
+    "watchedOn": "2023-04-11",
+    "watchedAt": "19:30",
+    "place": "샤롯데씨어터",
+    "cast": [
+      "고은성",
+      "김성철",
+      "이영미",
+      "서경수"
+    ],
+    "excerpt": "샤롯데씨어터에서 본 데스노트.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2023-04-11-death-note.jpg"
+  },
+  {
+    "id": "lion-king-2022-03-12",
+    "slug": "2022-03-12-lion-king",
+    "title": "라이온 킹",
+    "watchedOn": "2022-03-12",
+    "watchedAt": "15:00",
+    "place": "예술의전당 오페라극장",
+    "excerpt": "예술의전당에서 본 라이온 킹.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2022-03-12-lion-king.jpg"
+  },
+  {
+    "id": "chicago-2021-04-18",
+    "slug": "2021-04-18-chicago",
+    "title": "시카고",
+    "watchedOn": "2021-04-18",
+    "watchedAt": "18:30",
+    "place": "디큐브 링크아트센터",
+    "cast": [
+      "윤공주",
+      "아이비",
+      "최재림",
+      "김영주"
+    ],
+    "excerpt": "디큐브에서 본 시카고.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2021-04-18-chicago.jpg"
+  },
+  {
+    "id": "rebecca-2020-03-15",
+    "slug": "2020-03-15-rebecca",
+    "title": "레베카",
+    "watchedOn": "2020-03-15",
+    "watchedAt": "15:00",
+    "place": "충무아트센터 대극장",
+    "seat": "1층",
+    "cast": [
+      "엄기준",
+      "옥주현",
+      "이지혜",
+      "최민철"
+    ],
+    "excerpt": "충무아트센터에서 본 레베카.",
+    "kind": "musical",
+    "tags": [
+      "뮤지컬"
+    ],
+    "source": "podoal",
+    "posterImage": "/images/culture/2020-03-15-rebecca.jpg"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "travel-busan-2026",
+    "slug": "busan-2026-04",
+    "title": "부산",
+    "place": "부산",
+    "visitedOn": "2026-04-10",
+    "visitedUntil": "2026-04-12",
+    "excerpt": "계획 노트를 바탕으로, 다녀온 이야기를 채워 갈 자리.",
+    "tags": [
+      "여행"
+    ]
+  },
+  {
+    "id": "travel-danyang-2024",
+    "slug": "danyang-2024-10",
+    "title": "충북 단양",
+    "place": "단양",
+    "visitedOn": "2024-10-12",
+    "visitedUntil": "2024-10-13",
+    "excerpt": "짧은 여행의 장면들을 남길 자리.",
+    "tags": [
+      "여행"
+    ]
+  },
+  {
+    "id": "travel-gonjiam-2024",
+    "slug": "gonjiam-2024-09",
+    "title": "곤지암",
+    "place": "곤지암",
+    "visitedOn": "2024-09-18",
+    "excerpt": "하루 여행의 기록을 남겨 두세요.",
+    "tags": [
+      "여행"
+    ]
+  }
+]
