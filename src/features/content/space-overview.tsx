@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Container } from "@/components/ui/container";
 import { FadeIn } from "@/components/ui/fade-in";
+import { ContentBreadcrumb } from "@/features/content/content-breadcrumb";
 import { EmptyState } from "@/features/content/empty-state";
 import { PostCard, PostCardList } from "@/features/content/post-card";
 import type { NavSection } from "@/content/nav";
@@ -64,13 +65,12 @@ function SpaceOverviewClient({
     <div className="pb-24 pt-10 sm:pt-14">
       <Container className="max-w-3xl">
         <FadeIn>
-          <p className="text-sm text-[var(--color-muted)]">
-            <Link href="/" className="transition-opacity hover:opacity-70">
-              Home
-            </Link>
-            <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-            {section.label}
-          </p>
+          <ContentBreadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: section.label },
+            ]}
+          />
           <p className="mt-6 text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
             {section.label}
           </p>

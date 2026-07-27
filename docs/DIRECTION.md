@@ -14,7 +14,7 @@
 |-----------|------|
 | **일반** | Home 브랜드 + Life / Growth / Notes 기록 |
 | **이직/채용** | (예정) 공고별 Career 공개 패키지 |
-| **관리자(나)** | 전부 + Write · 서류 · Finance · Records |
+| **관리자(나)** | Story(공개 합침) · Work · Career · Finance · Personal |
 
 ---
 
@@ -63,9 +63,9 @@ Home · About · Life · Growth · Notes · Contact
 | Category Page Template | ✅ | Daily와 동일 패턴 |
 | Post Card · Tag · Pagination · Empty | ✅ | `src/features/content/` |
 | Reading Progress · TOC · Share · Related | ✅ | 저널형 Post Detail |
-| Life 아카이브 → Content System 어댑터 | ✅ | Reading · Running · Culture · Food · Travel (+ Cafe) |
+| Life 아카이브 → Content System 어댑터 | ✅ | Reading · Running · Culture · Food · Travel |
 | Culture 포스터 / Place 커버 | ✅ | 목록·상세 옆 이미지 |
-| 발제문·기록지 Attachment UI | ✅ | `archive-file-attachment.tsx` |
+| 발제문·기록지 Attachment UI | ✅ | 인라인 크롬 (`attachment-chrome` · `archive-file-attachment`) |
 | Growth / Notes 카테고리 허브 | ✅ | Empty State (본인 글 대기) |
 | 샘플 시드 글 | ✅ 삭제 | `posts.ts`는 빈 배열 — 본인 글만 추가 |
 
@@ -85,8 +85,8 @@ Home · About · Life · Growth · Notes · Contact
 |------|------|
 | Write 세션 · Login | ✅ |
 | Health 시드 · 목록 | ✅ (AI 해석은 자리만) |
-| Work / Documents / Finance 허브 | placeholder |
-| Career 일부 | 있음 |
+| Work / Documents / Finance 허브 | Work Write ✅ · Career Write ✅ · Finance 골격(Dashboard·Transactions·Life Events·Investments·Insurance·Real Estate) ✅ · Documents ✅ |
+| Career 일부 | 홈 연혁 ✅ · Basics/Applications/Masters JSON 원장 ✅ |
 
 ---
 
@@ -100,77 +100,50 @@ Home · About · Life · Growth · Notes · Contact
 
 ### 5.1 Content Architecture ⭐⭐⭐⭐⭐ (다음 1순위)
 
-공통 Post 스키마를 **제품 수준으로** 확정한다.
-
-```text
-Post
-- title, slug, description / excerpt
-- coverImage, ogImage
-- space (life|growth|notes), category, contentType
-- tags, series?
-- author, publishedOn, updatedOn?
-- readingTime?
-- body (blocks)
-- related / prev·next
-- seo (title, description, canonical)
-```
-
-- [ ] `src/types/post.ts` 확장 + 문서화 (`docs/design/09` 또는 `10-content-architecture.md`)
-- [ ] Life 도메인(Reading 등) ↔ 공통 Post 필드 **매핑 표**
-- [ ] Growth / Notes는 이 스키마만으로 작성
+- [x] 공통 Post 스키마 문서 (`docs/design/10-content-architecture.md`)
+- [x] `src/types/post.ts` — `ContentType` · SEO · cover 필드
+- [x] Life 도메인 ↔ Post 매핑 표 (문서)
+- [x] Reading / Culture **비주얼 lock** 명시
+- [ ] Growth / Notes 실글은 이 스키마만으로 작성 (글 작성 시) — 가이드·Write 준비됨
 
 ### 5.2 Content Types + 타입별 상세 템플릿 ⭐⭐⭐⭐⭐ (다음 핵심)
 
-**공통 셸은 하나** (Progress · Breadcrumb · TOC · Body · Share · Related).  
-**타입별 슬롯**만 다르다 (표지·메타·첨부·갤러리).
-
-| Space | Type | 상세에서 보여줄 것 (설계 대상) | 상태 |
-|-------|------|-------------------------------|------|
-| Life | Book Review (Reading) | 책 메타 · 발제문 PDF · 독후감 | 🟡 크롬 있음 → 템플릿 문서화·블록 정리 |
-| Life | Running Log | 거리·기록·기록지 PDF · 사진 · 후기 | 🟡 동일 |
-| Life | Culture | 포스터 · 좌석·캐스팅 · 사진 · 후기 | 🟡 동일 |
-| Life | Food / Travel | 장소 · 커버 · 갤러리 · 후기 | 🟡 동일 |
-| Life | Daily | 짧은 저널 · (선택) 사진 | ⬜ 템플릿 확정 후 작성 |
-| Growth | Development / AI / … | Hero · 본문 · Quote · Code · Callout | ⬜ |
-| Notes | Guide / Tips / … | 정보형 본문 · Checklist? · Reference | ⬜ |
-
-할 일:
-
-- [ ] **타입별 Detail Template 스펙** 작성 (와이어가 아니라 디자인 언어 + 필드 목록)
-  - Hero / Cover / Meta row / Attachment / Gallery / Review body / Prev·Next
-- [ ] 본문 블록 컴포넌트: Quote · Code · Callout · Gallery (필요분만, 디자인 시스템 확장)
-- [ ] Reading 하나를 **레퍼런스 상세**로 완성 (템플릿의 정본)
-- [ ] 같은 셸로 Running · Culture · Food 정렬
-- [ ] Daily / Growth / Notes 빈 템플릿 + 작성 가이드
+- [x] 타입별 Detail Template 스펙 (`docs/design/11-detail-templates.md`)
+- [x] Reading · Culture = **lock 정본** (레이아웃 유지)
+- [x] Running = Reading DetailSection 셸 정렬 (Title/Photos/Review/Date/Attachment)
+- [x] Food = 맛집·카페 통합, Photos + Location(네이버/캐치테이블), Cafe 라우트 제거
+- [x] Travel = Culture 커버 셸 + Photos/Review + Attachment(여행 계획서 xlsx)
+- [x] Daily / Growth / Notes 작성 가이드 + Write 플로우 (`docs/design/13-journal-writing.md`)
+- [ ] Quote · Code · Callout — Growth 실글 필요 시만
 
 ### 5.3 Component Library 정리 ⭐⭐⭐⭐
 
 이미 있는 것과 부족한 것을 목록화한다. **새로 만들기 전에 재사용.**
 
-- [ ] `docs/design/05-components.md`에 Content System 컴포넌트 현황 표 갱신
-- [ ] Breadcrumb 공통화 (중복 제거)
+- [x] `docs/design/05-components.md`에 Content System 컴포넌트 현황 표 갱신
+- [x] Breadcrumb 공통화 (`content-breadcrumb.tsx`)
 - [ ] Gallery · Quote · Callout · Code Block (상세 템플릿에 필요할 때만)
 - [ ] Loading State (텍스트/얇은 pulse만)
 
 ### 5.4 Search (설계만 → 이후 구현) ⭐⭐⭐⭐
 
-- [ ] Search / Tag / Category / Series 요구사항 초안
+- [x] Search / Tag / Category / Series 요구사항 초안 (`docs/design/14-search.md`)
 - [ ] 구현은 콘텐츠가 쌓인 뒤
 
 ### 5.5 SEO ⭐⭐⭐⭐
 
-- [ ] Sitemap · Robots · RSS
-- [ ] OG / Twitter Card · Structured Data · Canonical
+- [x] Sitemap · Robots · RSS (`/sitemap.xml` · `/robots.txt` · `/feed.xml`)
+- [x] OG / Twitter Card · Structured Data · Canonical (`metadataBase` · `buildPublicMetadata`)
 
 ### 5.6 About · Contact 독립 페이지 ⭐⭐⭐⭐
 
-- [ ] `/about` — Story · Timeline · Values · FAQ 등 (Home Modal과 역할 분리)
-- [ ] `/contact` — Email · Github · LinkedIn
+- [x] `/about` — Story · Timeline · Values · FAQ 등 (Home Modal과 역할 분리)
+- [x] `/contact` — Email · Github · LinkedIn
 
 ### 5.7 Write · Documents (운영)
 
-- [ ] Write에 Growth / Notes / Daily 작성 플로우
-- [ ] Documents 서류 금고
+- [x] Write에 Growth / Notes / Daily 작성 플로우
+- [x] Documents 서류 금고 (`/documents` · `document-vault.ts`)
 
 ---
 
@@ -198,6 +171,9 @@ Post
 
 ## 8. 바로 다음 한 줄
 
-> **Content Architecture 확정 → 타입별 Post Detail 템플릿 디자인·스키마 → Reading을 정본으로 구현 → 나머지 Life/Growth/Notes에 동일 셸 적용.**
+> Reading / Culture는 **lock** (첨부 크롬만 사이트 공통).  
+> Work · Career Write 운영 가능. Finance = Dashboard · Transactions · Life Events · Investments · Insurance · Real Estate(당첨 후 WBS).
+> 다음은 실글 · 또는 Real Estate 청약 보드·AI 분류.
+> Transactions: [`docs/finance/ledger-guide.md`](./finance/ledger-guide.md) · Investments: 월 1회 스냅샷 · Insurance: 의료 자동목록 · Real Estate: [`docs/finance/property-guide.md`](./finance/property-guide.md).
 
 관련: [`README.md`](../README.md) · [`docs/design/09-content-system.md`](./design/09-content-system.md)

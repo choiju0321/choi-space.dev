@@ -6,19 +6,13 @@ import {
   getPlacePostsAsList,
   paginateArchivePosts,
 } from "@/lib/content/archive-as-posts";
+import { buildWriteHref } from "@/lib/write/href";
 import type { PlaceDomain } from "@/types/place";
 
-const DOMAIN_META: Record<
-  PlaceDomain,
-  { label: string; summary: string }
-> = {
+const DOMAIN_META: Record<PlaceDomain, { label: string; summary: string }> = {
   food: {
     label: "Food",
-    summary: "식사와 맛집의 기록을 남깁니다.",
-  },
-  cafe: {
-    label: "Cafe",
-    summary: "카페와 공간의 기록을 남깁니다.",
+    summary: "맛집과 카페를 사진·위치와 함께 남깁니다.",
   },
   travel: {
     label: "Travel",
@@ -32,12 +26,12 @@ type PageProps = {
 };
 
 function asDomain(value: string): PlaceDomain | null {
-  if (value === "food" || value === "cafe" || value === "travel") return value;
+  if (value === "food" || value === "travel") return value;
   return null;
 }
 
 export function generateStaticParams() {
-  return [{ domain: "food" }, { domain: "cafe" }, { domain: "travel" }];
+  return [{ domain: "food" }, { domain: "travel" }];
 }
 
 export async function generateMetadata({
@@ -74,6 +68,7 @@ export default async function PlaceArchivePage({
       posts={paged.items}
       page={paged.page}
       totalPages={paged.totalPages}
+      writeHref={buildWriteHref({ category: domain })}
     />
   );
 }

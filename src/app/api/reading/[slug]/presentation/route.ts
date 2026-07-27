@@ -1,11 +1,14 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { basename, dirname, join } from "node:path";
 import { NextResponse } from "next/server";
 import {
   getReadingEntryBySlug,
   getReadingPresentationPath,
+  getReadingPresentationWritePath,
   hasReadingPresentation,
-  READING_PRESENTATIONS_DIR,
 } from "@/lib/content/get-reading";
+import { buildReadingPresentationFileName } from "@/lib/media/naming";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -31,8 +34,12 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   try {
-    const bytes = await readFile(getReadingPresentationPath(slug));
-    const fileName = `${entry.title}-발제문.pdf`;
+    const filePath = getReadingPresentationPath(slug);
+    const bytes = await readFile(filePath);
+    const fileName =
+      basename(filePath) === "presentation.pdf"
+        ? buildReadingPresentationFileName(entry)
+        : basename(filePath);
 
     return new NextResponse(bytes, {
       headers: {
@@ -86,13 +93,20 @@ export async function PUT(request: Request, context: RouteContext) {
     );
   }
 
-  await mkdir(READING_PRESENTATIONS_DIR, { recursive: true });
+  const target = getReadingPresentationWritePath(slug);
+  await mkdir(dirname(target), { recursive: true });
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(getReadingPresentationPath(slug), buffer);
+  await writeFile(target, buffer);
+
+  const oldRole = join(dirname(target), "presentation.pdf");
+  if (oldRole !== target && existsSync(oldRole)) {
+    await unlink(oldRole);
+  }
 
   return NextResponse.json({
     ok: true,
     slug,
     title: entry.title,
+    path: `private/media/life/reading/${slug}/${basename(target)}`,
   });
 }

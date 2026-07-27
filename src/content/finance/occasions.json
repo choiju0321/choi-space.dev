@@ -1,0 +1,294 @@
+[
+  {
+    "id": "2027-01-31-신동민",
+    "slug": "2027-01-31-신동민",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2027-01-31",
+    "name": "신동민"
+  },
+  {
+    "id": "2026-11-29-장지민",
+    "slug": "2026-11-29-장지민",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2026-11-29",
+    "name": "장지민"
+  },
+  {
+    "id": "2026-04-25-안재훈",
+    "slug": "2026-04-25-안재훈",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2026-04-25",
+    "name": "안재훈",
+    "amount": 100000,
+    "invited": true
+  },
+  {
+    "id": "2026-03-04-차희성-빙모",
+    "slug": "2026-03-04-차희성-빙모",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "빙모",
+    "date": "2026-03-04",
+    "name": "차희성",
+    "amount": 50000
+  },
+  {
+    "id": "2026-02-02-이미심-부친",
+    "slug": "2026-02-02-이미심-부친",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "부친",
+    "date": "2026-02-02",
+    "name": "이미심",
+    "amount": 100000
+  },
+  {
+    "id": "2025-11-29-윤세주",
+    "slug": "2025-11-29-윤세주",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2025-11-29",
+    "name": "윤세주",
+    "amount": 100000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2025-11-23-이대희",
+    "slug": "2025-11-23-이대희",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2025-11-23",
+    "name": "이대희",
+    "amount": 100000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2025-04-30-변상훈",
+    "slug": "2025-04-30-변상훈",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2025-04-30",
+    "name": "변상훈",
+    "amount": 100000,
+    "invited": false,
+    "attended": false
+  },
+  {
+    "id": "2025-03-28-장서원-부친",
+    "slug": "2025-03-28-장서원-부친",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "부친",
+    "date": "2025-03-28",
+    "name": "장서원",
+    "amount": 100000
+  },
+  {
+    "id": "2025-03-17-이현아-조부",
+    "slug": "2025-03-17-이현아-조부",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "조부",
+    "date": "2025-03-17",
+    "name": "이현아",
+    "amount": 50000
+  },
+  {
+    "id": "2025-03-01-송인준",
+    "slug": "2025-03-01-송인준",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2025-03-01",
+    "name": "송인준",
+    "amount": 100000,
+    "invited": false,
+    "attended": true
+  },
+  {
+    "id": "2025-02-15-이완규",
+    "slug": "2025-02-15-이완규",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2025-02-15",
+    "name": "이완규",
+    "amount": 100000,
+    "invited": false,
+    "attended": true
+  },
+  {
+    "id": "2024-12-21-서상균",
+    "slug": "2024-12-21-서상균",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2024-12-21",
+    "name": "서상균",
+    "amount": 100000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2024-12-14-이연주",
+    "slug": "2024-12-14-이연주",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2024-12-14",
+    "name": "이연주",
+    "amount": 100000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2024-12-14-김대욱",
+    "slug": "2024-12-14-김대욱",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2024-12-14",
+    "name": "김대욱",
+    "amount": 50000,
+    "invited": false,
+    "attended": false
+  },
+  {
+    "id": "2024-12-07-정상락",
+    "slug": "2024-12-07-정상락",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2024-12-07",
+    "name": "정상락",
+    "amount": 150000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2024-10-25-최원석-빙모",
+    "slug": "2024-10-25-최원석-빙모",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "빙모",
+    "date": "2024-10-25",
+    "name": "최원석",
+    "amount": 100000
+  },
+  {
+    "id": "2024-06-28-최원석-부친",
+    "slug": "2024-06-28-최원석-부친",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "부친",
+    "date": "2024-06-28",
+    "name": "최원석",
+    "amount": 100000
+  },
+  {
+    "id": "2024-06-22-장우선",
+    "slug": "2024-06-22-장우선",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2024-06-22",
+    "name": "장우선",
+    "amount": 300000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2024-06-15-김일권",
+    "slug": "2024-06-15-김일권",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2024-06-15",
+    "name": "김일권",
+    "amount": 100000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2024-06-15-김지성",
+    "slug": "2024-06-15-김지성",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2024-06-15",
+    "name": "김지성",
+    "amount": 100000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2023-04-16-이현아",
+    "slug": "2023-04-16-이현아",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2023-04-16",
+    "name": "이현아",
+    "amount": 100000,
+    "invited": true,
+    "attended": true
+  },
+  {
+    "id": "2023-02-25-정승우-부친",
+    "slug": "2023-02-25-정승우-부친",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "부친",
+    "date": "2023-02-25",
+    "name": "정승우",
+    "amount": 50000
+  },
+  {
+    "id": "2023-02-15-장지환-부친",
+    "slug": "2023-02-15-장지환-부친",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "부친",
+    "date": "2023-02-15",
+    "name": "장지환",
+    "amount": 50000
+  },
+  {
+    "id": "2023-02-11-설춘경",
+    "slug": "2023-02-11-설춘경",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2023-02-11",
+    "name": "설춘경",
+    "amount": 50000,
+    "invited": false,
+    "attended": false
+  },
+  {
+    "id": "2023-01-07-이용석",
+    "slug": "2023-01-07-이용석",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2023-01-07",
+    "name": "이용석",
+    "amount": 50000,
+    "invited": false,
+    "attended": false
+  },
+  {
+    "id": "2022-12-10-이한솔",
+    "slug": "2022-12-10-이한솔",
+    "kind": "congratulatory",
+    "eventType": "결혼식",
+    "date": "2022-12-10",
+    "name": "이한솔",
+    "amount": 150000,
+    "invited": true,
+    "attended": false
+  },
+  {
+    "id": "undated-장지환-모친",
+    "slug": "undated-장지환-모친",
+    "kind": "condolence",
+    "eventType": "장례식",
+    "relation": "모친",
+    "dateUnknown": true,
+    "name": "장지환",
+    "amount": 100000
+  }
+]

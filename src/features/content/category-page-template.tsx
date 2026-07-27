@@ -1,12 +1,17 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { FadeIn } from "@/components/ui/fade-in";
+import {
+  AdminActionLink,
+  AdminContentToolbar,
+} from "@/features/content/admin-content-actions";
+import { ContentBreadcrumb } from "@/features/content/content-breadcrumb";
 import { EmptyState } from "@/features/content/empty-state";
 import { Pagination } from "@/features/content/pagination";
 import { PostCardList } from "@/features/content/post-card";
 import type { NavSection } from "@/content/nav";
 import type { PostListItem } from "@/types/post";
+import { hasWriteSession } from "@/lib/write/auth";
 
 type CategoryPageTemplateProps = {
   section: NavSection;
@@ -16,11 +21,12 @@ type CategoryPageTemplateProps = {
   posts: PostListItem[];
   page: number;
   totalPages: number;
-  /** Optional note under list (e.g. archive explorer link) */
+  /** 로그인 시 목록 위 Write */
+  writeHref?: string;
   aside?: ReactNode;
 };
 
-export function CategoryPageTemplate({
+export async function CategoryPageTemplate({
   section,
   categoryLabel,
   categoryHref,
@@ -28,26 +34,22 @@ export function CategoryPageTemplate({
   posts,
   page,
   totalPages,
+  writeHref,
   aside,
 }: CategoryPageTemplateProps) {
+  const showWrite = Boolean(writeHref) && (await hasWriteSession());
+
   return (
     <div className="pb-24 pt-10 sm:pt-14">
       <Container className="max-w-3xl">
         <FadeIn>
-          <p className="text-sm text-[var(--color-muted)]">
-            <Link href="/" className="transition-opacity hover:opacity-70">
-              Home
-            </Link>
-            <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-            <Link
-              href={section.overviewHref}
-              className="transition-opacity hover:opacity-70"
-            >
-              {section.label}
-            </Link>
-            <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-            {categoryLabel}
-          </p>
+          <ContentBreadcrumb
+            items={[
+              { label: "Home", href: "/" },
+              { label: section.label, href: section.overviewHref },
+              { label: categoryLabel },
+            ]}
+          />
           <p className="mt-6 text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
             {section.label}
           </p>
@@ -60,6 +62,12 @@ export function CategoryPageTemplate({
         </FadeIn>
 
         <div className="mt-12">
+          {showWrite && writeHref ? (
+            <AdminContentToolbar className="mb-0">
+              <AdminActionLink href={writeHref}>새 기록</AdminActionLink>
+            </AdminContentToolbar>
+          ) : null}
+
           {posts.length ? (
             <>
               <PostCardList posts={posts} />
@@ -70,7 +78,14 @@ export function CategoryPageTemplate({
               />
             </>
           ) : (
-            <EmptyState message="이 카테고리에는 아직 기록이 없습니다." />
+            <EmptyState
+              message="이 카테고리에는 아직 기록이 없습니다."
+              action={
+                showWrite && writeHref ? (
+                  <AdminActionLink href={writeHref}>새 기록</AdminActionLink>
+                ) : undefined
+              }
+            />
           )}
         </div>
 

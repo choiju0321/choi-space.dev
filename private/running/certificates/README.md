@@ -1,5 +1,5 @@
-# 기록지 PDF ({slug}.pdf)
+# 기록지 PDF (legacy)
 
-예: `2025-06-15-power-of-positive.pdf`
+**새 경로:** `private/media/life/running/{slug}/certificate.pdf`
 
-다운로드 API: `/api/running/{slug}/certificate`
+마이그레이션: `npx tsx scripts/migrate-media-to-ia.ts`

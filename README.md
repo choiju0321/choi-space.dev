@@ -55,7 +55,7 @@ Phase 1 메뉴 트리·할 일: [`docs/DIRECTION.md`](docs/DIRECTION.md) · 설�
 | **Reading** | 트레바리/개인 독서, 클럽·놀러가기·개인 필터, 독후감·발제 PDF |
 | **Running** | 대회/일상, 기록지 PDF 슬롯 |
 | **Culture** | 뮤지컬 관람 (포도알 기반), 포스터·캐스트·좌석 |
-| **Food / Cafe / Travel** | 장소 아카이브 + 후기·사진 |
+| **Food / Travel** | 맛집·카페 / 여행 아카이브 + 후기·사진 |
 
 개인 아카이브 루트는 `D:\개인`을 기준으로 sync 스크립트가 맞춥니다.
 
@@ -84,7 +84,7 @@ UI가 아니라 content 파일을 고칩니다. 상세는 [`src/content/README.m
 | Reading | `src/content/reading/` |
 | Running | `src/content/running/` |
 | Culture | `src/content/culture/entries.json` |
-| Food / Cafe / Travel | `src/content/{food,cafe,travel}/entries.json` |
+| Food / Travel | `src/content/{food,travel}/entries.json` |
 | Health | `src/content/health/checkups.json` |
 | About 본문 | `src/content/mdx/about.mdx` |
 | 프로필·포스터 이미지 | `public/images/` |

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
+import { ContentBreadcrumb } from "@/features/content/content-breadcrumb";
 import type { NavSection } from "@/content/nav";
 
 type ContentSectionHubProps = {
@@ -19,13 +20,12 @@ export function ContentSectionHub({
   return (
     <div className="pb-24 pt-10 sm:pt-14">
       <Container className="max-w-3xl">
-        <p className="text-sm text-[var(--color-muted)]">
-          <Link href="/" className="transition-opacity hover:opacity-70">
-            Home
-          </Link>
-          <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-          {section.label}
-        </p>
+        <ContentBreadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: section.label },
+          ]}
+        />
         <p className="mt-6 text-sm font-medium tracking-[0.14em] text-[var(--color-accent)] uppercase">
           {section.label}
         </p>
@@ -65,6 +65,7 @@ type ContentCategoryPageProps = {
   summary: string;
 };
 
+/** @deprecated Prefer CategoryPageTemplate — 레거시 허브용 */
 export function ContentCategoryPage({
   section,
   categoryLabel,
@@ -73,20 +74,13 @@ export function ContentCategoryPage({
   return (
     <div className="pb-24 pt-10 sm:pt-14">
       <Container className="max-w-3xl">
-        <p className="text-sm text-[var(--color-muted)]">
-          <Link href="/" className="transition-opacity hover:opacity-70">
-            Home
-          </Link>
-          <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-          <Link
-            href={section.overviewHref}
-            className="transition-opacity hover:opacity-70"
-          >
-            {section.label}
-          </Link>
-          <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-          {categoryLabel}
-        </p>
+        <ContentBreadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: section.label, href: section.overviewHref },
+            { label: categoryLabel },
+          ]}
+        />
         <p className="mt-6 text-sm font-medium tracking-[0.14em] text-[var(--color-accent)] uppercase">
           {section.label}
         </p>

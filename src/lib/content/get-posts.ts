@@ -1,9 +1,10 @@
 import {
   getCategoryLabel,
+  loadPosts,
   postHref,
-  posts as allPosts,
 } from "@/content/posts";
 import type { ContentSpace, Post, PostListItem, TocHeading } from "@/types/post";
+import { contentTypeForCategory } from "@/types/post";
 
 function formatDisplayDate(iso: string) {
   return iso.replaceAll("-", ".");
@@ -16,6 +17,8 @@ function toListItem(post: Post): PostListItem {
     space: post.space,
     category: post.category,
     categoryLabel: getCategoryLabel(post.space, post.category),
+    contentType:
+      post.contentType ?? contentTypeForCategory(post.space, post.category),
     title: post.title,
     excerpt: post.excerpt,
     publishedOn: post.publishedOn,
@@ -23,7 +26,8 @@ function toListItem(post: Post): PostListItem {
     tags: post.tags,
     featured: Boolean(post.featured),
     href: postHref(post),
-    coverImage: null,
+    coverImage: post.coverImage ?? null,
+    coverAspect: post.coverAspect,
   };
 }
 
@@ -36,7 +40,7 @@ export function getPosts(options?: {
   category?: string;
   tag?: string;
 }): PostListItem[] {
-  return allPosts
+  return loadPosts()
     .filter((post) => {
       if (options?.space && post.space !== options.space) return false;
       if (options?.category && post.category !== options.category) return false;
@@ -51,7 +55,7 @@ export function getFeaturedPosts(
   space?: ContentSpace,
   limit = 1,
 ): PostListItem[] {
-  return allPosts
+  return loadPosts()
     .filter((post) => post.featured && (!space || post.space === space))
     .sort(byNewest)
     .slice(0, limit)
@@ -70,11 +74,12 @@ export function getPostBySlug(
   category: string,
   slug: string,
 ): Post | undefined {
-  return allPosts.find(
+  const normalized = decodeURIComponent(slug);
+  return loadPosts().find(
     (post) =>
       post.space === space &&
       post.category === category &&
-      post.slug === slug,
+      post.slug === normalized,
   );
 }
 
@@ -86,7 +91,8 @@ export function getRelatedPosts(
   post: Post,
   limit = 3,
 ): PostListItem[] {
-  const sameCategory = allPosts
+  const all = loadPosts();
+  const sameCategory = all
     .filter(
       (entry) =>
         entry.id !== post.id &&
@@ -95,7 +101,7 @@ export function getRelatedPosts(
     )
     .sort(byNewest);
 
-  const sameSpace = allPosts
+  const sameSpace = all
     .filter(
       (entry) =>
         entry.id !== post.id &&
@@ -141,13 +147,16 @@ export function paginatePosts<T>(
 /** Markdown ## / ### → TOC (simple, no HTML) */
 export function extractToc(markdown: string): TocHeading[] {
   const headings: TocHeading[] = [];
-  const lines = markdown.split("\n");
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
 
   for (const line of lines) {
-    const match = /^(#{2,3})\s+(.+)$/.exec(line.trim());
+    const match =
+      /^(#{2,3})\s+(.+)$/.exec(line.trim()) ??
+      /^(#{2,3})([^\s#].*)$/.exec(line.trim());
     if (!match) continue;
     const level = match[1].length as 2 | 3;
     const text = match[2].replace(/\*\*/g, "").trim();
+    if (!text) continue;
     const id = slugifyHeading(text);
     headings.push({ id, text, level });
   }
@@ -178,8 +187,11 @@ export function parsePostBody(markdown: string): BodyBlock[] {
   const blocks: BodyBlock[] = [];
   const lines = markdown.replace(/\r\n/g, "\n").split("\n");
   let i = 0;
+  const guardLimit = Math.max(lines.length * 3, 32);
 
   while (i < lines.length) {
+    if (i > guardLimit) break;
+
     const line = lines[i] ?? "";
     const trimmed = line.trim();
 
@@ -188,16 +200,19 @@ export function parsePostBody(markdown: string): BodyBlock[] {
       continue;
     }
 
-    if (trimmed.startsWith("### ")) {
-      const text = trimmed.slice(4).replace(/\*\*/g, "").trim();
-      blocks.push({ type: "h3", id: slugifyHeading(text), text });
-      i += 1;
-      continue;
-    }
-
-    if (trimmed.startsWith("## ")) {
-      const text = trimmed.slice(3).replace(/\*\*/g, "").trim();
-      blocks.push({ type: "h2", id: slugifyHeading(text), text });
+    const heading =
+      /^(#{2,3})\s+(.+)$/.exec(trimmed) ??
+      /^(#{2,3})([^\s#].*)$/.exec(trimmed);
+    if (heading) {
+      const level = heading[1].length;
+      const text = heading[2].replace(/\*\*/g, "").trim();
+      if (text) {
+        blocks.push({
+          type: level === 3 ? "h3" : "h2",
+          id: slugifyHeading(text),
+          text,
+        });
+      }
       i += 1;
       continue;
     }
@@ -205,7 +220,9 @@ export function parsePostBody(markdown: string): BodyBlock[] {
     if (/^\d+\.\s+/.test(trimmed)) {
       const items: string[] = [];
       while (i < lines.length && /^\d+\.\s+/.test((lines[i] ?? "").trim())) {
-        items.push(inlineMarkdown((lines[i] ?? "").trim().replace(/^\d+\.\s+/, "")));
+        items.push(
+          inlineMarkdown((lines[i] ?? "").trim().replace(/^\d+\.\s+/, "")),
+        );
         i += 1;
       }
       blocks.push({ type: "ol", items });
@@ -227,7 +244,7 @@ export function parsePostBody(markdown: string): BodyBlock[] {
       const current = (lines[i] ?? "").trim();
       if (
         !current ||
-        current.startsWith("#") ||
+        /^#{1,6}\s*/.test(current) ||
         current.startsWith("- ") ||
         /^\d+\.\s+/.test(current)
       ) {
@@ -238,6 +255,9 @@ export function parsePostBody(markdown: string): BodyBlock[] {
     }
     if (paragraph.length) {
       blocks.push({ type: "p", html: inlineMarkdown(paragraph.join(" ")) });
+    } else {
+      blocks.push({ type: "p", html: inlineMarkdown(trimmed) });
+      i += 1;
     }
   }
 
@@ -253,7 +273,7 @@ function inlineMarkdown(text: string) {
 }
 
 export function getAllPostStaticParams() {
-  return allPosts.map((post) => ({
+  return loadPosts().map((post) => ({
     space: post.space,
     category: post.category,
     slug: post.slug,

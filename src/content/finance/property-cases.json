@@ -1,0 +1,624 @@
+[
+  {
+    "id": "doksan-lotte-castle",
+    "slug": "doksan-lotte-castle",
+    "title": "독산역 롯데캐슬",
+    "kind": "private-rental",
+    "status": "active",
+    "moveInAt": "2026-09-14",
+    "location": "독산역",
+    "note": "이사 프로젝트 · ①계약·예약~⑦마무리. 예산(비용관리)은 다음.",
+    "tasks": [
+      {
+        "id": "10-01-이사-날짜-확정",
+        "slug": "10-01-이사-날짜-확정",
+        "title": "이사 날짜 확정",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-30 ~ D-21",
+        "windowOrder": 10,
+        "sortOrder": 1
+      },
+      {
+        "id": "10-02-입주일-잔금일-확인",
+        "slug": "10-02-입주일-잔금일-확인",
+        "title": "입주일/잔금일 확인",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-30 ~ D-21",
+        "windowOrder": 10,
+        "sortOrder": 2
+      },
+      {
+        "id": "10-03-이사업체-견적-및-예약",
+        "slug": "10-03-이사업체-견적-및-예약",
+        "title": "이사업체 견적 및 예약",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-30 ~ D-21",
+        "windowOrder": 10,
+        "sortOrder": 3
+      },
+      {
+        "id": "10-04-입주청소-예약",
+        "slug": "10-04-입주청소-예약",
+        "title": "입주청소 예약",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-30 ~ D-21",
+        "windowOrder": 10,
+        "sortOrder": 4
+      },
+      {
+        "id": "10-05-에어컨-설치-일정-예약",
+        "slug": "10-05-에어컨-설치-일정-예약",
+        "title": "에어컨 설치 일정 예약",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-30 ~ D-21",
+        "windowOrder": 10,
+        "sortOrder": 5
+      },
+      {
+        "id": "10-06-인터넷-이전-신청",
+        "slug": "10-06-인터넷-이전-신청",
+        "title": "인터넷 이전 신청",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-30 ~ D-21",
+        "windowOrder": 10,
+        "sortOrder": 6
+      },
+      {
+        "id": "30-07-도시가스-이전-신청",
+        "slug": "30-07-도시가스-이전-신청",
+        "title": "도시가스 이전 신청",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-14 ~ D-7",
+        "windowOrder": 30,
+        "sortOrder": 7
+      },
+      {
+        "id": "40-08-관리사무소-이사-예약",
+        "slug": "40-08-관리사무소-이사-예약",
+        "title": "관리사무소 이사 예약",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-7 ~ D-3",
+        "windowOrder": 40,
+        "sortOrder": 8
+      },
+      {
+        "id": "40-09-엘리베이터-예약",
+        "slug": "40-09-엘리베이터-예약",
+        "title": "엘리베이터 예약",
+        "phase": "booking",
+        "status": "todo",
+        "window": "D-7 ~ D-3",
+        "windowOrder": 40,
+        "sortOrder": 9
+      },
+      {
+        "id": "10-01-가전-가구-구매-계획",
+        "slug": "10-01-가전-가구-구매-계획",
+        "title": "가전/가구 구매 계획",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-30 ~ D-21",
+        "windowOrder": 10,
+        "sortOrder": 1
+      },
+      {
+        "id": "20-02-냉장고-구매",
+        "slug": "20-02-냉장고-구매",
+        "title": "냉장고 구매",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-20 ~ D-14",
+        "windowOrder": 20,
+        "sortOrder": 2
+      },
+      {
+        "id": "20-03-세탁기-구매",
+        "slug": "20-03-세탁기-구매",
+        "title": "세탁기 구매",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-20 ~ D-14",
+        "windowOrder": 20,
+        "sortOrder": 3
+      },
+      {
+        "id": "20-04-침대-구매",
+        "slug": "20-04-침대-구매",
+        "title": "침대 구매",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-20 ~ D-14",
+        "windowOrder": 20,
+        "sortOrder": 4
+      },
+      {
+        "id": "20-05-커튼-블라인드-주문",
+        "slug": "20-05-커튼-블라인드-주문",
+        "title": "커튼/블라인드 주문",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-20 ~ D-14",
+        "windowOrder": 20,
+        "sortOrder": 5
+      },
+      {
+        "id": "20-06-불필요한-물건-정리",
+        "slug": "20-06-불필요한-물건-정리",
+        "title": "불필요한 물건 정리",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-20 ~ D-14",
+        "windowOrder": 20,
+        "sortOrder": 6
+      },
+      {
+        "id": "20-07-당근-판매",
+        "slug": "20-07-당근-판매",
+        "title": "당근 판매",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-20 ~ D-14",
+        "windowOrder": 20,
+        "sortOrder": 7
+      },
+      {
+        "id": "20-08-폐기물-신고",
+        "slug": "20-08-폐기물-신고",
+        "title": "폐기물 신고",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-20 ~ D-14",
+        "windowOrder": 20,
+        "sortOrder": 8
+      },
+      {
+        "id": "40-09-짐-포장-시작",
+        "slug": "40-09-짐-포장-시작",
+        "title": "짐 포장 시작",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-7 ~ D-3",
+        "windowOrder": 40,
+        "sortOrder": 9
+      },
+      {
+        "id": "40-10-냉장고-음식-정리",
+        "slug": "40-10-냉장고-음식-정리",
+        "title": "냉장고 음식 정리",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-7 ~ D-3",
+        "windowOrder": 40,
+        "sortOrder": 10
+      },
+      {
+        "id": "40-11-종량제봉투-최대한-사용",
+        "slug": "40-11-종량제봉투-최대한-사용",
+        "title": "종량제봉투 최대한 사용",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-7 ~ D-3",
+        "windowOrder": 40,
+        "sortOrder": 11
+      },
+      {
+        "id": "40-12-우편물-확인",
+        "slug": "40-12-우편물-확인",
+        "title": "우편물 확인",
+        "phase": "purchase",
+        "status": "todo",
+        "window": "D-7 ~ D-3",
+        "windowOrder": 40,
+        "sortOrder": 12
+      },
+      {
+        "id": "50-01-월세-일할-계산",
+        "slug": "50-01-월세-일할-계산",
+        "title": "월세 일할 계산",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-2 ~ D-1 · 퇴실 정산",
+        "windowOrder": 50,
+        "sortOrder": 1
+      },
+      {
+        "id": "50-02-관리비-정산",
+        "slug": "50-02-관리비-정산",
+        "title": "관리비 정산",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-2 ~ D-1 · 퇴실 정산",
+        "windowOrder": 50,
+        "sortOrder": 2
+      },
+      {
+        "id": "50-03-전기요금-정산",
+        "slug": "50-03-전기요금-정산",
+        "title": "전기요금 정산",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-2 ~ D-1 · 퇴실 정산",
+        "windowOrder": 50,
+        "sortOrder": 3
+      },
+      {
+        "id": "50-04-수도요금-정산",
+        "slug": "50-04-수도요금-정산",
+        "title": "수도요금 정산",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-2 ~ D-1 · 퇴실 정산",
+        "windowOrder": 50,
+        "sortOrder": 4
+      },
+      {
+        "id": "50-05-도시가스-최종-정산",
+        "slug": "50-05-도시가스-최종-정산",
+        "title": "도시가스 최종 정산",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-2 ~ D-1 · 퇴실 정산",
+        "windowOrder": 50,
+        "sortOrder": 5
+      },
+      {
+        "id": "50-06-인터넷-해지-이전-확인",
+        "slug": "50-06-인터넷-해지-이전-확인",
+        "title": "인터넷 해지/이전 확인",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-2 ~ D-1 · 퇴실 정산",
+        "windowOrder": 50,
+        "sortOrder": 6
+      },
+      {
+        "id": "50-07-집-사진-촬영",
+        "slug": "50-07-집-사진-촬영",
+        "title": "집 사진 촬영",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-2 ~ D-1 · 퇴실 정산",
+        "windowOrder": 50,
+        "sortOrder": 7
+      },
+      {
+        "id": "60-08-보증금-반환-확인",
+        "slug": "60-08-보증금-반환-확인",
+        "title": "보증금 반환 확인",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D-DAY · 퇴실",
+        "windowOrder": 60,
+        "sortOrder": 8
+      },
+      {
+        "id": "90-09-보증금-반환-최종-확인",
+        "slug": "90-09-보증금-반환-최종-확인",
+        "title": "보증금 반환 최종 확인",
+        "phase": "checkout",
+        "status": "todo",
+        "window": "D+30",
+        "windowOrder": 90,
+        "sortOrder": 9
+      },
+      {
+        "id": "60-01-이사업체-도착",
+        "slug": "60-01-이사업체-도착",
+        "title": "이사업체 도착",
+        "phase": "move-day",
+        "status": "todo",
+        "window": "D-DAY · 퇴실",
+        "windowOrder": 60,
+        "sortOrder": 1
+      },
+      {
+        "id": "60-02-기존-집-최종-확인",
+        "slug": "60-02-기존-집-최종-확인",
+        "title": "기존 집 최종 확인",
+        "phase": "move-day",
+        "status": "todo",
+        "window": "D-DAY · 퇴실",
+        "windowOrder": 60,
+        "sortOrder": 2
+      },
+      {
+        "id": "60-03-집주인-점검",
+        "slug": "60-03-집주인-점검",
+        "title": "집주인 점검",
+        "phase": "move-day",
+        "status": "todo",
+        "window": "D-DAY · 퇴실",
+        "windowOrder": 60,
+        "sortOrder": 3
+      },
+      {
+        "id": "60-04-열쇠-반납",
+        "slug": "60-04-열쇠-반납",
+        "title": "열쇠 반납",
+        "phase": "move-day",
+        "status": "todo",
+        "window": "D-DAY · 퇴실",
+        "windowOrder": 60,
+        "sortOrder": 4
+      },
+      {
+        "id": "65-05-새-집-입주",
+        "slug": "65-05-새-집-입주",
+        "title": "새 집 입주",
+        "phase": "move-day",
+        "status": "todo",
+        "window": "D-DAY · 입주",
+        "windowOrder": 65,
+        "sortOrder": 5
+      },
+      {
+        "id": "65-01-하자-사진-촬영",
+        "slug": "65-01-하자-사진-촬영",
+        "title": "하자 사진 촬영",
+        "phase": "install",
+        "status": "todo",
+        "window": "D-DAY · 입주",
+        "windowOrder": 65,
+        "sortOrder": 1
+      },
+      {
+        "id": "65-02-입주청소-확인",
+        "slug": "65-02-입주청소-확인",
+        "title": "입주청소 확인",
+        "phase": "install",
+        "status": "todo",
+        "window": "D-DAY · 입주",
+        "windowOrder": 65,
+        "sortOrder": 2
+      },
+      {
+        "id": "65-03-냉장고-설치",
+        "slug": "65-03-냉장고-설치",
+        "title": "냉장고 설치",
+        "phase": "install",
+        "status": "todo",
+        "window": "D-DAY · 입주",
+        "windowOrder": 65,
+        "sortOrder": 3
+      },
+      {
+        "id": "65-04-세탁기-설치",
+        "slug": "65-04-세탁기-설치",
+        "title": "세탁기 설치",
+        "phase": "install",
+        "status": "todo",
+        "window": "D-DAY · 입주",
+        "windowOrder": 65,
+        "sortOrder": 4
+      },
+      {
+        "id": "65-05-에어컨-설치",
+        "slug": "65-05-에어컨-설치",
+        "title": "에어컨 설치",
+        "phase": "install",
+        "status": "todo",
+        "window": "D-DAY · 입주",
+        "windowOrder": 65,
+        "sortOrder": 5
+      },
+      {
+        "id": "65-06-인터넷-설치",
+        "slug": "65-06-인터넷-설치",
+        "title": "인터넷 설치",
+        "phase": "install",
+        "status": "todo",
+        "window": "D-DAY · 입주",
+        "windowOrder": 65,
+        "sortOrder": 6
+      },
+      {
+        "id": "30-01-주소-변경-준비",
+        "slug": "30-01-주소-변경-준비",
+        "title": "주소 변경 준비",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D-14 ~ D-7",
+        "windowOrder": 30,
+        "sortOrder": 1
+      },
+      {
+        "id": "30-02-회사-주소-변경",
+        "slug": "30-02-회사-주소-변경",
+        "title": "회사 주소 변경",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D-14 ~ D-7",
+        "windowOrder": 30,
+        "sortOrder": 2
+      },
+      {
+        "id": "30-03-은행-보험-주소-변경",
+        "slug": "30-03-은행-보험-주소-변경",
+        "title": "은행/보험 주소 변경",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D-14 ~ D-7",
+        "windowOrder": 30,
+        "sortOrder": 3
+      },
+      {
+        "id": "30-04-카드사-주소-변경",
+        "slug": "30-04-카드사-주소-변경",
+        "title": "카드사 주소 변경",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D-14 ~ D-7",
+        "windowOrder": 30,
+        "sortOrder": 4
+      },
+      {
+        "id": "30-05-택배-주소-변경",
+        "slug": "30-05-택배-주소-변경",
+        "title": "택배 주소 변경",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D-14 ~ D-7",
+        "windowOrder": 30,
+        "sortOrder": 5
+      },
+      {
+        "id": "70-06-전입신고",
+        "slug": "70-06-전입신고",
+        "title": "전입신고",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D+1 ~ D+3",
+        "windowOrder": 70,
+        "sortOrder": 6
+      },
+      {
+        "id": "70-07-확정일자",
+        "slug": "70-07-확정일자",
+        "title": "확정일자",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D+1 ~ D+3",
+        "windowOrder": 70,
+        "sortOrder": 7
+      },
+      {
+        "id": "70-08-관리사무소-등록",
+        "slug": "70-08-관리사무소-등록",
+        "title": "관리사무소 등록",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D+1 ~ D+3",
+        "windowOrder": 70,
+        "sortOrder": 8
+      },
+      {
+        "id": "70-09-차량-등록",
+        "slug": "70-09-차량-등록",
+        "title": "차량 등록",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D+1 ~ D+3",
+        "windowOrder": 70,
+        "sortOrder": 9
+      },
+      {
+        "id": "70-10-공동현관-등록",
+        "slug": "70-10-공동현관-등록",
+        "title": "공동현관 등록",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D+1 ~ D+3",
+        "windowOrder": 70,
+        "sortOrder": 10
+      },
+      {
+        "id": "70-11-비밀번호-변경",
+        "slug": "70-11-비밀번호-변경",
+        "title": "비밀번호 변경",
+        "phase": "admin",
+        "status": "todo",
+        "window": "D+1 ~ D+3",
+        "windowOrder": 70,
+        "sortOrder": 11
+      },
+      {
+        "id": "80-01-자동이체-등록",
+        "slug": "80-01-자동이체-등록",
+        "title": "자동이체 등록",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+7",
+        "windowOrder": 80,
+        "sortOrder": 1
+      },
+      {
+        "id": "80-02-월세-자동이체",
+        "slug": "80-02-월세-자동이체",
+        "title": "월세 자동이체",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+7",
+        "windowOrder": 80,
+        "sortOrder": 2
+      },
+      {
+        "id": "80-03-관리비-자동이체",
+        "slug": "80-03-관리비-자동이체",
+        "title": "관리비 자동이체",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+7",
+        "windowOrder": 80,
+        "sortOrder": 3
+      },
+      {
+        "id": "80-04-인터넷-정상-확인",
+        "slug": "80-04-인터넷-정상-확인",
+        "title": "인터넷 정상 확인",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+7",
+        "windowOrder": 80,
+        "sortOrder": 4
+      },
+      {
+        "id": "80-05-택배-주소-확인",
+        "slug": "80-05-택배-주소-확인",
+        "title": "택배 주소 확인",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+7",
+        "windowOrder": 80,
+        "sortOrder": 5
+      },
+      {
+        "id": "80-06-남은-박스-정리",
+        "slug": "80-06-남은-박스-정리",
+        "title": "남은 박스 정리",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+7",
+        "windowOrder": 80,
+        "sortOrder": 6
+      },
+      {
+        "id": "90-07-첫-관리비-확인",
+        "slug": "90-07-첫-관리비-확인",
+        "title": "첫 관리비 확인",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+30",
+        "windowOrder": 90,
+        "sortOrder": 7
+      },
+      {
+        "id": "90-08-월세-확인",
+        "slug": "90-08-월세-확인",
+        "title": "월세 확인",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+30",
+        "windowOrder": 90,
+        "sortOrder": 8
+      },
+      {
+        "id": "90-09-하자-발생-여부-점검",
+        "slug": "90-09-하자-발생-여부-점검",
+        "title": "하자 발생 여부 점검",
+        "phase": "wrapup",
+        "status": "todo",
+        "window": "D+30",
+        "windowOrder": 90,
+        "sortOrder": 9
+      }
+    ]
+  }
+]

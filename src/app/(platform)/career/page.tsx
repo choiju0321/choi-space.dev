@@ -1,21 +1,48 @@
 import type { Metadata } from "next";
-import { PlatformHubPage } from "@/features/platform/platform-hub-page";
+import { Container } from "@/components/ui/container";
+import { CareerOverviewView } from "@/features/career/career-hub-view";
+import { HealthSessionGate } from "@/features/health/health-session-gate";
+import { getCareerWithDocumentStatus } from "@/lib/content/get-career";
+import { getCareerHub } from "@/lib/content/get-career-hub";
+import { getProfile } from "@/lib/content/get-profile";
+import { hasWriteSession, isWriteSecretConfigured } from "@/lib/write/auth";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "커리어",
+  title: "Career",
   robots: { index: false, follow: false },
 };
 
-export default function CareerHubPage() {
+export default async function CareerOverviewPage() {
+  const authenticated = await hasWriteSession();
+  const configured = isWriteSecretConfigured();
+  const profile = getProfile();
+
   return (
-    <PlatformHubPage
-      eyebrow="Career"
-      title="커리어"
-      summary="이직용 프로필과 공고·포지션별 공개 패키지를 관리합니다. ‘일’에서 골라 밖으로 내보내는 레이어입니다."
-      phaseNote="Phase 3에서 공개 패키지를 붙입니다. 홈 Career 섹션 데이터는 여기서 재구성될 예정입니다."
-      links={[{ href: "/#career", label: "현재 홈 Career 섹션 보기" }]}
-    />
+    <div className="pb-24 pt-10 sm:pt-14">
+      <Container className="max-w-3xl">
+        {authenticated ? (
+          <CareerOverviewView
+            hub={getCareerHub()}
+            credentials={getCareerWithDocumentStatus()}
+            profile={{ name: profile.name, email: profile.email }}
+          />
+        ) : (
+          <>
+            <p className="text-sm font-medium tracking-[0.14em] text-[var(--color-accent)] uppercase">
+              Career
+            </p>
+            <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight text-[var(--color-foreground)] sm:text-4xl">
+              Career
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--color-muted)]">
+              관리자 로그인 후 이용할 수 있습니다.
+            </p>
+            <HealthSessionGate configured={configured} />
+          </>
+        )}
+      </Container>
+    </div>
   );
 }

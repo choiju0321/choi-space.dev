@@ -6,8 +6,8 @@
 
 | 역할 | 패밀리 | 변수 |
 |------|--------|------|
-| Display | **Noto Serif KR** | `--font-display` |
-| Body | **Noto Sans KR** | `--font-body` |
+| Display | **Noto Serif KR** | `--font-noto-serif` → `--font-display` |
+| Body | **Noto Sans KR** | `--font-noto-sans` → `--font-body` / `--font-sans` |
 
 정의: `src/app/layout.tsx`  
 Inter / Roboto / Arial / 기본 시스템만 쓰는 “템플릿 산세리프 랜딩” 금지.

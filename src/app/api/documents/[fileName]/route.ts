@@ -1,7 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { NextResponse } from "next/server";
 import { findCareerDocument } from "@/lib/content/get-career";
+import { findVaultDocument } from "@/content/document-vault";
 import { DOCUMENTS_DIR, getDocumentPath } from "@/lib/documents/paths";
+import { hasWriteSession } from "@/lib/write/auth";
 
 type RouteContext = {
   params: Promise<{ fileName: string }>;
@@ -14,13 +16,29 @@ function isUploadAllowed() {
   );
 }
 
+function resolveDocument(fileName: string) {
+  const career = findCareerDocument(fileName);
+  if (career) {
+    return { fileName: career.fileName, label: career.label, kind: "career" as const };
+  }
+  const vault = findVaultDocument(fileName);
+  if (vault) {
+    return { fileName: vault.fileName, label: vault.label, kind: "vault" as const };
+  }
+  return null;
+}
+
 export async function GET(_request: Request, context: RouteContext) {
   const { fileName } = await context.params;
   const decoded = decodeURIComponent(fileName);
-  const document = findCareerDocument(decoded);
+  const document = resolveDocument(decoded);
 
   if (!document) {
     return NextResponse.json({ error: "문서를 찾을 수 없습니다." }, { status: 404 });
+  }
+
+  if (document.kind === "vault" && !(await hasWriteSession())) {
+    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
 
   try {
@@ -45,7 +63,7 @@ export async function PUT(request: Request, context: RouteContext) {
     return NextResponse.json(
       {
         error:
-          "업로드는 개발 환경이거나 CAREER_DOCS_UPLOAD_ENABLED=true 일 때만 가능합니다. 관리자/로그인 이후 정식 업로드로 교체될 예정입니다.",
+          "업로드는 개발 환경이거나 CAREER_DOCS_UPLOAD_ENABLED=true 일 때만 가능합니다.",
       },
       { status: 403 },
     );
@@ -53,10 +71,14 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const { fileName } = await context.params;
   const decoded = decodeURIComponent(fileName);
-  const document = findCareerDocument(decoded);
+  const document = resolveDocument(decoded);
 
   if (!document) {
     return NextResponse.json({ error: "허용되지 않은 문서입니다." }, { status: 400 });
+  }
+
+  if (document.kind === "vault" && !(await hasWriteSession())) {
+    return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
   }
 
   const formData = await request.formData();

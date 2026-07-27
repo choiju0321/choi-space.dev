@@ -17,6 +17,9 @@
 |-----------|------|
 | 사이트 소개(Hero), 이름·직함·사진(About), 이메일 | [`profile.ts`](./profile.ts) |
 | 연혁 (기본정보·학력·교육·자격·수상) | [`career.ts`](./career.ts) |
+| Career 허브 (패키지·지원·어학) | [`career/hub.ts`](./career/hub.ts) |
+| Work 회사 셸 (Seasons·Etc) | [`work/companies.ts`](./work/companies.ts) |
+| Work 프로젝트 (Write로 수정) | [`work/{company}/projects.json`](./work/) |
 | 추억·기록 (독서·러닝·문화·맛집·카페·여행) | [`life.ts`](./life.ts) |
 | Work 섹션 경험 / 프로젝트 | [`projects.ts`](./projects.ts) |
 | About 본문 (긴 소개) | [`mdx/about.mdx`](./mdx/about.mdx) |

@@ -1,4 +1,7 @@
-export type PlaceDomain = "food" | "cafe" | "travel";
+export type PlaceDomain = "food" | "travel";
+
+/** Food 하위 — 맛집·카페를 한 카테고리에서 구분 */
+export type FoodKind = "restaurant" | "cafe";
 
 export type PlaceEntry = {
   id: string;
@@ -11,6 +14,12 @@ export type PlaceEntry = {
   visitedUntil?: string;
   excerpt: string;
   tags: string[];
+  /** food only */
+  kind?: FoodKind;
+  /** 네이버 지도 공유/장소 URL */
+  naverMapUrl?: string;
+  /** 캐치테이블 예약·매장 URL */
+  catchTableUrl?: string;
 };
 
 export type PlaceListItem = PlaceEntry & {
@@ -18,6 +27,7 @@ export type PlaceListItem = PlaceEntry & {
   hasReview: boolean;
   photoCount: number;
   coverImage: string | null;
+  kindLabel: string | null;
 };
 
 export type WriteCategory =
@@ -25,5 +35,7 @@ export type WriteCategory =
   | "running"
   | "culture"
   | "food"
-  | "cafe"
-  | "travel";
+  | "travel"
+  | "daily"
+  | "growth"
+  | "notes";

@@ -5,9 +5,9 @@
 | 경로 | 축 | Phase |
 |------|-----|-------|
 | `/work` | 일 | 2 |
-| `/career` | 커리어 | 3 |
+| `/career` | 커리어 (패키지·지원·자격·어학) | 2 |
 | `/documents` | Documents | 1 |
-| `/finance` | 금융 | 4 |
+| `/finance` | 금융 (Ledger·Occasions·Invest·Claims·Property) | 3 |
 | `/records` | 기타 기록 | 5 |
 | `/health` | 기타 · 건강검진 | 0/5 |
 

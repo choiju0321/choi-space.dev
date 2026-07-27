@@ -48,7 +48,8 @@ export function getCultureEntries(): CultureEntry[] {
 }
 
 export function getCultureEntryBySlug(slug: string): CultureEntry | undefined {
-  return loadCultureEntries().find((entry) => entry.slug === slug);
+  const normalized = decodeURIComponent(slug);
+  return loadCultureEntries().find((entry) => entry.slug === normalized);
 }
 
 export function getCultureKindLabel(kind: CultureKind): string {

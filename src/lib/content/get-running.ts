@@ -9,10 +9,17 @@ import {
   listPhotoPublicPaths,
   readReviewBody,
 } from "@/lib/content/life-media";
+import {
+  getRunningCertificateLegacyPath,
+  getRunningCertificateMediaPath,
+  mediaFileExists,
+  resolveMediaFilePath,
+} from "@/lib/media/paths";
 
+/** @deprecated mkdir용 — getRunningCertificateWritePath dirname 사용 */
 export const RUNNING_CERTIFICATES_DIR = path.join(
   process.cwd(),
-  "private/running/certificates",
+  "private/media/life/running",
 );
 
 function loadSessions(): RunningEntry[] {
@@ -40,7 +47,8 @@ export function getRunningEntries(): RunningEntry[] {
 }
 
 export function getRunningEntryBySlug(slug: string): RunningEntry | undefined {
-  return getRunningEntries().find((entry) => entry.slug === slug);
+  const normalized = decodeURIComponent(slug);
+  return getRunningEntries().find((entry) => entry.slug === normalized);
 }
 
 export function formatDistanceKm(distanceKm: number): string {
@@ -54,11 +62,27 @@ export function getRunningKindLabel(entry: RunningEntry): string {
 }
 
 export function getRunningCertificatePath(slug: string) {
-  return path.join(RUNNING_CERTIFICATES_DIR, `${slug}.pdf`);
+  return resolveMediaFilePath({
+    space: "life",
+    category: "running",
+    slug,
+    role: "certificate",
+    legacyPaths: [getRunningCertificateLegacyPath(slug)],
+  });
 }
 
 export function hasRunningCertificate(slug: string) {
-  return existsSync(getRunningCertificatePath(slug));
+  return mediaFileExists({
+    space: "life",
+    category: "running",
+    slug,
+    role: "certificate",
+    legacyPaths: [getRunningCertificateLegacyPath(slug)],
+  });
+}
+
+export function getRunningCertificateWritePath(slug: string) {
+  return getRunningCertificateMediaPath(slug);
 }
 
 export function hasRunningReview(slug: string) {
@@ -91,7 +115,7 @@ export function toRunningListItem(entry: RunningEntry): RunningListItem {
     distanceLabel: formatDistanceKm(entry.distanceKm),
     place: entry.place ?? null,
     resultTime: entry.resultTime ?? null,
-    excerpt: entry.excerpt,
+    excerpt: `'${entry.title}'을 달리고`,
     tags: entry.tags,
     hasCertificate: hasRunningCertificate(entry.slug),
     expectsCertificate: expectsRunningCertificate(entry),

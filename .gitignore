@@ -40,7 +40,23 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# private career documents (keep README, ignore PDFs)
+# private media (IA tree) — keep README, ignore binaries
+/private/media/**/*.pdf
+/private/media/**/*.PDF
+/private/media/**/*.xlsx
+/private/media/**/*.XLSX
+/private/media/**/*.xls
+/private/media/**/*.XLS
+/private/media/**/*.png
+/private/media/**/*.PNG
+/private/media/**/*.jpg
+/private/media/**/*.JPG
+/private/media/**/*.jpeg
+/private/media/**/*.JPEG
+/private/media/**/*.webp
+/private/media/**/*.WEBP
+/private/media/**/*.gif
+/private/media/**/*.GIF
 /private/documents/**/*.pdf
 /private/documents/**/*.PDF
 /private/reading/presentations/**/*.pdf

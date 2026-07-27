@@ -14,7 +14,7 @@
   author: "저자",
   readOn: "2026-07-01",
   clubSeasonId: "moon-joeunpul-2026", // 개인 독서면 생략
-  excerpt: "한 줄 소개",
+  excerpt: "'책 제목'을 읽고",
   tags: ["트레바리", "독후감"],
   artifacts: [
     // sourcePath 는 개인 아카이브 원본 위치 (동기화용)
@@ -32,7 +32,9 @@ Life 목록에서 클릭하면 이 내용이 상세 페이지에 보입니다.
 
 ## 3. 발제문 (선택)
 
-`private/reading/presentations/{slug}.pdf` 에 PDF를 둡니다.
+`private/media/life/reading/{slug}/presentation.pdf` 에 PDF를 둡니다.
+
+(구경로 `private/reading/presentations/{slug}.pdf` 도 한동안 읽기 폴백)
 
 상세 페이지에서 **발제문 다운로드**로 제공됩니다.
 
@@ -56,4 +58,4 @@ npx tsx scripts/sync-reading-from-archive.ts
 
 1. `entries.ts` 에 메타 추가  
 2. `reviews/{slug}.txt` 에 독후감 작성  
-3. 팝업에서 발제문 PDF 등록 (또는 `private/reading/presentations/{slug}.pdf`)
+3. 팝업에서 발제문 PDF 등록 (또는 `private/media/life/reading/{slug}/presentation.pdf`)

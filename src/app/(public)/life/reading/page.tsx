@@ -5,6 +5,7 @@ import {
   getReadingPostsAsList,
   paginateArchivePosts,
 } from "@/lib/content/archive-as-posts";
+import { buildWriteHref } from "@/lib/write/href";
 
 export const metadata: Metadata = {
   title: "Reading · Life",
@@ -29,6 +30,7 @@ export default async function ReadingArchivePage({ searchParams }: PageProps) {
       posts={paged.items}
       page={paged.page}
       totalPages={paged.totalPages}
+      writeHref={buildWriteHref({ category: "reading" })}
     />
   );
 }

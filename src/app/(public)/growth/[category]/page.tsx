@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CategoryPageTemplate } from "@/features/content/category-page-template";
 import { GROWTH_NAV } from "@/content/nav";
 import { getPosts, paginatePosts } from "@/lib/content/get-posts";
+import { buildWriteHref } from "@/lib/write/href";
 
 const SUMMARIES: Record<string, string> = {
   development: "개발과 엔지니어링에서 배운 것을 기록합니다.",
@@ -61,6 +62,10 @@ export default async function GrowthCategoryPage({
       posts={paged.items}
       page={paged.page}
       totalPages={paged.totalPages}
+      writeHref={buildWriteHref({
+        category: "growth",
+        journalCategory: category,
+      })}
     />
   );
 }

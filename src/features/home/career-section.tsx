@@ -1,4 +1,4 @@
-import { DocumentManager } from "@/features/documents/document-manager";
+import { DocumentSlotAttachments } from "@/features/content/document-slot-attachments";
 import { FadeIn } from "@/components/ui/fade-in";
 import { Section } from "@/components/ui/section";
 import type {
@@ -16,39 +16,28 @@ function RecordList({ items }: { items: CareerRecordWithDocuments[] }) {
   return (
     <ul className="divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
       {items.map((item) => (
-        <li
-          key={item.id}
-          className="grid grid-cols-1 items-center gap-4 py-6 md:grid-cols-[minmax(0,1fr)_9.5rem_7.5rem]"
-        >
-          <div className="min-w-0">
-            <p className="text-base font-medium tracking-tight text-[var(--color-foreground)] sm:text-lg">
-              {item.title}
-            </p>
-            <p className="mt-1 text-sm text-[var(--color-muted)]">
-              {item.organization}
-            </p>
-            {item.description ? (
-              <p className="mt-2 text-sm leading-6 text-[var(--color-muted-soft)]">
-                {item.description}
+        <li key={item.id} className="py-6">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
+            <div className="min-w-0 max-w-xl">
+              <p className="text-base font-medium tracking-tight text-[var(--color-foreground)] sm:text-lg">
+                {item.title}
               </p>
-            ) : null}
+              <p className="mt-1 text-sm text-[var(--color-muted)]">
+                {item.organization}
+              </p>
+              {item.description ? (
+                <p className="mt-2 text-sm leading-6 text-[var(--color-muted-soft)]">
+                  {item.description}
+                </p>
+              ) : null}
+            </div>
+            <p className="shrink-0 text-sm tabular-nums text-[var(--color-muted-soft)]">
+              {item.period}
+            </p>
           </div>
-
-          <p className="text-sm tabular-nums text-[var(--color-muted-soft)] md:text-right">
-            {item.period}
-          </p>
-
-          <div className="md:justify-self-end">
-            {item.documents.length > 0 ? (
-              <DocumentManager
-                subject={`${item.organization} · ${item.title} · ${item.period}`}
-                formName={item.documentFormName}
-                documents={item.documents}
-              />
-            ) : (
-              <span className="hidden md:inline-block min-w-[7.5rem]" aria-hidden />
-            )}
-          </div>
+          {item.documents.length > 0 ? (
+            <DocumentSlotAttachments documents={item.documents} />
+          ) : null}
         </li>
       ))}
     </ul>

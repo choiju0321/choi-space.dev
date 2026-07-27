@@ -71,11 +71,9 @@ function LifeCollectionBlock({
           ? "/life/culture"
           : collection.id === "food"
             ? "/life/food"
-            : collection.id === "cafe"
-              ? "/life/cafe"
-              : collection.id === "travel"
-                ? "/life/travel"
-                : null;
+            : collection.id === "travel"
+              ? "/life/travel"
+              : null;
 
   const archiveLabel = archiveHref
     ? collection.id === "reading"
@@ -91,12 +89,10 @@ function LifeCollectionBlock({
         : collection.id === "culture"
           ? "문화 기록 전체 보기"
           : collection.id === "food"
-            ? "맛집 기록 전체 보기"
-            : collection.id === "cafe"
-              ? "카페 기록 전체 보기"
-              : collection.id === "travel"
-                ? "여행 기록 전체 보기"
-                : null;
+            ? "맛집·카페 기록 전체 보기"
+            : collection.id === "travel"
+              ? "여행 기록 전체 보기"
+              : null;
 
   return (
     <div id={collection.id} className="scroll-mt-24 mt-16 first:mt-12">

@@ -1,19 +1,17 @@
-"use client";
-
+import Link from "next/link";
 import { FadeIn } from "@/components/ui/fade-in";
 import { ProfilePortrait } from "@/components/ui/profile-portrait";
 import { Section } from "@/components/ui/section";
 import { homeContent } from "@/content/home";
-import { useAboutModal } from "@/features/home/about-modal-context";
 import type { Profile } from "@/types/content";
 
 type AboutCardSectionProps = {
   profile: Pick<Profile, "name" | "nameEn" | "image">;
 };
 
+/** Home About — 미리보기. 자세한 이야기는 /about */
 export function AboutCardSection({ profile }: AboutCardSectionProps) {
   const { aboutCard } = homeContent;
-  const { openAbout } = useAboutModal();
 
   return (
     <Section
@@ -46,13 +44,12 @@ export function AboutCardSection({ profile }: AboutCardSectionProps) {
             <p className="mt-6 max-w-[28rem] text-[1.05rem] leading-8 text-[var(--color-muted)]">
               {aboutCard.lead}
             </p>
-            <button
-              type="button"
-              onClick={openAbout}
-              className="mt-10 text-sm tracking-wide text-[var(--color-foreground)] underline decoration-[var(--color-border)] underline-offset-[7px] transition-[decoration-color,opacity] hover:decoration-[var(--color-foreground)]"
+            <Link
+              href="/about"
+              className="mt-10 inline-block text-sm tracking-wide text-[var(--color-foreground)] underline decoration-[var(--color-border)] underline-offset-[7px] transition-[decoration-color,opacity] hover:decoration-[var(--color-foreground)]"
             >
               {aboutCard.cta}
-            </button>
+            </Link>
           </div>
         </div>
       </FadeIn>

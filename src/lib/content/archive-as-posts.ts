@@ -15,20 +15,19 @@ function byNewest(a: PostListItem, b: PostListItem) {
 
 const PLACE_LABEL: Record<PlaceDomain, string> = {
   food: "Food",
-  cafe: "Cafe",
   travel: "Travel",
 };
 
 export function readingToPostListItem(item: ReadingListItem): PostListItem {
-  const meta = [item.author, item.clubName].filter(Boolean).join(" · ");
   return {
     id: item.id,
     slug: item.slug,
     space: "life",
     category: "reading",
     categoryLabel: "Reading",
+    contentType: "book-review",
     title: item.title,
-    excerpt: item.excerpt || meta,
+    excerpt: `'${item.title}'을 읽고`,
     publishedOn: item.readOn,
     displayDate: item.displayDate,
     tags: item.tags,
@@ -38,17 +37,15 @@ export function readingToPostListItem(item: ReadingListItem): PostListItem {
 }
 
 export function runningToPostListItem(item: RunningListItem): PostListItem {
-  const meta = [item.kindLabel, item.distanceLabel, item.place]
-    .filter(Boolean)
-    .join(" · ");
   return {
     id: item.id,
     slug: item.slug,
     space: "life",
     category: "running",
     categoryLabel: "Running",
+    contentType: "running-log",
     title: item.title,
-    excerpt: item.excerpt || meta,
+    excerpt: `'${item.title}'을 달리고`,
     publishedOn: item.ranOn,
     displayDate: item.displayDate,
     tags: item.tags,
@@ -65,6 +62,7 @@ export function cultureToPostListItem(item: CultureListItem): PostListItem {
     space: "life",
     category: "culture",
     categoryLabel: "Culture",
+    contentType: "culture",
     title: item.title,
     excerpt: item.excerpt || meta,
     publishedOn: item.watchedOn,
@@ -81,14 +79,20 @@ export function placeToPostListItem(
   domain: PlaceDomain,
   item: PlaceListItem,
 ): PostListItem {
+  const excerpt =
+    domain === "food"
+      ? `'${item.title}'에서`
+      : item.excerpt || item.place;
+
   return {
     id: item.id,
     slug: item.slug,
     space: "life",
     category: domain,
     categoryLabel: PLACE_LABEL[domain],
+    contentType: "place",
     title: item.title,
-    excerpt: item.excerpt || item.place,
+    excerpt,
     publishedOn: item.visitedOn,
     displayDate: item.displayDate,
     tags: item.tags,

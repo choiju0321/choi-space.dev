@@ -4,8 +4,9 @@
 
 | 페이지 | 하는 일 | 하지 않는 일 |
 |--------|---------|--------------|
-| **Home** | 브랜드 · 사람 · 세 갈래 안내 | 최신 글 많이  consum / 긴 스크롤 랜딩 |
-| **About** | Home 섹션 + Profile sheet | 별도 화려한 About 마이크로사이트 |
+| **Home** | 브랜드 · 사람(미리보기) · 세 갈래 안내 | 최신 글 많이 소비 / 긴 스크롤 랜딩 |
+| **About** (`/about`) | Story · Timeline · Values · FAQ | 화려한 About 마이크로사이트 |
+| **Contact** (`/contact`) | Email · GitHub · LinkedIn | 문의 폼 · 챗봇 |
 | **Life** | 경험 아카이브 | Growth/Notes 글을 섞어 넣기 |
 | **Growth** | 배움·성장 글 | 자산 관리 UI |
 | **Notes** | 정보·칼럼 | Finance 관리자 원장과 혼동되는 UX |
@@ -15,7 +16,18 @@
 
 1. Hero → Manifesto → About → Archive index → Footer  
 2. 스크롤은 짧게. “언제 끝나지?”가 나오면 실패한 것  
-3. CTA: 계속 읽기 / Profile / 01·02·03 경로 — **자연스럽게**
+3. CTA: 계속 읽기 / Profile(`/about`) / 01·02·03 경로 — **자연스럽게**
+
+## About (`/about`)
+
+- Home About 카드는 미리보기. 본편은 `/about`
+- 사진 옆 Story → Values → Hobbies → Timeline → Skills → FAQ
+- Contact는 `/contact`로 위임
+
+## Contact (`/contact`)
+
+- Email · GitHub · LinkedIn (profile.socialLinks)
+- Food Location 연결과 같은 “행 + 열기” 톤
 
 ## Overview (`/life`, `/growth`, `/notes`)
 

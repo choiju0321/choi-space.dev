@@ -1,0 +1,81 @@
+[
+  {
+    "id": "2023-goal",
+    "slug": "2023-goal",
+    "title": "2023 목표",
+    "period": "2023",
+    "focus": "리스 사전심사 · 운영 안정화",
+    "projectSlugs": ["lease-ifl-pre-screening", "payment-stabilize-monitor"]
+  },
+  {
+    "id": "2023-h2",
+    "slug": "2023-h2",
+    "title": "2023 하반기",
+    "period": "2023-H2",
+    "focus": "iFL 통합 · 운영 PL 역할 정착",
+    "projectSlugs": ["lease-ifl-pre-screening", "payment-stabilize-monitor"]
+  },
+  {
+    "id": "2024-h1",
+    "slug": "2024-h1",
+    "title": "2024 상반기",
+    "period": "2024-H1",
+    "focus": "지급 모니터링 · 운영 안정",
+    "projectSlugs": ["payment-stabilize-monitor"]
+  },
+  {
+    "id": "2024-h2",
+    "slug": "2024-h2",
+    "title": "2024 하반기",
+    "period": "2024-H2",
+    "focus": "성능 개선 · 지급 안정화 지속",
+    "projectSlugs": [
+      "transaction-batch-performance",
+      "payment-stabilize-monitor"
+    ]
+  },
+  {
+    "id": "2025-h1",
+    "slug": "2025-h1",
+    "title": "2025 상반기",
+    "period": "2025-H1",
+    "focus": "성능·ABA 장애 대응 · Committee",
+    "projectSlugs": [
+      "transaction-batch-performance",
+      "aba-linkage-failover",
+      "payment-stabilize-monitor"
+    ]
+  },
+  {
+    "id": "2025-h2",
+    "slug": "2025-h2",
+    "title": "2025 하반기",
+    "period": "2025-H2",
+    "focus": "성능 지속 · 연계 안정",
+    "projectSlugs": [
+      "transaction-batch-performance",
+      "aba-linkage-failover"
+    ]
+  },
+  {
+    "id": "2026-h1",
+    "slug": "2026-h1",
+    "title": "2026 상반기",
+    "period": "2026-H1",
+    "focus": "AX · 연계 안정 · 개인 평가 정리",
+    "projectSlugs": ["aba-linkage-failover"]
+  },
+  {
+    "id": "2026-promotion",
+    "slug": "2026-promotion",
+    "title": "2026 승진",
+    "period": "2026",
+    "focus": "포트폴리오·Self-Resume (상세는 Career)",
+    "projectSlugs": [
+      "payment-stabilize-monitor",
+      "transaction-batch-performance",
+      "lease-ifl-pre-screening",
+      "aba-linkage-failover"
+    ]
+  }
+]

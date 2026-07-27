@@ -1,0 +1,18 @@
+[
+  {
+    "id": "master-resume",
+    "slug": "master-resume",
+    "kind": "resume",
+    "title": "기본 이력서",
+    "period": "2026-03",
+    "summary": "마스터본. 회사별 제출본은 지원내역 프로세스에 첨부."
+  },
+  {
+    "id": "portfolio",
+    "slug": "portfolio",
+    "kind": "portfolio",
+    "title": "포트폴리오",
+    "period": "2026-06",
+    "summary": "최신 버전(v0.9). 제출용 PDF만 여기로."
+  }
+]

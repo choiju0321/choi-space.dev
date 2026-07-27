@@ -14,7 +14,7 @@ export type ProfileImage = {
 
 /**
  * Editable public-site content.
- * Update values in `src/content/profile.ts`.
+ * Update values in `src/content/profile.json`.
  */
 export type Profile = {
   brandName: string;
@@ -48,7 +48,7 @@ export type CareerBasics = {
 
 /**
  * Career menu item (학력/교육/자격증/수상).
- * `documentFormId`로 서류 양식을 연결하면 첨부파일 팝업이 열립니다.
+ * `documentFormId`로 서류 양식을 연결하면 인라인 Attachments로 관리합니다.
  */
 export type CareerRecord = {
   id: string;
@@ -123,7 +123,6 @@ export type LifeCollectionId =
   | "running"
   | "culture"
   | "food"
-  | "cafe"
   | "travel";
 
 export type LifeCollection = {

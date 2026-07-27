@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CategoryPageTemplate } from "@/features/content/category-page-template";
 import { LIFE_NAV } from "@/content/nav";
 import { getPosts, paginatePosts } from "@/lib/content/get-posts";
+import { buildWriteHref } from "@/lib/write/href";
 
 export const metadata: Metadata = {
   title: "Daily · Life",
@@ -27,6 +28,7 @@ export default async function LifeDailyPage({ searchParams }: PageProps) {
       posts={paged.items}
       page={paged.page}
       totalPages={paged.totalPages}
+      writeHref={buildWriteHref({ category: "daily" })}
     />
   );
 }

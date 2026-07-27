@@ -1,0 +1,34 @@
+[
+  {
+    "id": "law-site-build",
+    "slug": "law-firm-site-build",
+    "title": "로펌 홈페이지 제작",
+    "period": "2026-03",
+    "role": "기획·구현",
+    "summary": "환경 설정부터 UI polish·구조화까지 일자별 제작.",
+    "progress": [
+      {
+        "period": "2026.03",
+        "title": "환경·골격",
+        "note": "프로젝트 셋업"
+      },
+      {
+        "period": "2026.03",
+        "title": "UI polish · 디자인 시스템",
+        "note": "문서·리팩토링 가이드"
+      }
+    ],
+    "outcomes": [
+      "사이트 구조·페이지 구현",
+      "디자인 시스템·리팩토링 가이드 정리"
+    ],
+    "competencies": [
+      "제품 감각",
+      "문서화",
+      "단독 실행"
+    ],
+    "sourceNotes": [
+      "업무일지 YYYYMMDD · Design System 문서"
+    ]
+  }
+]

@@ -14,15 +14,19 @@ Life / Growth / Notes가 **같은 읽기 시스템**을 쓴다.
 
 | 항목 | 위치 |
 |------|------|
-| 타입 | `src/types/post.ts` |
-| 시드/본문 | `src/content/posts.ts` |
+| 타입 · contentType | `src/types/post.ts` |
+| 스키마 문서 | [10-content-architecture.md](./10-content-architecture.md) |
+| 상세 템플릿 | [11-detail-templates.md](./11-detail-templates.md) |
+| 시드/본문 | `src/content/posts/entries.json` (본인 글만) |
 | 조회 | `src/lib/content/get-posts.ts` |
+
+**Reading / Culture 상세는 비주얼 lock.** 재디자인하지 않는다.
 
 URL: `/{space}/{category}/{slug}`  
 예: `/life/daily/morning-page`, `/growth/ai/small-prompts`
 
 > **Life 아카이브**  
-> Reading / Running / Culture / Food / Travel (Cafe 라우트 포함)  
+> Reading / Running / Culture / Food / Travel  
 > 데이터는 기존 도메인 소스 유지.  
 > 목록·상세 크롬은 Content System과 동일 (`CategoryPageTemplate`, `ArchiveDetailHeader`).  
 > 어댑터: `src/lib/content/archive-as-posts.ts`  
@@ -54,6 +58,10 @@ URL: `/{space}/{category}/{slug}`
 | 8 | Empty | `empty-state.tsx` | 한 줄 muted |
 | 9 | Share | `share.tsx` | 링크 복사 · X |
 | 10 | Reading Progress | `reading-progress.tsx` | 상단 1px |
+| 11 | Breadcrumb | `content-breadcrumb.tsx` | Home / Space / Category |
+| 12 | Archive Header | `archive-detail-header.tsx` | Life 상세 공통 |
+| 13 | Detail Section | `detail-section.tsx` | Title/Review/… 여백 |
+| 14 | File Attachment | `archive-file-attachment.tsx` | PDF · Excel |
 
 ## Overview UX
 

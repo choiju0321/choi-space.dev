@@ -40,7 +40,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "루이스 세풀베다",
     readOn: "2022-03-17",
     clubSeasonId: "moon-thin-deep-2022",
-    excerpt: "트레바리 문-얇고깊은책 시즌의 첫 기록.",
+    excerpt: "'연애소설 읽는 노인'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20220317_독후감_연애소설 읽는 노인_루이스 세풀베다.txt", C2022),
@@ -54,7 +54,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "김진영",
     readOn: "2022-04-14",
     clubSeasonId: "moon-thin-deep-2022",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'아침의 피아노'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20220414_독후감_아침의 피아노_김진영.txt", C2022),
@@ -68,7 +68,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "셰익스피어",
     readOn: "2022-05-20",
     clubSeasonId: "moon-thin-deep-2022",
-    excerpt: "고전을 클럽에서 함께 읽은 기록.",
+    excerpt: "'햄릿'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20220520_독후감_햄릿-셰익스피어.txt", C2022),
@@ -82,7 +82,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "권여선",
     readOn: "2022-06-06",
     clubSeasonId: "moon-thin-deep-2022",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'안녕 주정뱅이'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20220606_독후감_안녕 주정뱅이_권여선.txt", C2022),
@@ -95,7 +95,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "페터 비에리",
     readOn: "2022-06-17",
     clubSeasonId: "moon-thin-deep-2022",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'페터 비에리의 교양 수업'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20220617_독후감_페터 비에리의 교양 수업_페터 비에리.txt", C2022),
@@ -111,7 +111,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "빅터 프랭클",
     readOn: "2024-01-28",
     clubSeasonId: "borderless-routine-2024",
-    excerpt: "루틴 클럽에서 읽은 기록.",
+    excerpt: "'죽음의 수용소에서'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20240128_독후감_죽음의 수용소에서_빅터 프랭클.txt", C2024R),
@@ -125,7 +125,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "에나 렘키",
     readOn: "2024-02-17",
     clubSeasonId: "borderless-routine-2024",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'도파민네이션'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20240217_독후감_도파민네이션_에나 렘키.txt", C2024R),
@@ -139,7 +139,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "다니엘 핑크",
     readOn: "2024-03-31",
     clubSeasonId: "borderless-routine-2024",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'후회의 재발견'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20240331_독후감_후회의 재발견_다니엘 핑크.txt", C2024R),
@@ -153,7 +153,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "마르코스 바르케스",
     readOn: "2024-04-30",
     clubSeasonId: "borderless-routine-2024",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'스토아적 삶의 권유'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20240430_독후감_스토아적 삶의 권유_마르코스 바르케스.txt", C2024R),
@@ -169,7 +169,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "김애란",
     readOn: "2024-10-04",
     clubSeasonId: "moon-gaze-2024",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'이중 하나는 거짓말'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20241004_독후감_이중 하나는 거짓말_김애란.txt", C2024G),
@@ -183,7 +183,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "미상",
     readOn: "2024-10-31",
     clubSeasonId: "moon-gaze-2024",
-    excerpt: "독후감과 발제문을 함께 남긴 기록. (저자명 파일에 없음 — 보완 예정)",
+    excerpt: "'우연은 비켜가지 않는다'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20241031_독후감_우연은 비켜가지 않는다_.txt", C2024G),
@@ -197,7 +197,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "미상",
     readOn: "2024-12-08",
     clubSeasonId: "moon-gaze-2024",
-    excerpt: "독후감과 발제문을 함께 남긴 기록. (저자명 파일에 없음 — 보완 예정)",
+    excerpt: "'대온실 수리 보고서'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20241208_독후감_대온실 수리 보고서_.txt", C2024G),
@@ -211,7 +211,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "미상",
     readOn: "2024-12-15",
     clubSeasonId: "moon-gaze-2024",
-    excerpt: "독후감으로 남긴 기록. (저자명 파일에 없음 — 보완 예정)",
+    excerpt: "'무의식은 어떻게 나를 설계하는가'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20241215_독후감_무의식은 어떻게 나를 설계하는가_.txt", C2024G),
@@ -224,7 +224,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "귀스타브 플로베르",
     readOn: "2025-01-07",
     clubSeasonId: "moon-gaze-2024",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'마담 보바리'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20250107_독후감_마담 보바리_.txt", C2024G),
@@ -240,7 +240,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "앤드루 포터",
     readOn: "2025-03-13",
     clubSeasonId: "moon-together-2025a",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'사라진 것들'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20250313_독후감_사라진 것들_앤드루 포터.txt", C2025A),
@@ -254,7 +254,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "김초엽",
     readOn: "2025-04-23",
     clubSeasonId: "moon-together-2025a",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'우리가 빛의 속도로 갈 수 없다면'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20250423_독후감_우리가 빛의 속도로 갈 수 없다면_김초엽.txt", C2025A),
@@ -267,7 +267,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "셸리 리드",
     readOn: "2025-05-16",
     clubSeasonId: "moon-together-2025a",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'흐르는 강물처럼'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20250516_독후감_흐르는 강물처럼_셸리 리드.txt", C2025A),
@@ -280,7 +280,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "스콧 알렉산더 하워드",
     readOn: "2025-06-21",
     clubSeasonId: "moon-together-2025a",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'시간의 계곡'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20250621_독후감_시간의 계곡_스콧 알렉산더 하워드.txt", C2025A),
@@ -295,7 +295,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "츠쯔젠",
     readOn: "2025-08-20",
     clubSeasonId: "moon-together-2025b",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'어얼구나강의 오른쪽'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20250820_독후감_어얼구나강의 오른쪽_츠쯔젠.txt", C2025B),
@@ -308,7 +308,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "R. C. 셰리프",
     readOn: "2025-09-24",
     clubSeasonId: "moon-together-2025b",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'구월의 보름'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20250924_독후감_구월의 보름_R. C. 셰리프.txt", C2025B),
@@ -321,7 +321,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "욘 포세",
     readOn: "2025-10-15",
     clubSeasonId: "moon-together-2025b",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'아침 그리고 저녁'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20251015_독후감_아침 그리고 저녁_욘 포세.txt", C2025B),
@@ -334,7 +334,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "백세희",
     readOn: "2025-10-21",
     clubSeasonId: "moon-together-2025b",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'죽고 싶지만 떡볶이는 먹고 싶어'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20251021_독후감_죽고 싶지만 떡볶이는 먹고 싶어_백세희.txt", C2025B),
@@ -347,7 +347,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "문미순",
     readOn: "2025-11-20",
     clubSeasonId: "moon-together-2025b",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'우리가 겨울을 지나온 방식'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [
       review("r1", "20251120_독후감_우리가 겨울을 지나온 방식_문미순.txt", C2025B),
@@ -362,7 +362,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "프랑수아즈 사강",
     readOn: "2026-03-10",
     clubSeasonId: "moon-joeunpul-2026",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'브람스를 좋아하세요'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20260310_독후감_브람스를 좋아하세요_프랑수아즈 사강.txt"),
@@ -376,7 +376,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "오은",
     readOn: "2026-04-07",
     clubSeasonId: "moon-joeunpul-2026",
-    excerpt: "독후감으로 남긴 기록.",
+    excerpt: "'다독임'을 읽고",
     tags: ["트레바리", "독후감"],
     artifacts: [review("r1", "20260407_독후감_다독임_오은.txt")],
   },
@@ -387,7 +387,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "가즈오 이시구로",
     readOn: "2026-04-08",
     clubSeasonId: "moon-joeunpul-2026",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'클라라와 태양'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20260408_독후감_클라라와 태양_가즈오 이시구로.txt"),
@@ -401,7 +401,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "조해진",
     readOn: "2026-05-17",
     clubSeasonId: "moon-joeunpul-2026",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'단순한 진심'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20260517_독후감_단순한 진심_조해진.txt"),
@@ -415,7 +415,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "장대건",
     readOn: "2026-06-20",
     clubSeasonId: "moon-joeunpul-2026",
-    excerpt: "독후감과 발제문을 함께 남긴 기록.",
+    excerpt: "'GV 빌런 고태경'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20260620_독후감_GV 빌런 고태경_장대건.txt"),
@@ -429,7 +429,7 @@ export const readingEntries: ReadingEntry[] = [
     author: "이렌 네미롭스키",
     readOn: "2026-06-30",
     clubSeasonId: "moon-joeunpul-2026",
-    excerpt: "문-조은풀에서 읽고, 독후감·발제문을 남긴 기록.",
+    excerpt: "'제자벨'을 읽고",
     tags: ["트레바리", "독후감", "발제문"],
     artifacts: [
       review("r1", "20260630_독후감_제자벨_이렌 네미롭스키.txt"),
@@ -444,7 +444,7 @@ export const readingEntries: ReadingEntry[] = [
     title: "단어의 집",
     author: "안희연",
     readOn: "2026-01-29",
-    excerpt: "개인적으로 읽고 남긴 독후감.",
+    excerpt: "'단어의 집'을 읽고",
     tags: ["개인", "독후감"],
     artifacts: [review("r1", "20260129_독후감_단어의 집_안희연.txt")],
   },
@@ -454,7 +454,7 @@ export const readingEntries: ReadingEntry[] = [
     title: "이방인",
     author: "알베르 카뮈",
     readOn: "2026-06-15",
-    excerpt: "개인적으로 읽고 남긴 독후감.",
+    excerpt: "'이방인'을 읽고",
     tags: ["개인", "독후감"],
     artifacts: [review("r1", "20260615_독후감_이방인_알베르 카뮈.txt")],
   },
@@ -466,7 +466,7 @@ export const readingEntries: ReadingEntry[] = [
     readOn: "2026-06-30",
     participation: "guest",
     guestClubName: "인사이트 드로잉",
-    excerpt: "다른 클럽 놀러가기로 읽고, 독후감·발제문을 남긴 기록.",
+    excerpt: "'싯다르타'을 읽고",
     tags: ["트레바리", "놀러가기", "독후감", "발제문"],
     artifacts: [
       review("r1", "20260630_독후감_싯다르타_헤르만 헤세.txt"),

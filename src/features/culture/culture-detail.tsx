@@ -1,4 +1,10 @@
+/**
+ * LOCKED visual reference — docs/design/11-detail-templates.md (culture)
+ * Do not redesign poster-side layout. Evolve schema & shared helpers only.
+ */
+
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Container } from "@/components/ui/container";
 import { FadeIn } from "@/components/ui/fade-in";
 import { ArchiveDetailHeader } from "@/features/content/archive-detail-header";
@@ -13,6 +19,7 @@ type CultureDetailProps = {
   photos: string[];
   hasReview: boolean;
   reviewBody: string | null;
+  actions?: ReactNode;
 };
 
 export function CultureDetail({
@@ -23,6 +30,7 @@ export function CultureDetail({
   photos,
   hasReview,
   reviewBody,
+  actions,
 }: CultureDetailProps) {
   const supporting = [kindLabel, entry.place, entry.seat]
     .filter(Boolean)
@@ -61,6 +69,7 @@ export function CultureDetail({
               excerpt={entry.excerpt}
               publishedOn={entry.watchedOn}
               displayDate={displayDate}
+              actions={actions}
             >
               {entry.cast && entry.cast.length > 0 ? (
                 <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">

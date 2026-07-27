@@ -1,0 +1,35 @@
+[
+  {
+    "id": "cambodia-ops-overview",
+    "slug": "cambodia-ops-overview",
+    "title": "캄보디아 글로벌 시스템 운영 PL (범위)",
+    "period": "2022.09 —",
+    "summary": "현지 요구 화면·API·배치 상세 설계, 산출물 기술 검증, 공통 예외 처리 기준. 세부 성과는 Projects."
+  },
+  {
+    "id": "globot-2026",
+    "slug": "globot-2026",
+    "title": "글로봇 · AI Agent (실험)",
+    "period": "2026-06",
+    "summary": "포트폴리오 외 AX 실험. 필요 시 프로젝트로 승격."
+  },
+  {
+    "id": "seminars",
+    "slug": "seminars",
+    "title": "세미나 · 지식 공유",
+    "period": "2022 —",
+    "summary": "금융전략·정보공유회의·신년 Workshop 등."
+  },
+  {
+    "id": "tct",
+    "slug": "tct",
+    "title": "TCT 준비",
+    "summary": "프로세스·데이터 모델링·금융 App 준비 자료."
+  },
+  {
+    "id": "hr-ref",
+    "slug": "hr-ref",
+    "title": "인사·환경 참고",
+    "summary": "규정·초기 환경 메모. 급여·재직 서류는 Documents."
+  }
+]

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CategoryPageTemplate } from "@/features/content/category-page-template";
 import { NOTES_NAV } from "@/content/nav";
 import { getPosts, paginatePosts } from "@/lib/content/get-posts";
+import { buildWriteHref } from "@/lib/write/href";
 
 const SUMMARIES: Record<string, string> = {
   finance: "금융·투자 정보를 정리합니다.",
@@ -61,6 +62,10 @@ export default async function NotesCategoryPage({
       posts={paged.items}
       page={paged.page}
       totalPages={paged.totalPages}
+      writeHref={buildWriteHref({
+        category: "notes",
+        journalCategory: category,
+      })}
     />
   );
 }

@@ -78,8 +78,37 @@
 
 ## Empty / Loading
 
-- Empty: 짧은 문장만 (`곧 글을 채울 예정입니다.` 톤)
-- Loading: 스피너 파티 금지. 텍스트 또는 아주 옅은 pulse
+- Empty: 짧은 문장만 (`곧 글을 채울 예정입니다.` 톤) — `empty-state.tsx`
+- Loading: 스피너 파티 금지. 텍스트 또는 아주 옅은 pulse (미구현 · 필요 시만)
+
+---
+
+## Content System (`src/features/content/`)
+
+Home UI는 건드리지 않는다. 목록·상세 크롬만 공유.
+
+| 컴포넌트 | 파일 | 상태 |
+|----------|------|------|
+| Breadcrumb | `content-breadcrumb.tsx` | ✅ 공통화 |
+| Space Overview | `space-overview.tsx` | ✅ |
+| Category Page | `category-page-template.tsx` | ✅ |
+| Post Detail | `post-detail.tsx` | ✅ 저널 |
+| Post Card / List | `post-card.tsx` | ✅ |
+| Post Body | `post-body.tsx` | ✅ |
+| TOC | `post-toc.tsx` | ✅ |
+| Tag | `post-tag.tsx` | ✅ middot |
+| Share | `share.tsx` | ✅ |
+| Related | `related-posts.tsx` | ✅ |
+| Pagination | `pagination.tsx` | ✅ |
+| Empty | `empty-state.tsx` | ✅ |
+| Reading Progress | `reading-progress.tsx` | ✅ 1px |
+| Archive Header | `archive-detail-header.tsx` | ✅ Life |
+| Detail Section | `detail-section.tsx` | ✅ Reading/Food/Travel |
+| File Attachment | `archive-file-attachment.tsx` | ✅ PDF/Excel |
+| Quote / Callout / Code | — | ⏸ Growth 실글 필요 시 |
+| Gallery | — | ⏸ Photos는 도메인 상세 인라인 |
+
+상세 스키마·슬롯: [09](./09-content-system.md) · [10](./10-content-architecture.md) · [11](./11-detail-templates.md)
 
 ## Hover 상태
 

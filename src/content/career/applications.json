@@ -1,0 +1,489 @@
+[
+  {
+    "id": "samsung-sds-2026",
+    "slug": "samsung-sds-2026",
+    "company": "삼성SDS",
+    "role": "지원 패키지",
+    "period": "2026-06",
+    "season": "2026",
+    "outcome": "fail",
+    "summary": "20260609 폴더 · 1차 면접 불합격.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "samsung-sds-2026-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "samsung-sds-2026-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "samsung-sds-2026-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "pass",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      },
+      {
+        "attachments": true,
+        "id": "samsung-sds-2026-interview-1",
+        "slug": "interview-1",
+        "kind": "interview",
+        "title": "1차 면접",
+        "round": 1,
+        "status": "fail",
+        "note": "질문·피드백 · 발표자료"
+      }
+    ]
+  },
+  {
+    "id": "shinhan-capital-2026",
+    "slug": "shinhan-capital-2026",
+    "company": "신한캐피탈",
+    "role": "ICT 개발",
+    "period": "2026-03",
+    "season": "2026",
+    "outcome": "fail",
+    "summary": "ICT개발 지원 · 서류전형 불합격.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "shinhan-capital-2026-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "shinhan-capital-2026-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "shinhan-capital-2026-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "fail",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      }
+    ]
+  },
+  {
+    "id": "woori-fis-2026",
+    "slug": "woori-fis-2026",
+    "company": "우리에프아이에스",
+    "role": "신용 리스크 관리",
+    "period": "2026-02",
+    "season": "2026",
+    "outcome": "fail",
+    "summary": "지원서·엑셀 양식 · 서류전형 불합격.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "woori-fis-2026-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "woori-fis-2026-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "woori-fis-2026-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "fail",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      }
+    ]
+  },
+  {
+    "id": "hyundai-capital-2026",
+    "slug": "hyundai-capital-2026",
+    "company": "현대캐피탈",
+    "role": "Back-end Developer",
+    "period": "2026-03",
+    "season": "2026",
+    "outcome": "fail",
+    "summary": "백엔드 지원 · 서류전형 불합격.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "hyundai-capital-2026-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "hyundai-capital-2026-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "hyundai-capital-2026-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "fail",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      }
+    ]
+  },
+  {
+    "id": "bccard-2026",
+    "slug": "bccard-2026",
+    "company": "BC카드",
+    "role": "Resume 양식",
+    "period": "2026-04",
+    "season": "2026",
+    "outcome": "fail",
+    "summary": "회사 양식 Resume · 2차 면접 불합격.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "bccard-2026-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "bccard-2026-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "bccard-2026-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "pass",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      },
+      {
+        "attachments": true,
+        "id": "bccard-2026-interview-1",
+        "slug": "interview-1",
+        "kind": "interview",
+        "title": "1차 면접",
+        "round": 1,
+        "status": "pass",
+        "note": "질문·피드백 · 발표자료"
+      },
+      {
+        "attachments": true,
+        "id": "bccard-2026-interview-2",
+        "slug": "interview-2",
+        "kind": "interview",
+        "title": "2차 면접",
+        "round": 2,
+        "status": "fail",
+        "note": "질문·피드백 · 발표자료"
+      }
+    ]
+  },
+  {
+    "id": "lgcns-2022",
+    "slug": "lgcns-2022",
+    "company": "LGCNS",
+    "role": "금융(캐피탈) SI",
+    "period": "2022",
+    "season": "2022",
+    "outcome": "offer",
+    "summary": "최종 입사 · Offer 패키지는 Job Search/Offer.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "lgcns-2022-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "lgcns-2022-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "lgcns-2022-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "pass",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      },
+      {
+        "attachments": true,
+        "id": "lgcns-2022-interview-1",
+        "slug": "interview-1",
+        "kind": "interview",
+        "title": "1차 면접",
+        "round": 1,
+        "status": "pass",
+        "note": "질문·피드백 · 발표자료"
+      },
+      {
+        "attachments": true,
+        "id": "lgcns-2022-interview-2",
+        "slug": "interview-2",
+        "kind": "interview",
+        "title": "2차 면접",
+        "round": 2,
+        "status": "pass",
+        "note": "질문·피드백 · 발표자료"
+      },
+      {
+        "attachments": true,
+        "id": "lgcns-2022-interview-3",
+        "slug": "interview-3",
+        "kind": "interview",
+        "title": "3차 면접",
+        "round": 3,
+        "status": "pass",
+        "note": "질문·피드백 · 발표자료"
+      },
+      {
+        "attachments": true,
+        "id": "lgcns-2022-offer",
+        "slug": "offer",
+        "kind": "offer",
+        "title": "최종",
+        "status": "pass",
+        "note": "오퍼 · 연봉 · 입사 일정"
+      }
+    ]
+  },
+  {
+    "id": "tossbank-2022",
+    "slug": "tossbank-2022",
+    "company": "토스뱅크",
+    "role": "Core Banking Developer (여신)",
+    "period": "2022",
+    "season": "2022",
+    "outcome": "pass",
+    "summary": "이력서 합격 단계. 면접 기록은 Job Search.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "tossbank-2022-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "tossbank-2022-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "tossbank-2022-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "pass",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      },
+      {
+        "id": "tossbank-2022-interview-1",
+        "slug": "interview-1",
+        "kind": "interview",
+        "title": "1차 면접",
+        "round": 1,
+        "status": "pending",
+        "note": "서류 합격 후 대기",
+        "attachments": true
+      }
+    ]
+  },
+  {
+    "id": "hyundai-autoever-2022",
+    "slug": "hyundai-autoever-2022",
+    "company": "현대오토에버",
+    "role": "금융시스템개발",
+    "period": "2022",
+    "season": "2022",
+    "outcome": "pass",
+    "summary": "이력서 합격 단계.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "hyundai-autoever-2022-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "hyundai-autoever-2022-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "hyundai-autoever-2022-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "pass",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      },
+      {
+        "id": "hyundai-autoever-2022-interview-1",
+        "slug": "interview-1",
+        "kind": "interview",
+        "title": "1차 면접",
+        "round": 1,
+        "status": "pending",
+        "attachments": true
+      }
+    ]
+  },
+  {
+    "id": "prudential-2022",
+    "slug": "prudential-2022",
+    "company": "푸르덴셜생명",
+    "role": "시스템개발부",
+    "period": "2022",
+    "season": "2022",
+    "outcome": "pass",
+    "summary": "이력서 합격 단계.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "prudential-2022-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "prudential-2022-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "prudential-2022-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "pass",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      },
+      {
+        "id": "prudential-2022-interview-1",
+        "slug": "interview-1",
+        "kind": "interview",
+        "title": "1차 면접",
+        "round": 1,
+        "status": "pending",
+        "attachments": true
+      }
+    ]
+  },
+  {
+    "id": "egis-2022",
+    "slug": "egis-2022",
+    "company": "이지스자산운용",
+    "role": "데이터 백엔드개발자",
+    "period": "2022",
+    "season": "2022",
+    "outcome": "fail",
+    "summary": "이력서 불합격.",
+    "process": [
+      {
+        "attachments": true,
+        "id": "egis-2022-posting",
+        "slug": "posting",
+        "kind": "posting",
+        "title": "채용공고",
+        "status": "done",
+        "note": "JD·공고 PDF/캡처"
+      },
+      {
+        "attachments": true,
+        "id": "egis-2022-materials",
+        "slug": "materials",
+        "kind": "materials",
+        "title": "지원 서류",
+        "status": "done",
+        "note": "이력서 · 포트폴리오 · 기타 제출본"
+      },
+      {
+        "attachments": true,
+        "id": "egis-2022-screening",
+        "slug": "screening",
+        "kind": "screening",
+        "title": "서류전형",
+        "status": "fail",
+        "note": "서류 합격/불합격 — 면접 탈락과 구분"
+      }
+    ]
+  }
+]

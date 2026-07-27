@@ -1,10 +1,11 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { NextResponse } from "next/server";
 import {
   getRunningCertificatePath,
+  getRunningCertificateWritePath,
   getRunningEntryBySlug,
   hasRunningCertificate,
-  RUNNING_CERTIFICATES_DIR,
 } from "@/lib/content/get-running";
 
 type RouteContext = {
@@ -86,13 +87,15 @@ export async function PUT(request: Request, context: RouteContext) {
     );
   }
 
-  await mkdir(RUNNING_CERTIFICATES_DIR, { recursive: true });
+  const target = getRunningCertificateWritePath(slug);
+  await mkdir(dirname(target), { recursive: true });
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(getRunningCertificatePath(slug), buffer);
+  await writeFile(target, buffer);
 
   return NextResponse.json({
     ok: true,
     slug,
     title: entry.title,
+    path: `private/media/life/running/${slug}/certificate.pdf`,
   });
 }

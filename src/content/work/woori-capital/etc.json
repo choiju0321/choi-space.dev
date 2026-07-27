@@ -1,0 +1,16 @@
+[
+  {
+    "id": "woori-domain",
+    "slug": "lending-domain-scope",
+    "title": "여신 계정계 전반 (범위)",
+    "period": "2018.05 — 2022.08",
+    "summary": "고객 유입→상담→계약→심사→대출 실행. CB·대외 IF·법규 반영. 세부 성과는 Projects."
+  },
+  {
+    "id": "woori-onboarding-note",
+    "slug": "it-onboarding",
+    "title": "IT 신입사원 입문과정",
+    "period": "2018-05",
+    "summary": "입문 과정 기록. 상세는 필요 시 첨부."
+  }
+]

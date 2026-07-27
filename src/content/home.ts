@@ -23,19 +23,18 @@ export const homeContent = {
     title: "최지웅",
     description: "Ji-ung Choi",
     profile: [
-      "금융 시스템 엔지니어 · LGCNS 선임",
       "문제를 기능이 아니라 구조로 바라봅니다.",
     ],
     timeline: [
       {
-        period: "2019 —",
-        label: "LGCNS",
-        detail: "금융 여신 시스템 개발·운영",
+        period: "2018.05 — 2022.09",
+        label: "우리금융캐피탈",
+        detail: "캐피탈 여신 시스템 개발",
       },
       {
-        period: "Now",
-        label: "Choi Space",
-        detail: "독서 · 러닝 · 문화 · 성장 · 노트를 쌓는 중",
+        period: "2022.09 —",
+        label: "LGCNS",
+        detail: "KB국민카드 캄보디아 글로벌 시스템 운영 PL · 재직 중",
       },
     ],
     values: [

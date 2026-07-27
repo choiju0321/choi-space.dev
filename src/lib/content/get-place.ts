@@ -1,8 +1,19 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import type { PlaceDomain, PlaceEntry, PlaceListItem } from "@/types/place";
+import type {
+  FoodKind,
+  PlaceDomain,
+  PlaceEntry,
+  PlaceListItem,
+} from "@/types/place";
 import type { LifeCollection, LifeMemory } from "@/types/content";
 import { hasReview, listPhotoPublicPaths } from "@/lib/content/life-media";
+import { buildTravelItineraryFileName } from "@/lib/media/naming";
+import {
+  getTravelItineraryMediaPath,
+  mediaFileExists,
+  resolveMediaFilePath,
+} from "@/lib/media/paths";
 
 export function getPlaceListItems(domain: PlaceDomain): PlaceListItem[] {
   return getPlaceEntries(domain).map((entry) => {
@@ -13,6 +24,7 @@ export function getPlaceListItems(domain: PlaceDomain): PlaceListItem[] {
       hasReview: hasReview(domain, entry.slug),
       photoCount: photos.length,
       coverImage: photos[0] ?? null,
+      kindLabel: domain === "food" ? getFoodKindLabel(entry.kind) : null,
     };
   });
 }
@@ -23,15 +35,9 @@ const LABELS: Record<
 > = {
   food: {
     label: "Food",
-    title: "맛집",
-    summary: "맛과 사진으로 남긴 식사 기록.",
+    title: "맛집·카페",
+    summary: "식사와 카페, 사진과 위치로 남긴 기록.",
     tag: "맛집",
-  },
-  cafe: {
-    label: "Cafe",
-    title: "카페",
-    summary: "커피와 공간, 그리고 사진.",
-    tag: "카페",
   },
   travel: {
     label: "Travel",
@@ -56,13 +62,60 @@ export function getPlaceEntryBySlug(
   domain: PlaceDomain,
   slug: string,
 ): PlaceEntry | undefined {
-  return getPlaceEntries(domain).find((entry) => entry.slug === slug);
+  const normalized = decodeURIComponent(slug);
+  return getPlaceEntries(domain).find((entry) => entry.slug === normalized);
+}
+
+function travelItineraryFileName(slug: string) {
+  const entry = getPlaceEntryBySlug("travel", slug);
+  return entry ? buildTravelItineraryFileName(entry) : undefined;
+}
+
+export function getFoodKindLabel(kind?: FoodKind): string {
+  if (kind === "cafe") return "카페";
+  return "맛집";
 }
 
 export function formatPlaceDisplayDate(entry: PlaceEntry): string {
   const start = entry.visitedOn.replaceAll("-", ".");
   if (!entry.visitedUntil) return start;
   return `${start} — ${entry.visitedUntil.replaceAll("-", ".")}`;
+}
+
+export function getPlaceSupportingLabel(
+  domain: PlaceDomain,
+  entry: PlaceEntry,
+): string {
+  if (domain === "food") {
+    return [getFoodKindLabel(entry.kind), entry.place]
+      .filter(Boolean)
+      .join(" · ");
+  }
+  return entry.place;
+}
+
+export function getTravelItineraryPath(slug: string) {
+  return resolveMediaFilePath({
+    space: "life",
+    category: "travel",
+    slug,
+    role: "itinerary",
+    fileName: travelItineraryFileName(slug),
+  });
+}
+
+export function hasTravelItinerary(slug: string) {
+  return mediaFileExists({
+    space: "life",
+    category: "travel",
+    slug,
+    role: "itinerary",
+    fileName: travelItineraryFileName(slug),
+  });
+}
+
+export function getTravelItineraryWritePath(slug: string) {
+  return getTravelItineraryMediaPath(slug, travelItineraryFileName(slug));
 }
 
 export function getPlaceLifeCollection(

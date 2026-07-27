@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "id": "food-test-bistro",
+    "slug": "2026-07-01-test-bistro",
+    "title": "테스트 비스트로",
+    "place": "성수동",
+    "visitedOn": "2026-07-01",
+    "excerpt": "[테스트] 시안 확인용 맛집 기록. 삭제해도 됩니다.",
+    "tags": ["맛집", "테스트"],
+    "kind": "restaurant",
+    "naverMapUrl": "https://map.naver.com/p/search/%EC%84%B1%EC%88%98%EB%8F%99",
+    "catchTableUrl": "https://www.catchtable.co.kr/"
+  },
+  {
+    "id": "food-test-cafe",
+    "slug": "2026-07-10-test-cafe",
+    "title": "테스트 카페",
+    "place": "연남동",
+    "visitedOn": "2026-07-10",
+    "excerpt": "[테스트] 시안 확인용 카페 기록. 삭제해도 됩니다.",
+    "tags": ["카페", "테스트"],
+    "kind": "cafe",
+    "naverMapUrl": "https://map.naver.com/p/search/%EC%97%B0%EB%82%A8%EB%8F%99"
+  }
+]

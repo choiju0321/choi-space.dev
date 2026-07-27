@@ -1,6 +1,12 @@
 import Link from "next/link";
+import {
+  AdminActionLink,
+  AdminContentToolbar,
+} from "@/features/content/admin-content-actions";
+import { AdminDeleteButton } from "@/features/content/admin-delete-button";
 import { Container } from "@/components/ui/container";
 import { FadeIn } from "@/components/ui/fade-in";
+import { ContentBreadcrumb } from "@/features/content/content-breadcrumb";
 import { PostBody } from "@/features/content/post-body";
 import { PostTagList } from "@/features/content/post-tag";
 import { PostToc } from "@/features/content/post-toc";
@@ -10,6 +16,8 @@ import { Share } from "@/features/content/share";
 import type { BodyBlock } from "@/lib/content/get-posts";
 import type { NavSection } from "@/content/nav";
 import type { PostListItem, TocHeading } from "@/types/post";
+import type { WriteCategory } from "@/types/place";
+import { hasWriteSession } from "@/lib/write/auth";
 
 type PostDetailProps = {
   section: NavSection;
@@ -23,9 +31,13 @@ type PostDetailProps = {
   blocks: BodyBlock[];
   headings: TocHeading[];
   related: PostListItem[];
+  editHref?: string;
+  deleteCategory?: WriteCategory;
+  deleteSlug?: string;
+  deleteJournalCategory?: string;
 };
 
-export function PostDetail({
+export async function PostDetail({
   section,
   categoryLabel,
   categoryHref,
@@ -37,32 +49,28 @@ export function PostDetail({
   blocks,
   headings,
   related,
+  editHref,
+  deleteCategory,
+  deleteSlug,
+  deleteJournalCategory,
 }: PostDetailProps) {
+  const showAdmin =
+    Boolean(editHref || (deleteCategory && deleteSlug)) &&
+    (await hasWriteSession());
+
   return (
     <>
       <ReadingProgress />
       <article data-reading-root className="pb-28 pt-10 sm:pt-14">
         <Container className="max-w-3xl">
           <FadeIn>
-            <p className="text-sm text-[var(--color-muted)]">
-              <Link href="/" className="transition-opacity hover:opacity-70">
-                Home
-              </Link>
-              <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-              <Link
-                href={section.overviewHref}
-                className="transition-opacity hover:opacity-70"
-              >
-                {section.label}
-              </Link>
-              <span className="mx-2 text-[var(--color-muted-soft)]">/</span>
-              <Link
-                href={categoryHref}
-                className="transition-opacity hover:opacity-70"
-              >
-                {categoryLabel}
-              </Link>
-            </p>
+            <ContentBreadcrumb
+              items={[
+                { label: "Home", href: "/" },
+                { label: section.label, href: section.overviewHref },
+                { label: categoryLabel, href: categoryHref },
+              ]}
+            />
 
             <header className="mt-10 max-w-[var(--measure)]">
               <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
@@ -90,6 +98,22 @@ export function PostDetail({
             </header>
           </FadeIn>
 
+          {showAdmin ? (
+            <AdminContentToolbar className="mt-10 border-b border-[var(--color-border)]/70">
+              {editHref ? (
+                <AdminActionLink href={editHref}>수정</AdminActionLink>
+              ) : null}
+              {deleteCategory && deleteSlug ? (
+                <AdminDeleteButton
+                  category={deleteCategory}
+                  slug={deleteSlug}
+                  journalCategory={deleteJournalCategory}
+                  redirectTo={categoryHref}
+                />
+              ) : null}
+            </AdminContentToolbar>
+          ) : null}
+
           <FadeIn delayMs={80} className="mt-12">
             <PostToc headings={headings} />
           </FadeIn>
@@ -98,7 +122,10 @@ export function PostDetail({
             <PostBody blocks={blocks} />
           </FadeIn>
 
-          <FadeIn delayMs={160} className="mt-20 border-t border-[var(--color-border)]/70 pt-8">
+          <FadeIn
+            delayMs={160}
+            className="mt-20 border-t border-[var(--color-border)]/70 pt-8"
+          >
             <Share title={title} />
           </FadeIn>
 

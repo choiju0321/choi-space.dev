@@ -2,7 +2,7 @@
  * Sync reading artifacts from D:\개인 archive into the project.
  *
  * - 독후감 → src/content/reading/reviews/{slug}.txt  (UTF-8 로 변환 저장)
- * - 발제문 → private/reading/presentations/{slug}.pdf
+ * - 발제문 → private/media/life/reading/{slug}/presentation.pdf
  *
  * Usage: npx tsx scripts/sync-reading-from-archive.ts
  */
@@ -10,13 +10,11 @@ import { mkdir, copyFile, readFile, writeFile, access } from "node:fs/promises";
 import path from "node:path";
 import { readingEntries } from "../src/content/reading/entries";
 import { decodeKoreanTextBuffer } from "../src/lib/text/decode-korean";
+import { getReadingPresentationMediaPath } from "../src/lib/media/paths";
 
 const ARCHIVE_ROOT = "D:\\개인";
 const REVIEWS_DIR = path.join(process.cwd(), "src/content/reading/reviews");
-const PRESENTATIONS_DIR = path.join(
-  process.cwd(),
-  "private/reading/presentations",
-);
+
 
 async function exists(filePath: string) {
   try {
@@ -29,7 +27,6 @@ async function exists(filePath: string) {
 
 async function main() {
   await mkdir(REVIEWS_DIR, { recursive: true });
-  await mkdir(PRESENTATIONS_DIR, { recursive: true });
 
   let copied = 0;
   let missing = 0;
@@ -53,9 +50,10 @@ async function main() {
       }
 
       if (artifact.kind === "presentation") {
-        const dest = path.join(PRESENTATIONS_DIR, `${entry.slug}.pdf`);
+        const dest = getReadingPresentationMediaPath(entry.slug);
+        await mkdir(path.dirname(dest), { recursive: true });
         await copyFile(src, dest);
-        console.log(`OK presentation → ${entry.slug}.pdf`);
+        console.log(`OK presentation → life/reading/${entry.slug}/presentation.pdf`);
         copied += 1;
       }
     }

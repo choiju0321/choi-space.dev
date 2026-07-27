@@ -13,6 +13,11 @@
 | [07-writing-style.md](./07-writing-style.md) | 카피 톤 |
 | [08-page-guidelines.md](./08-page-guidelines.md) | 페이지별 UX |
 | [09-content-system.md](./09-content-system.md) | Post·Category·공용 읽기 컴포넌트 |
+| [10-content-architecture.md](./10-content-architecture.md) | 공통 Post 스키마 · 타입 매핑 · Reading/Culture lock |
+| [11-detail-templates.md](./11-detail-templates.md) | 타입별 상세 슬롯 |
+| [12-media-storage.md](./12-media-storage.md) | IA 기반 첨부 파일 저장소 |
+| [13-journal-writing.md](./13-journal-writing.md) | Daily / Growth / Notes 작성 가이드 |
+| [14-search.md](./14-search.md) | Search 요구사항 초안 (구현은 콘텐츠 축적 후) |
 
 ## Golden Rule
 

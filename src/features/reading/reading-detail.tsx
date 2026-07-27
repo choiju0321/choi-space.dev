@@ -1,13 +1,21 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+/**
+ * LOCKED visual reference — docs/design/11-detail-templates.md (book-review)
+ * Do not redesign layout/typography. Attachment chrome is shared site-wide.
+ */
+
+import { useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
-import { FadeIn } from "@/components/ui/fade-in";
 import { Prose } from "@/components/ui/prose";
 import { ArchiveDetailHeader } from "@/features/content/archive-detail-header";
 import { ArchiveFileAttachment } from "@/features/content/archive-file-attachment";
+import {
+  DetailSection,
+  detailSectionBodyClassName,
+} from "@/features/content/detail-section";
 import { ReadingProgress } from "@/features/content/reading-progress";
 import type { ReadingEntry } from "@/types/reading";
 
@@ -16,6 +24,7 @@ type ReadingDetailProps = {
   contextLabel: string;
   reviewBody: string | null;
   hasPresentation: boolean;
+  actions?: ReactNode;
 };
 
 function ReviewBody({ body }: { body: string }) {
@@ -45,6 +54,7 @@ export function ReadingDetail({
   contextLabel,
   reviewBody,
   hasPresentation: initialHasPresentation,
+  actions,
 }: ReadingDetailProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +92,9 @@ export function ReadingDetail({
     });
   }
 
+  const reviewTitle = `'${entry.title}'을 읽고`;
+  const displayDate = entry.readOn.replaceAll("-", ".");
+
   return (
     <>
       <ReadingProgress />
@@ -91,10 +104,51 @@ export function ReadingDetail({
             categoryLabel="Reading"
             categoryHref="/life/reading"
             title={entry.title}
-            supporting={`${entry.author} · ${contextLabel}`}
-            excerpt={entry.excerpt}
-            publishedOn={entry.readOn}
-            displayDate={entry.readOn.replaceAll("-", ".")}
+            supporting={contextLabel}
+            actions={actions}
+          />
+
+          <DetailSection
+            label="Title"
+            delayMs={60}
+            contentClassName="mt-1"
+          >
+            <p className={detailSectionBodyClassName}>{reviewTitle}</p>
+          </DetailSection>
+
+          <DetailSection
+            label="Review"
+            delayMs={80}
+            className="mt-10"
+            contentClassName="mt-1"
+          >
+            {reviewBody ? (
+              <Prose>
+                <ReviewBody body={reviewBody} />
+              </Prose>
+            ) : (
+              <p className={detailSectionBodyClassName}>
+                아직 등록된 독후감이 없습니다.
+              </p>
+            )}
+          </DetailSection>
+
+          <DetailSection
+            label="Date"
+            delayMs={100}
+            className="mt-10"
+            contentClassName="mt-1"
+          >
+            <p className={`${detailSectionBodyClassName} tabular-nums`}>
+              <time dateTime={entry.readOn}>{displayDate}</time>
+            </p>
+          </DetailSection>
+
+          <DetailSection
+            label="Attachment"
+            delayMs={120}
+            className="mt-10"
+            contentClassName="mt-1"
           >
             <ArchiveFileAttachment
               label="발제문"
@@ -104,6 +158,7 @@ export function ReadingDetail({
               pending={pending}
               emptyHint="독서 모임 발제문을 PDF로 남겨 둘 수 있습니다."
               onUploadClick={() => inputRef.current?.click()}
+              showLabel={false}
             />
             <input
               ref={inputRef}
@@ -117,24 +172,7 @@ export function ReadingDetail({
                 {uploadError}
               </p>
             ) : null}
-          </ArchiveDetailHeader>
-
-          <FadeIn delayMs={100} className="mt-14">
-            <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
-              Review
-            </p>
-            <div className="mt-6">
-              {reviewBody ? (
-                <Prose>
-                  <ReviewBody body={reviewBody} />
-                </Prose>
-              ) : (
-                <p className="text-base text-[var(--color-muted-soft)]">
-                  아직 등록된 독후감이 없습니다.
-                </p>
-              )}
-            </div>
-          </FadeIn>
+          </DetailSection>
 
           <p className="mt-16 text-sm text-[var(--color-muted-soft)]">
             <Link

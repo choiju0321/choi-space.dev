@@ -16,7 +16,6 @@ function buildLife(): LifeContent {
       getRunningLifeCollection(),
       getCultureLifeCollection(),
       getPlaceLifeCollection("food"),
-      getPlaceLifeCollection("cafe"),
       getPlaceLifeCollection("travel"),
     ],
   };
