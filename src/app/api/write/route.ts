@@ -331,10 +331,6 @@ export async function POST(request: Request) {
       const visitedOn = String(form.get("visitedOn") ?? "").trim();
       const visitedUntil =
         String(form.get("visitedUntil") ?? "").trim() || undefined;
-      const excerpt =
-        String(form.get("excerpt") ?? "").trim() ||
-        body.slice(0, 80) ||
-        `${title} 기록.`;
       const kindRaw = String(form.get("kind") ?? "").trim();
       const kind =
         category === "food"
@@ -342,14 +338,35 @@ export async function POST(request: Request) {
             ? ("cafe" as const)
             : ("restaurant" as const)
           : undefined;
+      const autoTitle =
+        category === "food"
+          ? `${place} ${kind === "cafe" ? "카페" : "맛집"}`
+          : `${place} 여행`;
+      const effectiveTitle = title || autoTitle;
+      const excerptRaw = String(form.get("excerpt") ?? "").trim();
+      const excerpt =
+        category === "food"
+          ? excerptRaw || title || effectiveTitle
+          : excerptRaw || body.slice(0, 80) || `${effectiveTitle} 기록.`;
+      const placeUrlRaw = String(form.get("placeUrl") ?? "").trim();
+      const naverRaw = String(form.get("naverMapUrl") ?? "").trim();
+      const catchRaw = String(form.get("catchTableUrl") ?? "").trim();
+      const urlInput = placeUrlRaw || naverRaw || catchRaw;
+      const isCatchTableUrl = /catchtable\.co\.kr/i.test(urlInput);
       const naverMapUrl =
-        String(form.get("naverMapUrl") ?? "").trim() || undefined;
+        urlInput && !isCatchTableUrl ? urlInput : naverRaw || undefined;
       const catchTableUrl =
-        String(form.get("catchTableUrl") ?? "").trim() || undefined;
+        urlInput && isCatchTableUrl ? urlInput : catchRaw || undefined;
 
-      if (!title || !place || !visitedOn) {
+      if (!place || !visitedOn) {
         return NextResponse.json(
-          { error: "제목, 장소, 날짜를 입력하세요." },
+          { error: "장소, 날짜를 입력하세요." },
+          { status: 400 },
+        );
+      }
+      if (category === "travel" && !title) {
+        return NextResponse.json(
+          { error: "여행 기록은 제목을 입력하세요." },
           { status: 400 },
         );
       }
@@ -360,7 +377,7 @@ export async function POST(request: Request) {
           ? resolveUpdateSlug(requestedSlug)
           : resolveCreateSlug(
               requestedSlug,
-              buildSafeDatedSlug(visitedOn, title),
+              buildSafeDatedSlug(visitedOn, effectiveTitle),
               (candidate) => Boolean(getPlaceEntryBySlug(category, candidate)),
             );
 
@@ -374,7 +391,7 @@ export async function POST(request: Request) {
       const entry: PlaceEntry = {
         id: existing?.id ?? `${category}-${slug}`,
         slug,
-        title,
+        title: effectiveTitle,
         place,
         visitedOn,
         visitedUntil,
