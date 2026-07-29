@@ -617,6 +617,7 @@ export async function POST(request: Request) {
       const categories = resolvePropertyCategories(caseItem).map((category) => ({
         ...category,
       }));
+      let createdCategoryId: string | undefined;
 
       if (writeKind === "property-category") {
         const mode = String(form.get("mode") ?? "new");
@@ -644,6 +645,7 @@ export async function POST(request: Request) {
           let n = 2;
           while (existingIds.has(id)) id = `${base}-${n++}`;
           categories.push({ id, label });
+          createdCategoryId = id;
         }
       } else if (writeKind === "property-category-delete") {
         const id = String(form.get("id") ?? "").trim();
@@ -696,6 +698,7 @@ export async function POST(request: Request) {
         ok: true,
         kind: writeKind,
         caseSlug,
+        categoryId: createdCategoryId,
         href: "/finance/property",
       });
     }

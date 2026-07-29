@@ -353,7 +353,6 @@ export function buildPropertyWbsTree(
   const result: PropertyWbsCategory[] = [];
   categories.forEach((category, index) => {
     const catRoots = roots.filter((task) => task.phase === category.id);
-    if (catRoots.length === 0) return;
     result.push(buildCategory(category.id, category.label, index, catRoots));
   });
 
@@ -403,6 +402,22 @@ export function filterPropertyWbs(
   return categories
     .map((category) => ({ ...category, nodes: prune(category.nodes) }))
     .filter((category) => category.nodes.length > 0);
+}
+
+/** 상태 필터 후에도 할 일 없는(빈) 카테고리는 목록에 남긴다 */
+export function mergeEmptyPropertyWbsCategories(
+  filtered: PropertyWbsCategory[],
+  fullTree: PropertyWbsCategory[],
+): PropertyWbsCategory[] {
+  const byId = new Map(filtered.map((category) => [category.categoryId, category]));
+  for (const category of fullTree) {
+    if (category.nodes.length === 0) {
+      byId.set(category.categoryId, category);
+    }
+  }
+  return fullTree
+    .filter((category) => byId.has(category.categoryId))
+    .map((category) => byId.get(category.categoryId)!);
 }
 
 /** slug의 모든 자손 slug — 삭제 캐스케이드·사이클(재부모) 방지 */

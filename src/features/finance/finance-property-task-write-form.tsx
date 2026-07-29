@@ -9,6 +9,7 @@ import {
   collectPropertyDescendantSlugs,
   flattenPropertyWbs,
 } from "@/lib/write/finance-drafts";
+import { buildFinancePropertyHref } from "@/lib/write/href";
 import {
   FINANCE_PROPERTY_TASK_STATUS_LABEL,
   resolvePropertyCategories,
@@ -24,6 +25,10 @@ type FinancePropertyTaskWriteFormProps = {
   cases: FinancePropertyCase[];
   defaultCaseSlug?: string;
   defaultParentSlug?: string;
+  /** 최상위 할 일 — 카테고리 id (phase:…) */
+  defaultPhase?: string;
+  /** 저장 후 Property 목록에서 복원할 필터 탭 */
+  returnTab?: string;
 };
 
 const fieldClass = cn(
@@ -51,6 +56,8 @@ export function FinancePropertyTaskWriteForm({
   cases,
   defaultCaseSlug,
   defaultParentSlug,
+  defaultPhase,
+  returnTab,
 }: FinancePropertyTaskWriteFormProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -66,7 +73,7 @@ export function FinancePropertyTaskWriteForm({
     encodeParentValue(draft) ??
     (defaultParentSlug
       ? `task:${defaultParentSlug}`
-      : `phase:${initialCategories[0]?.id ?? ""}`);
+      : `phase:${defaultPhase && initialCategories.some((item) => item.id === defaultPhase) ? defaultPhase : (initialCategories[0]?.id ?? "")}`);
 
   const [caseSlug, setCaseSlug] = useState(initialCaseSlug);
   const [title, setTitle] = useState(draft?.title ?? "");
@@ -210,7 +217,12 @@ export function FinancePropertyTaskWriteForm({
         return;
       }
 
-      router.push(payload?.href ?? "/finance/property");
+      router.push(
+        buildFinancePropertyHref({
+          caseSlug,
+          tab: returnTab || parsed.phase || undefined,
+        }),
+      );
       router.refresh();
     } catch {
       setError("저장에 실패했습니다.");

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { FinanceClaimsView } from "@/features/finance/finance-claims-view";
@@ -76,7 +77,9 @@ export default async function FinanceSectionPage({
               medicalEntries={getFinanceMedicalLedgerEntries()}
             />
           ) : section === "property" ? (
-            <FinancePropertyView cases={getFinancePropertyCases()} />
+            <Suspense fallback={null}>
+              <FinancePropertyView cases={getFinancePropertyCases()} />
+            </Suspense>
           ) : (
             <FinanceSectionView section={section} />
           )

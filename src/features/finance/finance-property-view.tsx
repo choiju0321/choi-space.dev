@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FadeIn } from "@/components/ui/fade-in";
 import {
   AdminActionLink,
@@ -11,13 +11,17 @@ import {
 import { ContentBreadcrumb } from "@/features/content/content-breadcrumb";
 import { FINANCE_NAV } from "@/content/nav";
 import { cn } from "@/lib/utils/cn";
-import { buildFinanceWriteHref } from "@/lib/write/href";
+import {
+  buildFinancePropertyHref,
+  buildFinanceWriteHref,
+} from "@/lib/write/href";
 import {
   buildPropertyWbsTree,
   collectPropertyDescendantSlugs,
   countPropertyOpenTasks,
   filterPropertyWbs,
   flattenPropertyWbs,
+  mergeEmptyPropertyWbsCategories,
   propertyLeafStats,
   propertyTaskSpan,
   type PropertyWbsCategory,
@@ -44,6 +48,8 @@ type FilterTab = string;
 
 /** 카테고리 관리 mutation body */
 type CategoryBody = Record<string, string>;
+
+type CategorySubmitResult = { ok: boolean; categoryId?: string };
 
 const actionButtonClass = cn(
   "inline-flex h-8 items-center px-2.5 text-[0.75rem] tracking-wide",
@@ -85,12 +91,14 @@ function ProgressMeter({ done, total }: { done: number; total: number }) {
 function NodeRow({
   caseSlug,
   node,
+  filterTab,
   busyKey,
   onStatus,
   onDelete,
 }: {
   caseSlug: string;
   node: PropertyWbsNode;
+  filterTab: FilterTab;
   busyKey: string | null;
   onStatus: (
     caseSlug: string,
@@ -107,11 +115,13 @@ function NodeRow({
     kind: "property-task",
     slug: task.slug,
     caseSlug,
+    tab: filterTab,
   });
   const addChildHref = buildFinanceWriteHref({
     kind: "property-task",
     caseSlug,
     parentSlug: task.slug,
+    tab: filterTab,
   });
 
   return (
@@ -218,6 +228,7 @@ function NodeRow({
           key={child.task.slug}
           caseSlug={caseSlug}
           node={child}
+          filterTab={filterTab}
           busyKey={busyKey}
           onStatus={onStatus}
           onDelete={onDelete}
@@ -445,24 +456,26 @@ function CategoryManager({
   taskCountByCat,
   busy,
   onSubmit,
+  onFocusCategory,
 }: {
   caseSlug: string;
   categories: FinancePropertyCategory[];
   taskCountByCat: Record<string, number>;
   busy: boolean;
-  onSubmit: (body: CategoryBody) => Promise<boolean>;
+  onSubmit: (body: CategoryBody) => Promise<CategorySubmitResult>;
+  onFocusCategory?: (categoryId: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [newLabel, setNewLabel] = useState("");
 
   return (
-    <div className="mt-10 border-t border-[var(--color-border)]/70 pt-5">
+    <div className="mt-8 border-t border-[var(--color-border)]/70 pt-5">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         className="text-[0.7rem] font-medium uppercase tracking-[0.14em] text-[var(--color-muted)] transition-colors hover:text-[var(--color-foreground)]"
       >
-        카테고리 관리 {open ? "▾" : "▸"}
+        1. 카테고리 관리 {open ? "▾" : "▸"}
       </button>
 
       {open ? (
@@ -567,21 +580,27 @@ function CategoryManager({
               disabled={busy || !newLabel.trim()}
               className={actionButtonClass}
               onClick={async () => {
-                const ok = await onSubmit({
+                const result = await onSubmit({
                   kind: "property-category",
                   mode: "new",
                   caseSlug,
                   label: newLabel.trim(),
                 });
-                if (ok) setNewLabel("");
+                if (result.ok) {
+                  setNewLabel("");
+                  if (result.categoryId) {
+                    onFocusCategory?.(result.categoryId);
+                  }
+                }
               }}
             >
               + 추가
             </button>
           </div>
           <p className="pt-1 text-xs leading-5 text-[var(--color-muted-soft)]">
-            순서가 곧 WBS 번호(1·2·3…)입니다. 할 일이 든 카테고리는 비워야 삭제할
-            수 있어요.
+            순서가 곧 WBS 번호(1·2·3…)입니다. 카테고리를 만든 뒤, 아래에서 큰
+            갈래 할 일(+ Task) → 세부 할 일(+ 하위) 순으로 쌓으세요. 할 일이
+            든 카테고리는 비워야 삭제할 수 있어요.
           </p>
         </div>
       ) : null}
@@ -599,6 +618,7 @@ function CasePanel({
   onStatus,
   onDelete,
   onCategory,
+  onFocusCategory,
 }: {
   item: FinancePropertyCase;
   filterTab: FilterTab;
@@ -612,7 +632,8 @@ function CasePanel({
     status: FinancePropertyTaskStatus,
   ) => void;
   onDelete: (caseSlug: string, taskSlug: string) => void;
-  onCategory: (body: CategoryBody) => Promise<boolean>;
+  onCategory: (body: CategoryBody) => Promise<CategorySubmitResult>;
+  onFocusCategory: (categoryId: string) => void;
 }) {
   const categories = useMemo(() => resolvePropertyCategories(item), [item]);
   const tree = useMemo(
@@ -620,23 +641,32 @@ function CasePanel({
     [item.tasks, categories],
   );
 
-  const filterTabs = useMemo(
-    () => [
-      { id: "open", label: "남은일" },
-      { id: "all", label: "전체" },
-      ...categories.map((category) => ({
+  const systemFilterTabs = useMemo(
+    () =>
+      [
+        { id: "open", label: "남은일" },
+        { id: "all", label: "전체" },
+        { id: "done", label: "완료" },
+      ] as const,
+    [],
+  );
+
+  const categoryFilterTabs = useMemo(
+    () =>
+      categories.map((category) => ({
         id: category.id,
         label: category.label,
       })),
-      { id: "done", label: "완료" },
-    ],
     [categories],
   );
 
   const visibleCategories = useMemo(() => {
     if (filterTab === "all") return tree;
     if (filterTab === "open") {
-      return filterPropertyWbs(tree, (node) => node.task.status !== "done");
+      return mergeEmptyPropertyWbsCategories(
+        filterPropertyWbs(tree, (node) => node.task.status !== "done"),
+        tree,
+      );
     }
     if (filterTab === "done") {
       return filterPropertyWbs(tree, (node) => node.task.status === "done");
@@ -692,17 +722,10 @@ function CasePanel({
             href={buildFinanceWriteHref({
               kind: "property",
               slug: item.slug,
+              tab: filterTab,
             })}
           >
             Edit
-          </AdminActionLink>
-          <AdminActionLink
-            href={buildFinanceWriteHref({
-              kind: "property-task",
-              caseSlug: item.slug,
-            })}
-          >
-            + Task
           </AdminActionLink>
         </AdminContentToolbar>
       </div>
@@ -768,76 +791,65 @@ function CasePanel({
         })}
       </div>
 
-      <div
-        role="tablist"
-        aria-label="카테고리 필터"
-        className="mt-6 flex flex-wrap gap-x-5 gap-y-2"
-      >
-        {filterTabs.map((tab) => {
-          const selected = tab.id === filterTab;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={() => setFilterTab(tab.id)}
-              className={cn(
-                "pb-1 text-[0.75rem] tracking-wide transition-colors",
-                selected
-                  ? "text-[var(--color-foreground)] underline underline-offset-4"
-                  : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
-              )}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {viewMode === "gantt" ? (
-        <PropertyGantt categories={visibleCategories} moveInAt={item.moveInAt} />
-      ) : visibleCategories.length === 0 ? (
-        <p className="mt-8 text-sm text-[var(--color-muted-soft)]">
-          {item.tasks.length === 0
-            ? "할 일이 없습니다. + Task로 일정을 추가하세요."
-            : "이 필터에 해당하는 할 일이 없습니다."}
-        </p>
-      ) : (
-        <div className="mt-8 space-y-10">
-          {visibleCategories.map((category) => (
-            <section key={category.categoryId}>
-              <h3 className="flex flex-wrap items-baseline gap-x-3 font-[family-name:var(--font-display)] text-lg font-semibold tracking-tight text-[var(--color-foreground)]">
-                <span>
-                  <span className="tabular-nums text-[var(--color-muted)]">
-                    {category.code}
-                  </span>
-                  <span className="mx-2 text-[var(--color-border)]">·</span>
-                  {category.label}
-                </span>
-                <span className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
-                  <ProgressMeter
-                    done={category.leafDone}
-                    total={category.leafTotal}
-                  />
-                </span>
-              </h3>
-              <ul className="mt-3 border-b border-[var(--color-border)]/70">
-                {category.nodes.map((node) => (
-                  <NodeRow
-                    key={node.task.slug}
-                    caseSlug={item.slug}
-                    node={node}
-                    busyKey={busyKey}
-                    onStatus={onStatus}
-                    onDelete={onDelete}
-                  />
-                ))}
-              </ul>
-            </section>
-          ))}
+      <div className="mt-6 space-y-3">
+        <div
+          role="tablist"
+          aria-label="상태 필터"
+          className="flex flex-wrap items-center gap-x-5 gap-y-2"
+        >
+          {systemFilterTabs.map((tab) => {
+            const selected = tab.id === filterTab;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setFilterTab(tab.id)}
+                className={cn(
+                  "pb-1 text-[0.75rem] tracking-wide transition-colors",
+                  selected
+                    ? "text-[var(--color-foreground)] underline underline-offset-4"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
+                )}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
-      )}
+        {categoryFilterTabs.length > 0 ? (
+          <div
+            role="tablist"
+            aria-label="카테고리"
+            className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-t border-[var(--color-border)]/70 pt-3"
+          >
+            <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-[var(--color-muted-soft)]">
+              카테고리
+            </span>
+            {categoryFilterTabs.map((tab) => {
+              const selected = tab.id === filterTab;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setFilterTab(tab.id)}
+                  className={cn(
+                    "pb-1 text-[0.8125rem] tracking-wide transition-colors",
+                    selected
+                      ? "text-[var(--color-foreground)] underline underline-offset-4"
+                      : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
 
       <CategoryManager
         caseSlug={item.slug}
@@ -845,26 +857,184 @@ function CasePanel({
         taskCountByCat={taskCountByCat}
         busy={Boolean(busyKey)}
         onSubmit={onCategory}
+        onFocusCategory={onFocusCategory}
       />
+
+      <p className="mt-8 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-[var(--color-muted-soft)]">
+        2. 할 일
+        <span className="mx-2 font-normal normal-case tracking-normal text-[var(--color-border)]">
+          ·
+        </span>
+        <span className="font-normal normal-case tracking-normal text-[var(--color-muted)]">
+          카테고리별 큰 갈래(+ Task) → 세부(+ 하위)
+        </span>
+      </p>
+
+      {viewMode === "gantt" ? (
+        <PropertyGantt
+          categories={visibleCategories.filter(
+            (category) => category.nodes.length > 0,
+          )}
+          moveInAt={item.moveInAt}
+        />
+      ) : visibleCategories.length === 0 ? (
+        <div className="mt-4 space-y-3">
+          <p className="text-sm text-[var(--color-muted-soft)]">
+            {item.tasks.length === 0
+              ? "아직 할 일이 없습니다. 위에서 카테고리를 확인한 뒤, 아래 + Task로 큰 갈래를 추가하세요."
+              : "이 필터에 해당하는 할 일이 없습니다."}
+          </p>
+          {filterTab !== "open" &&
+          filterTab !== "all" &&
+          filterTab !== "done" ? (
+            <AdminActionLink
+              href={buildFinanceWriteHref({
+                kind: "property-task",
+                caseSlug: item.slug,
+                phase: filterTab,
+                tab: filterTab,
+              })}
+            >
+              + Task
+            </AdminActionLink>
+          ) : categories[0] ? (
+            <AdminActionLink
+              href={buildFinanceWriteHref({
+                kind: "property-task",
+                caseSlug: item.slug,
+                phase: categories[0].id,
+                tab: filterTab === "all" ? categories[0].id : filterTab,
+              })}
+            >
+              + Task · {categories[0].label}
+            </AdminActionLink>
+          ) : null}
+        </div>
+      ) : (
+        <div className="mt-4 space-y-10">
+          {visibleCategories.map((category) => (
+            <section key={category.categoryId}>
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <h3 className="flex flex-wrap items-baseline gap-x-3 font-[family-name:var(--font-display)] text-lg font-semibold tracking-tight text-[var(--color-foreground)]">
+                  <span>
+                    <span className="tabular-nums text-[var(--color-muted)]">
+                      {category.code}
+                    </span>
+                    <span className="mx-2 text-[var(--color-border)]">·</span>
+                    {category.label}
+                  </span>
+                  <span className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
+                    <ProgressMeter
+                      done={category.leafDone}
+                      total={category.leafTotal}
+                    />
+                  </span>
+                </h3>
+                <AdminActionLink
+                  href={buildFinanceWriteHref({
+                    kind: "property-task",
+                    caseSlug: item.slug,
+                    phase: category.categoryId,
+                    tab:
+                      filterTab === "open" ||
+                      filterTab === "all" ||
+                      filterTab === "done"
+                        ? category.categoryId
+                        : filterTab,
+                  })}
+                  className="h-8 px-2.5 text-[0.75rem]"
+                >
+                  + Task
+                </AdminActionLink>
+              </div>
+              {category.nodes.length === 0 ? (
+                <p className="mt-3 text-sm text-[var(--color-muted-soft)]">
+                  이 카테고리에 큰 갈래 할 일이 없습니다.
+                </p>
+              ) : (
+                <ul className="mt-3 border-b border-[var(--color-border)]/70">
+                  {category.nodes.map((node) => (
+                    <NodeRow
+                      key={node.task.slug}
+                      caseSlug={item.slug}
+                      node={node}
+                      filterTab={filterTab}
+                      busyKey={busyKey}
+                      onStatus={onStatus}
+                      onDelete={onDelete}
+                    />
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
 
 export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
   const router = useRouter();
-  const [activeSlug, setActiveSlug] = useState(
-    () =>
-      cases.find((item) => item.status === "active")?.slug ??
-      cases[0]?.slug ??
-      "",
+  const searchParams = useSearchParams();
+
+  const defaultCaseSlug =
+    cases.find((item) => item.status === "active")?.slug ??
+    cases[0]?.slug ??
+    "";
+  const caseFromUrl = searchParams.get("case")?.trim() ?? "";
+  const tabFromUrl = searchParams.get("tab")?.trim() ?? "";
+  const viewFromUrl = searchParams.get("view")?.trim() ?? "";
+
+  const [activeSlug, setActiveSlug] = useState(() => {
+    if (caseFromUrl && cases.some((item) => item.slug === caseFromUrl)) {
+      return caseFromUrl;
+    }
+    return defaultCaseSlug;
+  });
+  const [filterTab, setFilterTab] = useState<FilterTab>(
+    () => tabFromUrl || "open",
   );
-  const [filterTab, setFilterTab] = useState<FilterTab>("open");
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    viewFromUrl === "gantt" ? "gantt" : "list",
+  );
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<
     Record<string, FinancePropertyTaskStatus>
   >({});
+
+  const syncListUrl = useCallback(
+    (next: {
+      caseSlug?: string;
+      tab?: FilterTab;
+      view?: ViewMode;
+    }) => {
+      const href = buildFinancePropertyHref({
+        caseSlug: next.caseSlug ?? activeSlug,
+        tab: next.tab ?? filterTab,
+        view: next.view ?? viewMode,
+      });
+      router.replace(href, { scroll: false });
+    },
+    [activeSlug, filterTab, viewMode, router],
+  );
+
+  function selectCase(slug: string) {
+    setActiveSlug(slug);
+    setFilterTab("open");
+    syncListUrl({ caseSlug: slug, tab: "open" });
+  }
+
+  function selectFilterTab(tab: FilterTab) {
+    setFilterTab(tab);
+    syncListUrl({ tab });
+  }
+
+  function selectViewMode(mode: ViewMode) {
+    setViewMode(mode);
+    syncListUrl({ view: mode });
+  }
 
   const displayCases = useMemo(() => {
     return cases.map((item) => ({
@@ -962,8 +1132,8 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
     }
   }
 
-  async function onCategory(body: CategoryBody): Promise<boolean> {
-    if (busyKey) return false;
+  async function onCategory(body: CategoryBody): Promise<CategorySubmitResult> {
+    if (busyKey) return { ok: false };
     setError(null);
     setBusyKey("category");
     try {
@@ -972,16 +1142,17 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
       const res = await fetch("/api/write/finance", { method: "POST", body: form });
       const data = (await res.json().catch(() => null)) as {
         error?: string;
+        categoryId?: string;
       } | null;
       if (!res.ok) {
         setError(data?.error ?? "카테고리 처리에 실패했습니다.");
-        return false;
+        return { ok: false };
       }
       router.refresh();
-      return true;
+      return { ok: true, categoryId: data?.categoryId };
     } catch {
       setError("카테고리 처리에 실패했습니다.");
-      return false;
+      return { ok: false };
     } finally {
       setBusyKey(null);
     }
@@ -1041,10 +1212,7 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
                     type="button"
                     role="tab"
                     aria-selected={selected}
-                    onClick={() => {
-                      setActiveSlug(item.slug);
-                      setFilterTab("open");
-                    }}
+                    onClick={() => selectCase(item.slug)}
                     className={cn(
                       "-mb-px border-b pb-3 text-[0.8125rem] tracking-wide transition-colors",
                       selected
@@ -1070,13 +1238,14 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
             <CasePanel
               item={active}
               filterTab={filterTab}
-              setFilterTab={setFilterTab}
+              setFilterTab={selectFilterTab}
               viewMode={viewMode}
-              setViewMode={setViewMode}
+              setViewMode={selectViewMode}
               busyKey={busyKey}
               onStatus={onStatus}
               onDelete={onDelete}
               onCategory={onCategory}
+              onFocusCategory={selectFilterTab}
             />
           ) : null}
         </FadeIn>
