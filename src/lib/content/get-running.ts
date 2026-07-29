@@ -1,6 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { runningEntries as staticRunningEntries } from "@/content/running/entries";
 import type { RunningArchive, RunningEntry } from "@/types/running";
 import type { RunningListItem } from "@/types/running-list";
 import type { LifeCollection, LifeMemory } from "@/types/content";
@@ -9,6 +7,11 @@ import {
   listPhotoPublicPaths,
   readReviewBody,
 } from "@/lib/content/life-media";
+import {
+  loadContentBodyBySlug,
+  loadMediaPathsBySlug,
+  loadRunningEntries,
+} from "@/lib/content/story-repository";
 import {
   getRunningCertificateLegacyPath,
   getRunningCertificateMediaPath,
@@ -22,33 +25,19 @@ export const RUNNING_CERTIFICATES_DIR = path.join(
   "private/media/life/running",
 );
 
-function loadSessions(): RunningEntry[] {
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "src/content/running/sessions.json",
-    );
-    if (!existsSync(filePath)) return [];
-    return JSON.parse(readFileSync(filePath, "utf8")) as RunningEntry[];
-  } catch {
-    return [];
-  }
+export async function getRunningArchive(): Promise<RunningArchive> {
+  return { entries: await getRunningEntries() };
 }
 
-export function getRunningArchive(): RunningArchive {
-  return { entries: getRunningEntries() };
+export async function getRunningEntries(): Promise<RunningEntry[]> {
+  return loadRunningEntries();
 }
 
-export function getRunningEntries(): RunningEntry[] {
-  const merged = [...staticRunningEntries, ...loadSessions()];
-  const bySlug = new Map<string, RunningEntry>();
-  for (const entry of merged) bySlug.set(entry.slug, entry);
-  return [...bySlug.values()].sort((a, b) => b.ranOn.localeCompare(a.ranOn));
-}
-
-export function getRunningEntryBySlug(slug: string): RunningEntry | undefined {
+export async function getRunningEntryBySlug(
+  slug: string,
+): Promise<RunningEntry | undefined> {
   const normalized = decodeURIComponent(slug);
-  return getRunningEntries().find((entry) => entry.slug === normalized);
+  return (await getRunningEntries()).find((entry) => entry.slug === normalized);
 }
 
 export function formatDistanceKm(distanceKm: number): string {
@@ -85,17 +74,22 @@ export function getRunningCertificateWritePath(slug: string) {
   return getRunningCertificateMediaPath(slug);
 }
 
-export function hasRunningReview(slug: string) {
-  return hasReview("running", slug);
+export async function hasRunningReview(slug: string) {
+  const body = await loadContentBodyBySlug("running", slug);
+  return Boolean(body) || hasReview("running", slug);
 }
 
 export async function getRunningReviewBody(
   slug: string,
 ): Promise<string | null> {
+  const fromDb = await loadContentBodyBySlug("running", slug);
+  if (fromDb) return fromDb;
   return readReviewBody("running", slug);
 }
 
-export function getRunningPhotos(slug: string) {
+export async function getRunningPhotos(slug: string) {
+  const fromDb = await loadMediaPathsBySlug("running", slug);
+  if (fromDb.length) return fromDb;
   return listPhotoPublicPaths("running", slug);
 }
 
@@ -103,7 +97,9 @@ export function expectsRunningCertificate(entry: RunningEntry) {
   return entry.artifacts.some((artifact) => artifact.kind === "certificate");
 }
 
-export function toRunningListItem(entry: RunningEntry): RunningListItem {
+export async function toRunningListItem(
+  entry: RunningEntry,
+): Promise<RunningListItem> {
   return {
     id: entry.id,
     slug: entry.slug,
@@ -119,18 +115,21 @@ export function toRunningListItem(entry: RunningEntry): RunningListItem {
     tags: entry.tags,
     hasCertificate: hasRunningCertificate(entry.slug),
     expectsCertificate: expectsRunningCertificate(entry),
-    hasReview: hasRunningReview(entry.slug),
+    hasReview: await hasRunningReview(entry.slug),
   };
 }
 
-export function getRunningListItems(): RunningListItem[] {
-  return getRunningEntries().map(toRunningListItem);
+export async function getRunningListItems(): Promise<RunningListItem[]> {
+  const entries = await getRunningEntries();
+  return Promise.all(entries.map(toRunningListItem));
 }
 
 /** Life 홈에서는 최근 기록만 미리보고, 전체는 /life/running 에서 */
-export function getRunningLifeCollection(previewCount = 5): LifeCollection {
-  const all = getRunningEntries();
-  const items: LifeMemory[] = getRunningListItems()
+export async function getRunningLifeCollection(
+  previewCount = 5,
+): Promise<LifeCollection> {
+  const all = await getRunningEntries();
+  const items: LifeMemory[] = (await getRunningListItems())
     .slice(0, previewCount)
     .map((entry) => {
       const meta = [

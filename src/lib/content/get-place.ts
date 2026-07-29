@@ -1,5 +1,3 @@
-import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import type {
   FoodKind,
   PlaceDomain,
@@ -8,6 +6,11 @@ import type {
 } from "@/types/place";
 import type { LifeCollection, LifeMemory } from "@/types/content";
 import { hasReview, listPhotoPublicPaths } from "@/lib/content/life-media";
+import {
+  loadContentBodyBySlug,
+  loadMediaPathsBySlug,
+  loadPlaceEntries,
+} from "@/lib/content/story-repository";
 import { buildTravelItineraryFileName } from "@/lib/media/naming";
 import {
   getTravelItineraryMediaPath,
@@ -15,18 +18,24 @@ import {
   resolveMediaFilePath,
 } from "@/lib/media/paths";
 
-export function getPlaceListItems(domain: PlaceDomain): PlaceListItem[] {
-  return getPlaceEntries(domain).map((entry) => {
-    const photos = listPhotoPublicPaths(domain, entry.slug);
-    return {
-      ...entry,
-      displayDate: formatPlaceDisplayDate(entry),
-      hasReview: hasReview(domain, entry.slug),
-      photoCount: photos.length,
-      coverImage: photos[0] ?? null,
-      kindLabel: domain === "food" ? getFoodKindLabel(entry.kind) : null,
-    };
-  });
+export async function getPlaceListItems(
+  domain: PlaceDomain,
+): Promise<PlaceListItem[]> {
+  const entries = await getPlaceEntries(domain);
+  return Promise.all(
+    entries.map(async (entry) => {
+      const photos = await getPlacePhotos(domain, entry.slug);
+      const body = await loadContentBodyBySlug(domain, entry.slug);
+      return {
+        ...entry,
+        displayDate: formatPlaceDisplayDate(entry),
+        hasReview: Boolean(body) || hasReview(domain, entry.slug),
+        photoCount: photos.length,
+        coverImage: photos[0] ?? null,
+        kindLabel: domain === "food" ? getFoodKindLabel(entry.kind) : null,
+      };
+    }),
+  );
 }
 
 const LABELS: Record<
@@ -47,27 +56,30 @@ const LABELS: Record<
   },
 };
 
-function entriesPath(domain: PlaceDomain) {
-  return path.join(process.cwd(), "src/content", domain, "entries.json");
+export async function getPlaceEntries(
+  domain: PlaceDomain,
+): Promise<PlaceEntry[]> {
+  return loadPlaceEntries(domain);
 }
 
-export function getPlaceEntries(domain: PlaceDomain): PlaceEntry[] {
-  const filePath = entriesPath(domain);
-  if (!existsSync(filePath)) return [];
-  const raw = JSON.parse(readFileSync(filePath, "utf8")) as PlaceEntry[];
-  return [...raw].sort((a, b) => b.visitedOn.localeCompare(a.visitedOn));
-}
-
-export function getPlaceEntryBySlug(
+export async function getPlaceEntryBySlug(
   domain: PlaceDomain,
   slug: string,
-): PlaceEntry | undefined {
+): Promise<PlaceEntry | undefined> {
   const normalized = decodeURIComponent(slug);
-  return getPlaceEntries(domain).find((entry) => entry.slug === normalized);
+  return (await getPlaceEntries(domain)).find(
+    (entry) => entry.slug === normalized,
+  );
 }
 
-function travelItineraryFileName(slug: string) {
-  const entry = getPlaceEntryBySlug("travel", slug);
+export async function getPlacePhotos(domain: PlaceDomain, slug: string) {
+  const fromDb = await loadMediaPathsBySlug(domain, slug);
+  if (fromDb.length) return fromDb;
+  return listPhotoPublicPaths(domain, slug);
+}
+
+async function travelItineraryFileName(slug: string) {
+  const entry = await getPlaceEntryBySlug("travel", slug);
   return entry ? buildTravelItineraryFileName(entry) : undefined;
 }
 
@@ -94,59 +106,63 @@ export function getPlaceSupportingLabel(
   return entry.place;
 }
 
-export function getTravelItineraryPath(slug: string) {
+export async function getTravelItineraryPath(slug: string) {
   return resolveMediaFilePath({
     space: "life",
     category: "travel",
     slug,
     role: "itinerary",
-    fileName: travelItineraryFileName(slug),
+    fileName: await travelItineraryFileName(slug),
   });
 }
 
-export function hasTravelItinerary(slug: string) {
+export async function hasTravelItinerary(slug: string) {
   return mediaFileExists({
     space: "life",
     category: "travel",
     slug,
     role: "itinerary",
-    fileName: travelItineraryFileName(slug),
+    fileName: await travelItineraryFileName(slug),
   });
 }
 
-export function getTravelItineraryWritePath(slug: string) {
-  return getTravelItineraryMediaPath(slug, travelItineraryFileName(slug));
+export async function getTravelItineraryWritePath(slug: string) {
+  return getTravelItineraryMediaPath(
+    slug,
+    await travelItineraryFileName(slug),
+  );
 }
 
-export function getPlaceLifeCollection(
+export async function getPlaceLifeCollection(
   domain: PlaceDomain,
   previewCount = 5,
-): LifeCollection {
+): Promise<LifeCollection> {
   const meta = LABELS[domain];
-  const entries = getPlaceEntries(domain);
-  const items: LifeMemory[] = entries.slice(0, previewCount).map((entry) => {
-    const photos = listPhotoPublicPaths(domain, entry.slug);
-    const flags = [
-      hasReview(domain, entry.slug) ? "후기" : null,
-      photos.length ? `사진 ${photos.length}` : null,
-    ]
-      .filter(Boolean)
-      .join(" · ");
+  const entries = await getPlaceEntries(domain);
+  const items: LifeMemory[] = await Promise.all(
+    entries.slice(0, previewCount).map(async (entry) => {
+      const photos = await getPlacePhotos(domain, entry.slug);
+      const body = await loadContentBodyBySlug(domain, entry.slug);
+      const flags = [
+        body || hasReview(domain, entry.slug) ? "후기" : null,
+        photos.length ? `사진 ${photos.length}` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
 
-    return {
-      id: entry.id,
-      slug: entry.slug,
-      title: entry.title,
-      place: entry.place,
-      date: formatPlaceDisplayDate(entry),
-      excerpt: flags
-        ? `${flags} — ${entry.excerpt}`
-        : entry.excerpt,
-      tags: entry.tags,
-      href: `/life/${domain}/${entry.slug}`,
-      coverImage: photos[0],
-    };
-  });
+      return {
+        id: entry.id,
+        slug: entry.slug,
+        title: entry.title,
+        place: entry.place,
+        date: formatPlaceDisplayDate(entry),
+        excerpt: flags ? `${flags} — ${entry.excerpt}` : entry.excerpt,
+        tags: entry.tags,
+        href: `/life/${domain}/${entry.slug}`,
+        coverImage: photos[0],
+      };
+    }),
+  );
 
   return {
     id: domain,

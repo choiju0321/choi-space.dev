@@ -23,8 +23,8 @@ type PageProps = {
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return getCultureEntries().map((entry) => ({ slug: entry.slug }));
+export async function generateStaticParams() {
+  return (await getCultureEntries()).map((entry) => ({ slug: entry.slug }));
 }
 
 export async function generateMetadata({
@@ -32,7 +32,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const entry = getCultureEntryBySlug(slug);
+  const entry = await getCultureEntryBySlug(slug);
   if (!entry) return { title: "문화 기록" };
 
   return {
@@ -44,11 +44,11 @@ export async function generateMetadata({
 export default async function CultureDetailPage({ params }: PageProps) {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const entry = getCultureEntryBySlug(slug);
+  const entry = await getCultureEntryBySlug(slug);
   if (!entry) notFound();
 
   const reviewBody = await getCultureReviewBody(slug);
-  const photos = getCulturePhotos(slug);
+  const photos = await getCulturePhotos(slug);
   const authenticated = await hasWriteSession();
 
   return (
@@ -58,7 +58,7 @@ export default async function CultureDetailPage({ params }: PageProps) {
       displayDate={formatCultureDisplayDate(entry)}
       posterImage={resolveCulturePosterSrc(entry)}
       photos={photos}
-      hasReview={hasCultureReview(slug) || Boolean(reviewBody)}
+      hasReview={(await hasCultureReview(slug)) || Boolean(reviewBody)}
       reviewBody={reviewBody}
       actions={
         authenticated ? (

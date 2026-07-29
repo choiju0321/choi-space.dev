@@ -10,17 +10,19 @@ export const metadata: Metadata = {
   description: "책, 러닝, 문화, 일상 등 삶의 경험을 기록합니다.",
 };
 
-function mergeLifeLatest(limit = 6): PostListItem[] {
-  const journal = getLatestPosts("life", limit);
-  const archives = getAllLifeArchivePosts();
+async function mergeLifeLatest(limit = 6): Promise<PostListItem[]> {
+  const [journal, archives] = await Promise.all([
+    getLatestPosts("life", limit),
+    getAllLifeArchivePosts(),
+  ]);
 
   return [...journal, ...archives]
     .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
     .slice(0, limit);
 }
 
-export default function LifeOverviewPage() {
-  const latest = mergeLifeLatest(6);
+export default async function LifeOverviewPage() {
+  const latest = await mergeLifeLatest(6);
 
   return (
     <SpaceOverview

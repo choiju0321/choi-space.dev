@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: "자기계발·학습·회고 글을 모아 둡니다.",
 };
 
-export default function GrowthOverviewPage() {
-  const latest = getLatestPosts("growth", 6);
+export default async function GrowthOverviewPage() {
+  const latest = await getLatestPosts("growth", 6);
 
   return (
     <SpaceOverview

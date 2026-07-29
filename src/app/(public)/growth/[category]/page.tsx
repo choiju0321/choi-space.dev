@@ -50,7 +50,7 @@ export default async function GrowthCategoryPage({
   if (!item) notFound();
 
   const page = Number(pageParam ?? "1") || 1;
-  const all = getPosts({ space: "growth", category });
+  const all = await getPosts({ space: "growth", category });
   const paged = paginatePosts(all, page);
 
   return (

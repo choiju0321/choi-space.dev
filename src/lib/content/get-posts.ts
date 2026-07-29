@@ -32,15 +32,17 @@ function toListItem(post: Post): PostListItem {
 }
 
 function byNewest(a: Post, b: Post) {
-  return b.publishedOn.localeCompare(a.publishedOn);
+  const byDate = b.publishedOn.localeCompare(a.publishedOn);
+  if (byDate !== 0) return byDate;
+  return (b.createdAt ?? "").localeCompare(a.createdAt ?? "");
 }
 
-export function getPosts(options?: {
+export async function getPosts(options?: {
   space?: ContentSpace;
   category?: string;
   tag?: string;
-}): PostListItem[] {
-  return loadPosts()
+}): Promise<PostListItem[]> {
+  return (await loadPosts())
     .filter((post) => {
       if (options?.space && post.space !== options.space) return false;
       if (options?.category && post.category !== options.category) return false;
@@ -51,31 +53,31 @@ export function getPosts(options?: {
     .map(toListItem);
 }
 
-export function getFeaturedPosts(
+export async function getFeaturedPosts(
   space?: ContentSpace,
   limit = 1,
-): PostListItem[] {
-  return loadPosts()
+): Promise<PostListItem[]> {
+  return (await loadPosts())
     .filter((post) => post.featured && (!space || post.space === space))
     .sort(byNewest)
     .slice(0, limit)
     .map(toListItem);
 }
 
-export function getLatestPosts(
+export async function getLatestPosts(
   space?: ContentSpace,
   limit = 5,
-): PostListItem[] {
-  return getPosts({ space }).slice(0, limit);
+): Promise<PostListItem[]> {
+  return (await getPosts({ space })).slice(0, limit);
 }
 
-export function getPostBySlug(
+export async function getPostBySlug(
   space: ContentSpace,
   category: string,
   slug: string,
-): Post | undefined {
+): Promise<Post | undefined> {
   const normalized = decodeURIComponent(slug);
-  return loadPosts().find(
+  return (await loadPosts()).find(
     (post) =>
       post.space === space &&
       post.category === category &&
@@ -87,11 +89,11 @@ export function getPostListItem(post: Post): PostListItem {
   return toListItem(post);
 }
 
-export function getRelatedPosts(
+export async function getRelatedPosts(
   post: Post,
   limit = 3,
-): PostListItem[] {
-  const all = loadPosts();
+): Promise<PostListItem[]> {
+  const all = await loadPosts();
   const sameCategory = all
     .filter(
       (entry) =>
@@ -272,8 +274,8 @@ function inlineMarkdown(text: string) {
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 }
 
-export function getAllPostStaticParams() {
-  return loadPosts().map((post) => ({
+export async function getAllPostStaticParams() {
+  return (await loadPosts()).map((post) => ({
     space: post.space,
     category: post.category,
     slug: post.slug,

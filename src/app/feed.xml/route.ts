@@ -15,7 +15,11 @@ function escapeXml(value: string) {
 
 export async function GET() {
   const base = getSiteUrl();
-  const items = [...getPosts(), ...getAllLifeArchivePosts()]
+  const [posts, archives] = await Promise.all([
+    getPosts(),
+    getAllLifeArchivePosts(),
+  ]);
+  const items = [...posts, ...archives]
     .sort((a, b) => b.publishedOn.localeCompare(a.publishedOn))
     .slice(0, 50);
 

@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: "정보·칼럼·청약·팁 정리 글을 모아 둡니다.",
 };
 
-export default function NotesOverviewPage() {
-  const latest = getLatestPosts("notes", 6);
+export default async function NotesOverviewPage() {
+  const latest = await getLatestPosts("notes", 6);
 
   return (
     <SpaceOverview

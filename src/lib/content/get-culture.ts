@@ -1,6 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
-import { cultureEntries } from "@/content/culture/entries";
 import type { CultureArchive, CultureEntry, CultureKind } from "@/types/culture";
 import type { CultureListItem } from "@/types/culture-list";
 import type { LifeCollection, LifeMemory } from "@/types/content";
@@ -9,6 +8,11 @@ import {
   listPhotoPublicPaths,
   readReviewBody,
 } from "@/lib/content/life-media";
+import {
+  loadContentBodyBySlug,
+  loadCultureEntries,
+  loadMediaPathsBySlug,
+} from "@/lib/content/story-repository";
 
 export const CULTURE_REVIEWS_DIR = path.join(
   process.cwd(),
@@ -22,42 +26,30 @@ const KIND_LABELS: Record<CultureKind, string> = {
   concert: "공연",
 };
 
-function loadCultureEntries(): CultureEntry[] {
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "src/content/culture/entries.json",
-    );
-    if (existsSync(filePath)) {
-      return JSON.parse(readFileSync(filePath, "utf8")) as CultureEntry[];
-    }
-  } catch {
-    // fall through
-  }
-  return cultureEntries;
+export async function getCultureArchive(): Promise<CultureArchive> {
+  return { entries: await loadCultureEntries() };
 }
 
-export function getCultureArchive(): CultureArchive {
-  return { entries: loadCultureEntries() };
+export async function getCultureEntries(): Promise<CultureEntry[]> {
+  return loadCultureEntries();
 }
 
-export function getCultureEntries(): CultureEntry[] {
-  return [...loadCultureEntries()].sort((a, b) =>
-    b.watchedOn.localeCompare(a.watchedOn),
-  );
-}
-
-export function getCultureEntryBySlug(slug: string): CultureEntry | undefined {
+export async function getCultureEntryBySlug(
+  slug: string,
+): Promise<CultureEntry | undefined> {
   const normalized = decodeURIComponent(slug);
-  return loadCultureEntries().find((entry) => entry.slug === normalized);
+  return (await loadCultureEntries()).find(
+    (entry) => entry.slug === normalized,
+  );
 }
 
 export function getCultureKindLabel(kind: CultureKind): string {
   return KIND_LABELS[kind];
 }
 
-export function hasCultureReview(slug: string) {
-  return hasReview("culture", slug);
+export async function hasCultureReview(slug: string) {
+  const body = await loadContentBodyBySlug("culture", slug);
+  return Boolean(body) || hasReview("culture", slug);
 }
 
 const CULTURE_POSTERS_DIR = path.join(process.cwd(), "public/images/culture");
@@ -85,10 +77,14 @@ export function resolveCulturePosterSrc(entry: CultureEntry): string | null {
 export async function getCultureReviewBody(
   slug: string,
 ): Promise<string | null> {
+  const fromDb = await loadContentBodyBySlug("culture", slug);
+  if (fromDb) return fromDb;
   return readReviewBody("culture", slug);
 }
 
-export function getCulturePhotos(slug: string) {
+export async function getCulturePhotos(slug: string) {
+  const fromDb = await loadMediaPathsBySlug("culture", slug);
+  if (fromDb.length) return fromDb;
   return listPhotoPublicPaths("culture", slug);
 }
 
@@ -97,8 +93,10 @@ export function formatCultureDisplayDate(entry: CultureEntry): string {
   return entry.watchedAt ? `${date} ${entry.watchedAt}` : date;
 }
 
-export function toCultureListItem(entry: CultureEntry): CultureListItem {
-  const photos = getCulturePhotos(entry.slug);
+export async function toCultureListItem(
+  entry: CultureEntry,
+): Promise<CultureListItem> {
+  const photos = await getCulturePhotos(entry.slug);
   return {
     id: entry.id,
     slug: entry.slug,
@@ -112,18 +110,21 @@ export function toCultureListItem(entry: CultureEntry): CultureListItem {
     castLabel: entry.cast?.length ? entry.cast.join(", ") : null,
     excerpt: entry.excerpt,
     tags: entry.tags,
-    hasReview: hasCultureReview(entry.slug),
+    hasReview: await hasCultureReview(entry.slug),
     posterImage: resolveCulturePosterSrc(entry) ?? photos[0] ?? null,
   };
 }
 
-export function getCultureListItems(): CultureListItem[] {
-  return getCultureEntries().map(toCultureListItem);
+export async function getCultureListItems(): Promise<CultureListItem[]> {
+  const entries = await getCultureEntries();
+  return Promise.all(entries.map(toCultureListItem));
 }
 
-export function getCultureLifeCollection(previewCount = 5): LifeCollection {
-  const all = getCultureEntries();
-  const items: LifeMemory[] = getCultureListItems()
+export async function getCultureLifeCollection(
+  previewCount = 5,
+): Promise<LifeCollection> {
+  const all = await getCultureEntries();
+  const items: LifeMemory[] = (await getCultureListItems())
     .slice(0, previewCount)
     .map((entry) => {
       const meta = [

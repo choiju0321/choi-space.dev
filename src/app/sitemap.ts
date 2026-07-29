@@ -4,7 +4,7 @@ import { getAllLifeArchivePosts } from "@/lib/content/archive-as-posts";
 import { getPosts } from "@/lib/content/get-posts";
 import { getSiteUrl } from "@/lib/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
   const now = new Date();
 
@@ -27,14 +27,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === "" ? 1 : path.split("/").length <= 2 ? 0.8 : 0.6,
   }));
 
-  const journal = getPosts().map((post) => ({
+  const [journalPosts, lifeArchivePosts] = await Promise.all([
+    getPosts(),
+    getAllLifeArchivePosts(),
+  ]);
+
+  const journal = journalPosts.map((post) => ({
     url: `${base}${post.href}`,
     lastModified: new Date(post.publishedOn),
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
 
-  const lifeArchive = getAllLifeArchivePosts().map((post) => ({
+  const lifeArchive = lifeArchivePosts.map((post) => ({
     url: `${base}${post.href}`,
     lastModified: new Date(post.publishedOn),
     changeFrequency: "monthly" as const,

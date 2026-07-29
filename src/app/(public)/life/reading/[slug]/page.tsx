@@ -20,8 +20,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getReadingEntries().map((entry) => ({ slug: entry.slug }));
+export async function generateStaticParams() {
+  return (await getReadingEntries()).map((entry) => ({ slug: entry.slug }));
 }
 
 export async function generateMetadata({
@@ -29,7 +29,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const entry = getReadingEntryBySlug(slug);
+  const entry = await getReadingEntryBySlug(slug);
   if (!entry) return { title: "독서 기록" };
 
   return {
@@ -41,11 +41,11 @@ export async function generateMetadata({
 export default async function ReadingDetailPage({ params }: PageProps) {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const entry = getReadingEntryBySlug(slug);
+  const entry = await getReadingEntryBySlug(slug);
   if (!entry) notFound();
 
   const reviewBody = await getReadingReviewBody(slug);
-  const presentation = hasReadingPresentation(slug);
+  const presentation = await hasReadingPresentation(slug);
   const authenticated = await hasWriteSession();
 
   return (

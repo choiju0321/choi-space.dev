@@ -171,7 +171,7 @@ async function loadDraft(
     const postCategory =
       category === "daily" ? "daily" : journalCategory ?? "";
     if (!postCategory) return null;
-    const post = getPostBySlug(space, postCategory, slug);
+    const post = await getPostBySlug(space, postCategory, slug);
     if (!post) return null;
     return {
       title: post.title,
@@ -183,7 +183,7 @@ async function loadDraft(
   }
 
   if (category === "reading") {
-    const entry = getReadingEntryBySlug(slug);
+    const entry = await getReadingEntryBySlug(slug);
     if (!entry) return null;
     const body = await getReadingReviewBody(slug);
     return {
@@ -196,7 +196,7 @@ async function loadDraft(
   }
 
   if (category === "running") {
-    const entry = getRunningEntryBySlug(slug);
+    const entry = await getRunningEntryBySlug(slug);
     if (!entry) return null;
     const body = await readReviewBody("running", slug);
     return {
@@ -211,7 +211,7 @@ async function loadDraft(
   }
 
   if (category === "culture") {
-    const entry = getCultureEntryBySlug(slug);
+    const entry = await getCultureEntryBySlug(slug);
     if (!entry) return null;
     const body = await readReviewBody("culture", slug);
     return {
@@ -227,7 +227,7 @@ async function loadDraft(
   }
 
   if (category === "food" || category === "travel") {
-    const entry = getPlaceEntryBySlug(category, slug);
+    const entry = await getPlaceEntryBySlug(category, slug);
     if (!entry) return null;
     const body = await readReviewBody(category, slug);
     return {
@@ -725,6 +725,12 @@ export default async function WritePage({ searchParams }: PageProps) {
     ? await loadDraft(initialCategory, initialSlug, initialJournalCategory)
     : null;
 
+  const [readingEntries, runningEntries, cultureEntriesList] = await Promise.all([
+    getReadingEntries(),
+    getRunningEntries(),
+    getCultureEntries(),
+  ]);
+
   return (
     <div className="pb-24 pt-10 sm:pt-14">
       <Container className="max-w-3xl">
@@ -747,7 +753,7 @@ export default async function WritePage({ searchParams }: PageProps) {
           initialSlug={initialSlug}
           initialMode={initialMode}
           draft={draft}
-          readingOptions={getReadingEntries().map((entry) => ({
+          readingOptions={readingEntries.map((entry) => ({
             slug: entry.slug,
             label: `${entry.title} · ${entry.readOn}`,
           }))}
@@ -755,11 +761,11 @@ export default async function WritePage({ searchParams }: PageProps) {
             id: club.id,
             label: `${club.name} (${club.periodStart}–${club.periodEnd})`,
           }))}
-          runningOptions={getRunningEntries().map((entry) => ({
+          runningOptions={runningEntries.map((entry) => ({
             slug: entry.slug,
             label: `${entry.title} · ${entry.ranOn}`,
           }))}
-          cultureOptions={getCultureEntries().map((entry) => ({
+          cultureOptions={cultureEntriesList.map((entry) => ({
             slug: entry.slug,
             label: `${entry.title} · ${entry.watchedOn}`,
           }))}

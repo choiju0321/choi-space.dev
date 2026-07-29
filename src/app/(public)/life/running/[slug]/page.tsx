@@ -24,8 +24,8 @@ type PageProps = {
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return getRunningEntries().map((entry) => ({ slug: entry.slug }));
+export async function generateStaticParams() {
+  return (await getRunningEntries()).map((entry) => ({ slug: entry.slug }));
 }
 
 export async function generateMetadata({
@@ -33,7 +33,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const entry = getRunningEntryBySlug(slug);
+  const entry = await getRunningEntryBySlug(slug);
   if (!entry) return { title: "러닝 기록" };
 
   return {
@@ -45,11 +45,11 @@ export async function generateMetadata({
 export default async function RunningDetailPage({ params }: PageProps) {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const entry = getRunningEntryBySlug(slug);
+  const entry = await getRunningEntryBySlug(slug);
   if (!entry) notFound();
 
   const reviewBody = await getRunningReviewBody(slug);
-  const photos = getRunningPhotos(slug);
+  const photos = await getRunningPhotos(slug);
   const authenticated = await hasWriteSession();
 
   return (
@@ -59,7 +59,7 @@ export default async function RunningDetailPage({ params }: PageProps) {
       distanceLabel={formatDistanceKm(entry.distanceKm)}
       hasCertificate={hasRunningCertificate(slug)}
       expectsCertificate={expectsRunningCertificate(entry)}
-      hasReview={hasRunningReview(slug) || Boolean(reviewBody)}
+      hasReview={(await hasRunningReview(slug)) || Boolean(reviewBody)}
       reviewBody={reviewBody}
       photos={photos}
       actions={

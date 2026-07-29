@@ -24,7 +24,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const post = getPostBySlug("life", "daily", slug);
+  const post = await getPostBySlug("life", "daily", slug);
   if (!post) return { title: "Daily · Life" };
   return buildPublicMetadata({
     title: post.title,
@@ -40,10 +40,10 @@ export async function generateMetadata({
 export default async function LifeDailyPostPage({ params }: PageProps) {
   const { slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const post = getPostBySlug("life", "daily", slug);
+  const post = await getPostBySlug("life", "daily", slug);
   if (!post) notFound();
 
-  const model = buildPostDetailModel(post, LIFE_NAV);
+  const model = await buildPostDetailModel(post, LIFE_NAV);
   return (
     <>
       <ArticleJsonLd

@@ -43,6 +43,8 @@ export type Post = {
   publishedOn: string;
   /** YYYY-MM-DD */
   updatedOn?: string;
+  /** ISO timestamp — 같은 publishedOn일 때 최신순 보조 키 */
+  createdAt?: string;
   tags: string[];
   featured?: boolean;
   /** Markdown body */

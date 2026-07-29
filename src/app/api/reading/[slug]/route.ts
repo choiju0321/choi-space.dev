@@ -13,7 +13,7 @@ type RouteContext = {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const entry = getReadingEntryBySlug(slug);
+  const entry = await getReadingEntryBySlug(slug);
 
   if (!entry) {
     return NextResponse.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });
@@ -31,6 +31,6 @@ export async function GET(_request: Request, context: RouteContext) {
     tags: entry.tags,
     reviewBody,
     hasReview: hasReadingReview(slug) || Boolean(reviewBody),
-    hasPresentation: hasReadingPresentation(slug),
+    hasPresentation: await hasReadingPresentation(slug),
   });
 }

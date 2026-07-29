@@ -16,7 +16,7 @@ function writeCategoryForPost(post: Post): WriteCategory {
   return "daily";
 }
 
-export function buildPostDetailModel(post: Post, section: NavSection) {
+export async function buildPostDetailModel(post: Post, section: NavSection) {
   const listItem = getPostListItem(post);
   const writeCategory = writeCategoryForPost(post);
   return {
@@ -30,7 +30,7 @@ export function buildPostDetailModel(post: Post, section: NavSection) {
     tags: post.tags,
     blocks: parsePostBody(post.body),
     headings: extractToc(post.body),
-    related: getRelatedPosts(post),
+    related: await getRelatedPosts(post),
     href: postHref(post),
     editHref: buildWriteHref({
       category: writeCategory,

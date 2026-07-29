@@ -57,7 +57,7 @@ export default async function PlaceArchivePage({
 
   const meta = DOMAIN_META[domain];
   const page = Number(pageParam ?? "1") || 1;
-  const paged = paginateArchivePosts(getPlacePostsAsList(domain), page);
+  const paged = paginateArchivePosts(await getPlacePostsAsList(domain), page);
 
   return (
     <CategoryPageTemplate

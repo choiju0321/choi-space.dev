@@ -15,14 +15,14 @@ import { hasWriteSession } from "@/lib/write/auth";
 export const dynamic = "force-dynamic";
 
 /** Reading/Travel 엔트리 폴더면 규칙 파일명으로 강제 */
-function resolveUploadFileName(directory: string, originalName: string) {
+async function resolveUploadFileName(directory: string, originalName: string) {
   const parts = directory.replace(/\\/g, "/").split("/").filter(Boolean);
   if (parts[0] === "life" && parts[1] === "reading" && parts[2] && parts.length === 3) {
-    const entry = getReadingEntryBySlug(parts[2]);
+    const entry = await getReadingEntryBySlug(parts[2]);
     if (entry) return buildReadingPresentationFileName(entry);
   }
   if (parts[0] === "life" && parts[1] === "travel" && parts[2] && parts.length === 3) {
-    const entry = getPlaceEntryBySlug("travel", parts[2]);
+    const entry = await getPlaceEntryBySlug("travel", parts[2]);
     if (entry) return buildTravelItineraryFileName(entry);
   }
   return originalName;
@@ -78,7 +78,7 @@ export async function PUT(request: Request) {
   }
 
   const preferredName = String(form.get("fileName") ?? "").trim();
-  const fileName = resolveUploadFileName(
+  const fileName = await resolveUploadFileName(
     directory,
     preferredName || file.name,
   );

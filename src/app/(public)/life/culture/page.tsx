@@ -19,7 +19,7 @@ type PageProps = {
 export default async function CultureArchivePage({ searchParams }: PageProps) {
   const { page: pageParam } = await searchParams;
   const page = Number(pageParam ?? "1") || 1;
-  const paged = paginateArchivePosts(getCulturePostsAsList(), page);
+  const paged = paginateArchivePosts(await getCulturePostsAsList(), page);
 
   return (
     <CategoryPageTemplate

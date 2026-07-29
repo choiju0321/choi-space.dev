@@ -1,8 +1,7 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { readingClubs } from "@/content/reading/clubs";
-import { readingEntries as readingSeedEntries } from "@/content/reading/entries";
 import { decodeKoreanTextBuffer } from "@/lib/text/decode-korean";
 import {
   getReadingPresentationLegacyPath,
@@ -11,6 +10,10 @@ import {
   resolveMediaFilePath,
 } from "@/lib/media/paths";
 import { buildReadingPresentationFileName } from "@/lib/media/naming";
+import {
+  loadContentBodyBySlug,
+  loadReadingEntries,
+} from "@/lib/content/story-repository";
 import type {
   ReadingArchive,
   ReadingEntry,
@@ -24,28 +27,9 @@ export const READING_REVIEWS_DIR = path.join(
   "src/content/reading/reviews",
 );
 
-/** Write로 추가한 독서 기록 (시드 entries.ts와 병합) */
+/** Write로 추가한 독서 기록 (시드 entries.ts와 병합 — JSON 백업용) */
 export function readingWriteEntriesPath() {
   return path.join(process.cwd(), "src/content/reading/entries-write.json");
-}
-
-function readWrittenReadingEntries(): ReadingEntry[] {
-  const filePath = readingWriteEntriesPath();
-  if (!existsSync(filePath)) return [];
-  try {
-    return JSON.parse(readFileSync(filePath, "utf8")) as ReadingEntry[];
-  } catch {
-    return [];
-  }
-}
-
-/** 시드 + Write 병합. 같은 slug면 Write가 우선 */
-export function getMergedReadingEntries(): ReadingEntry[] {
-  const written = readWrittenReadingEntries();
-  const bySlug = new Map<string, ReadingEntry>();
-  for (const entry of readingSeedEntries) bySlug.set(entry.slug, entry);
-  for (const entry of written) bySlug.set(entry.slug, entry);
-  return [...bySlug.values()];
 }
 
 /** @deprecated mkdir용 — 엔트리 폴더는 getReadingPresentationPath dirname */
@@ -54,27 +38,29 @@ export const READING_PRESENTATIONS_DIR = path.join(
   "private/media/life/reading",
 );
 
-function readingPresentationFileName(slug: string) {
-  const entry = getReadingEntryBySlug(slug);
+async function readingPresentationFileName(slug: string) {
+  const entry = await getReadingEntryBySlug(slug);
   return entry ? buildReadingPresentationFileName(entry) : undefined;
 }
 
-export function getReadingArchive(): ReadingArchive {
+export async function getReadingArchive(): Promise<ReadingArchive> {
   return {
     clubs: readingClubs,
-    entries: getMergedReadingEntries(),
+    entries: await loadReadingEntries(),
   };
 }
 
-export function getReadingEntries(): ReadingEntry[] {
-  return getMergedReadingEntries().sort((a, b) =>
-    b.readOn.localeCompare(a.readOn),
-  );
+export async function getReadingEntries(): Promise<ReadingEntry[]> {
+  return loadReadingEntries();
 }
 
-export function getReadingEntryBySlug(slug: string): ReadingEntry | undefined {
+export async function getReadingEntryBySlug(
+  slug: string,
+): Promise<ReadingEntry | undefined> {
   const normalized = decodeURIComponent(slug);
-  return getMergedReadingEntries().find((entry) => entry.slug === normalized);
+  return (await loadReadingEntries()).find(
+    (entry) => entry.slug === normalized,
+  );
 }
 
 export function getClubName(clubSeasonId?: string): string | undefined {
@@ -138,13 +124,13 @@ export function getReadingReviewPath(slug: string) {
   return path.join(READING_REVIEWS_DIR, `${slug}.txt`);
 }
 
-export function getReadingPresentationPath(slug: string) {
+export async function getReadingPresentationPath(slug: string) {
   return resolveMediaFilePath({
     space: "life",
     category: "reading",
     slug,
     role: "presentation",
-    fileName: readingPresentationFileName(slug),
+    fileName: await readingPresentationFileName(slug),
     legacyPaths: [getReadingPresentationLegacyPath(slug)],
   });
 }
@@ -155,26 +141,29 @@ export function hasReadingReview(slug: string) {
   return existsSync(txt) || existsSync(md);
 }
 
-export function hasReadingPresentation(slug: string) {
+export async function hasReadingPresentation(slug: string) {
   return mediaFileExists({
     space: "life",
     category: "reading",
     slug,
     role: "presentation",
-    fileName: readingPresentationFileName(slug),
+    fileName: await readingPresentationFileName(slug),
     legacyPaths: [getReadingPresentationLegacyPath(slug)],
   });
 }
 
 /** 업로드 시 쓸 정규 경로 (항상 새 IA + 규칙 파일명) */
-export function getReadingPresentationWritePath(slug: string) {
+export async function getReadingPresentationWritePath(slug: string) {
   return getReadingPresentationMediaPath(
     slug,
-    readingPresentationFileName(slug),
+    await readingPresentationFileName(slug),
   );
 }
 
 export async function getReadingReviewBody(slug: string): Promise<string | null> {
+  const fromDb = await loadContentBodyBySlug("reading", slug);
+  if (fromDb) return fromDb;
+
   try {
     const md = path.join(READING_REVIEWS_DIR, `${slug}.md`);
     if (existsSync(md)) {
@@ -187,15 +176,19 @@ export async function getReadingReviewBody(slug: string): Promise<string | null>
   }
 }
 
-export function toReadingListItem(entry: ReadingEntry): ReadingListItem {
+export async function toReadingListItem(
+  entry: ReadingEntry,
+): Promise<ReadingListItem> {
   const participation = getReadingParticipation(entry);
   const contextLabel = getReadingContextLabel(entry);
+  const body = await loadContentBodyBySlug("reading", entry.slug);
   const hasReview =
     entry.artifacts.some((a) => a.kind === "review") ||
+    Boolean(body) ||
     hasReadingReview(entry.slug);
   const hasPresentation =
     entry.artifacts.some((a) => a.kind === "presentation") ||
-    hasReadingPresentation(entry.slug);
+    (await hasReadingPresentation(entry.slug));
 
   const scope: ReadingListItem["scope"] =
     participation === "guest"
@@ -220,13 +213,17 @@ export function toReadingListItem(entry: ReadingEntry): ReadingListItem {
   };
 }
 
-export function getReadingListItems(): ReadingListItem[] {
-  return getReadingEntries().map(toReadingListItem);
+export async function getReadingListItems(): Promise<ReadingListItem[]> {
+  const entries = await getReadingEntries();
+  return Promise.all(entries.map(toReadingListItem));
 }
 
 /** Life 홈에서는 최근 기록만 미리보고, 전체는 /life/reading 에서 검색 */
-export function getReadingLifeCollection(previewCount = 5): LifeCollection {
-  const items: LifeMemory[] = getReadingListItems()
+export async function getReadingLifeCollection(
+  previewCount = 5,
+): Promise<LifeCollection> {
+  const all = await getReadingEntries();
+  const items: LifeMemory[] = (await getReadingListItems())
     .slice(0, previewCount)
     .map((entry) => {
       const artifactLabel = [
@@ -252,7 +249,7 @@ export function getReadingLifeCollection(previewCount = 5): LifeCollection {
     id: "reading",
     label: "Reading",
     title: "독서",
-    summary: `트레바리 ${readingClubs.length}시즌 · 기록 ${getMergedReadingEntries().length}권. 전체 목록에서 검색할 수 있습니다.`,
+    summary: `트레바리 ${readingClubs.length}시즌 · 기록 ${all.length}권. 전체 목록에서 검색할 수 있습니다.`,
     items,
   };
 }

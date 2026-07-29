@@ -1,5 +1,23 @@
 [
   {
+    "id": "growth-development-2026-07-29-story-postgres",
+    "slug": "2026-07-29-story-postgres",
+    "space": "growth",
+    "category": "development",
+    "contentType": "growth-note",
+    "title": "Story를 Postgres로 — 공통 contents까지",
+    "excerpt": "Docker·Drizzle로 로컬 DB를 세우고, Life·Growth·Notes 조회를 JSON에서 Postgres로 넘긴 날.",
+    "publishedOn": "2026-07-29",
+    "tags": [
+      "postgres",
+      "drizzle",
+      "story",
+      "nextjs"
+    ],
+    "author": "최지웅",
+    "body": "## 하루 축\n\n오전에는 Food Write·Life Overview를 다듬었고, 그 내용은 Growth 글(`2026-07-29-food-write-life-ui`)에 이미 남겼다. Property WBS 트리 브랜치도 `main`에 합쳤다. Notes에는 셀프 스토리지 팁을 한 편 올렸다.\n\n이 글은 **그 다음에 이어진 Story DB 전환**만 적는다. 어제 Write 가드 글에서 “DB는 나중”이라고 적었는데, 오늘은 그 나중을 앞당긴 날이다.\n\n## 왜 Postgres인가\n\n개인 OS로 키우려면 운영·권한·감사 로그가 붙는다. SQLite도 가능하지만, 로컬에서 Docker로 Postgres를 돌려 두는 편이 나중에 이식이 적다. Oracle은 이 스택과 맞지 않아 후보에서 뺐다.\n\n범위는 **Story만** — Life / Growth / Notes. About·Contact는 정적, Work·Career·Finance·Dating·Admin은 아직 밖이다.\n\n## 테이블\n\n공통 `contents` 한 장에 저널과 아카이브를 모았다.\n\n- 저널(Daily / Growth / Notes): `contents.body`만\n- Reading / Running / Culture / Place(Food·Travel): 각각 1:1 detail 테이블\n- 사진 공개 경로: `media_assets`\n\nUnique는 `(space, category, slug)`. `published_on`으로 목록을 정렬하고, 도메인 날짜(readOn·ranOn·visitedOn·watchedOn)는 detail에 둔 뒤 목록용으로 contents에도 투영한다.\n\n문서: `docs/database.md`. 스키마: `src/db/schema.ts`.\n\n## 로컬 세팅\n\nDocker Desktop → `docker compose`로 Postgres 16. Drizzle + `postgres` 드라이버. 스크립트는 `db:up` / `db:push` / `db:seed` / `db:studio`.\n\n시드가 JSON·리뷰 md/txt·`public/images` 경로를 읽어 넣었다. 대략 Reading 33, Culture 11, Place 6, Running 2, 저널 몇 건, media 18.\n\n## 조회 전환\n\n`story-repository.ts`가 도메인 타입으로 매핑한다. `loadPosts`·Reading·Running·Culture·Place getter는 async로 바꿨고, 페이지·sitemap·feed·Write 초안 로더가 await한다.\n\n후기 본문은 DB `body`를 우선하고, 없으면 예전 파일을 본다. 사진도 `media_assets`를 우선한다.\n\n## Write\n\n한 번에 JSON Write를 끊지 않았다. 저장·삭제는 **JSON + DB 이중 기록**. 조회만 DB라서 화면은 Postgres 기준이고, 파일은 당분간 백업·되돌리기용이다. JSON Write를 걷어내는 건 다음이다.\n\n## 운영 판단\n\nStory 조회가 DB로 안정되면, **여기까지로 운영해도 된다**고 봤다. Admin·다른 스페이스는 쌓이면서 붙이면 된다.\n\n## 다음에\n\n- Write를 DB-only로 정리\n- media sync를 저장 시점에 더 단단히\n- Admin(로그인·메뉴·권한·감사) 설계\n\n오늘은 “공개 Story의 원장을 파일에서 DB로 옮긴” 날로 남긴다."
+  },
+  {
     "id": "notes-tips-2026-07-29-self-storage",
     "slug": "2026-07-29-self-storage",
     "space": "notes",

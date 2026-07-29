@@ -80,9 +80,7 @@ export function placeToPostListItem(
   item: PlaceListItem,
 ): PostListItem {
   const excerpt =
-    domain === "food"
-      ? `'${item.title}'에서`
-      : item.excerpt || item.place;
+    domain === "food" ? `'${item.title}'에서` : item.excerpt || item.place;
 
   return {
     id: item.id,
@@ -103,33 +101,42 @@ export function placeToPostListItem(
   };
 }
 
-export function getReadingPostsAsList() {
-  return getReadingListItems().map(readingToPostListItem).sort(byNewest);
+export async function getReadingPostsAsList() {
+  return (await getReadingListItems())
+    .map(readingToPostListItem)
+    .sort(byNewest);
 }
 
-export function getRunningPostsAsList() {
-  return getRunningListItems().map(runningToPostListItem).sort(byNewest);
+export async function getRunningPostsAsList() {
+  return (await getRunningListItems())
+    .map(runningToPostListItem)
+    .sort(byNewest);
 }
 
-export function getCulturePostsAsList() {
-  return getCultureListItems().map(cultureToPostListItem).sort(byNewest);
+export async function getCulturePostsAsList() {
+  return (await getCultureListItems())
+    .map(cultureToPostListItem)
+    .sort(byNewest);
 }
 
-export function getPlacePostsAsList(domain: PlaceDomain) {
-  return getPlaceListItems(domain)
+export async function getPlacePostsAsList(domain: PlaceDomain) {
+  return (await getPlaceListItems(domain))
     .map((item) => placeToPostListItem(domain, item))
     .sort(byNewest);
 }
 
 /** Life Overview Latest용 — 공개 메뉴 아카이브 전부 */
-export function getAllLifeArchivePosts() {
-  return [
-    ...getReadingPostsAsList(),
-    ...getRunningPostsAsList(),
-    ...getCulturePostsAsList(),
-    ...getPlacePostsAsList("food"),
-    ...getPlacePostsAsList("travel"),
-  ].sort(byNewest);
+export async function getAllLifeArchivePosts() {
+  const [reading, running, culture, food, travel] = await Promise.all([
+    getReadingPostsAsList(),
+    getRunningPostsAsList(),
+    getCulturePostsAsList(),
+    getPlacePostsAsList("food"),
+    getPlacePostsAsList("travel"),
+  ]);
+  return [...reading, ...running, ...culture, ...food, ...travel].sort(
+    byNewest,
+  );
 }
 
 export function paginateArchivePosts(

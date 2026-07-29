@@ -33,8 +33,19 @@ function toPreview(
 }
 
 /** Life 도메인에서 최신순으로 N개 */
-export function getRecentLifePreviews(limit = 6): HomePreviewItem[] {
-  const reading = getReadingListItems().map((item) =>
+export async function getRecentLifePreviews(
+  limit = 6,
+): Promise<HomePreviewItem[]> {
+  const [readingItems, runningItems, cultureItems, foodItems, travelItems] =
+    await Promise.all([
+      getReadingListItems(),
+      getRunningListItems(),
+      getCultureListItems(),
+      getPlaceListItems("food"),
+      getPlaceListItems("travel"),
+    ]);
+
+  const reading = readingItems.map((item) =>
     toPreview(
       `reading-${item.id}`,
       item.title,
@@ -44,7 +55,7 @@ export function getRecentLifePreviews(limit = 6): HomePreviewItem[] {
       item.excerpt,
     ),
   );
-  const running = getRunningListItems().map((item) =>
+  const running = runningItems.map((item) =>
     toPreview(
       `running-${item.id}`,
       item.title,
@@ -54,7 +65,7 @@ export function getRecentLifePreviews(limit = 6): HomePreviewItem[] {
       item.excerpt,
     ),
   );
-  const culture = getCultureListItems().map((item) =>
+  const culture = cultureItems.map((item) =>
     toPreview(
       `culture-${item.id}`,
       item.title,
@@ -64,7 +75,7 @@ export function getRecentLifePreviews(limit = 6): HomePreviewItem[] {
       item.excerpt,
     ),
   );
-  const food = getPlaceListItems("food").map((item) =>
+  const food = foodItems.map((item) =>
     toPreview(
       `food-${item.id}`,
       item.title,
@@ -74,7 +85,7 @@ export function getRecentLifePreviews(limit = 6): HomePreviewItem[] {
       item.excerpt,
     ),
   );
-  const travel = getPlaceListItems("travel").map((item) =>
+  const travel = travelItems.map((item) =>
     toPreview(
       `travel-${item.id}`,
       item.title,

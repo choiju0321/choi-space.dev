@@ -50,7 +50,7 @@ export default async function NotesCategoryPage({
   if (!item) notFound();
 
   const page = Number(pageParam ?? "1") || 1;
-  const all = getPosts({ space: "notes", category });
+  const all = await getPosts({ space: "notes", category });
   const paged = paginatePosts(all, page);
 
   return (

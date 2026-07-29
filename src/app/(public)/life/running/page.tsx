@@ -19,7 +19,7 @@ type PageProps = {
 export default async function RunningArchivePage({ searchParams }: PageProps) {
   const { page: pageParam } = await searchParams;
   const page = Number(pageParam ?? "1") || 1;
-  const paged = paginateArchivePosts(getRunningPostsAsList(), page);
+  const paged = paginateArchivePosts(await getRunningPostsAsList(), page);
 
   return (
     <CategoryPageTemplate

@@ -21,7 +21,7 @@ function isUploadAllowed() {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const entry = getRunningEntryBySlug(slug);
+  const entry = await getRunningEntryBySlug(slug);
 
   if (!entry) {
     return NextResponse.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });
@@ -59,7 +59,7 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 
   const { slug } = await context.params;
-  const entry = getRunningEntryBySlug(slug);
+  const entry = await getRunningEntryBySlug(slug);
 
   if (!entry) {
     return NextResponse.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });

@@ -7,14 +7,15 @@ import {
   formatPlaceDisplayDate,
   getPlaceEntries,
   getPlaceEntryBySlug,
+  getPlacePhotos,
   getPlaceSupportingLabel,
   hasTravelItinerary,
 } from "@/lib/content/get-place";
 import {
   hasReview,
-  listPhotoPublicPaths,
   readReviewBody,
 } from "@/lib/content/life-media";
+import { loadContentBodyBySlug } from "@/lib/content/story-repository";
 import { hasWriteSession } from "@/lib/write/auth";
 import { buildWriteHref } from "@/lib/write/href";
 import type { PlaceDomain } from "@/types/place";
@@ -36,13 +37,17 @@ function asDomain(value: string): PlaceDomain | null {
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return (["food", "travel"] as PlaceDomain[]).flatMap((domain) =>
-    getPlaceEntries(domain).map((entry) => ({
-      domain,
-      slug: entry.slug,
-    })),
+export async function generateStaticParams() {
+  const domains: PlaceDomain[] = ["food", "travel"];
+  const nested = await Promise.all(
+    domains.map(async (domain) =>
+      (await getPlaceEntries(domain)).map((entry) => ({
+        domain,
+        slug: entry.slug,
+      })),
+    ),
   );
+  return nested.flat();
 }
 
 export async function generateMetadata({
@@ -52,7 +57,7 @@ export async function generateMetadata({
   const domain = asDomain(raw);
   if (!domain) return { title: "Life" };
   const slug = decodeURIComponent(rawSlug);
-  const entry = getPlaceEntryBySlug(domain, slug);
+  const entry = await getPlaceEntryBySlug(domain, slug);
   if (!entry) return { title: DOMAIN_LABEL[domain] };
   return {
     title: `${entry.title} · ${DOMAIN_LABEL[domain]}`,
@@ -66,13 +71,15 @@ export default async function PlaceDetailPage({ params }: PageProps) {
   if (!domain) notFound();
 
   const slug = decodeURIComponent(rawSlug);
-  const entry = getPlaceEntryBySlug(domain, slug);
+  const entry = await getPlaceEntryBySlug(domain, slug);
   if (!entry) notFound();
 
-  const reviewBody = await readReviewBody(domain, slug);
-  const photos = listPhotoPublicPaths(domain, slug);
+  const reviewBody =
+    (await loadContentBodyBySlug(domain, slug)) ??
+    (await readReviewBody(domain, slug));
+  const photos = await getPlacePhotos(domain, slug);
   const itinerary =
-    domain === "travel" ? hasTravelItinerary(slug) : false;
+    domain === "travel" ? await hasTravelItinerary(slug) : false;
   const authenticated = await hasWriteSession();
 
   return (

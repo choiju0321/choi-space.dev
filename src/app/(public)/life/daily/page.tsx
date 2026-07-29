@@ -16,7 +16,7 @@ type PageProps = {
 export default async function LifeDailyPage({ searchParams }: PageProps) {
   const { page: pageParam } = await searchParams;
   const page = Number(pageParam ?? "1") || 1;
-  const all = getPosts({ space: "life", category: "daily" });
+  const all = await getPosts({ space: "life", category: "daily" });
   const paged = paginatePosts(all, page);
 
   return (

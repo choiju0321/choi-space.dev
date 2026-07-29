@@ -15,8 +15,8 @@ type PageProps = {
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return loadPosts()
+export async function generateStaticParams() {
+  return (await loadPosts())
     .filter((post) => post.space === "notes")
     .map((post) => ({ category: post.category, slug: post.slug }));
 }
@@ -26,7 +26,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { category, slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const post = getPostBySlug("notes", category, slug);
+  const post = await getPostBySlug("notes", category, slug);
   if (!post) return { title: "Notes" };
   return buildPublicMetadata({
     title: post.title,
@@ -42,10 +42,10 @@ export async function generateMetadata({
 export default async function NotesPostPage({ params }: PageProps) {
   const { category, slug: raw } = await params;
   const slug = decodeURIComponent(raw);
-  const post = getPostBySlug("notes", category, slug);
+  const post = await getPostBySlug("notes", category, slug);
   if (!post) notFound();
 
-  const model = buildPostDetailModel(post, NOTES_NAV);
+  const model = await buildPostDetailModel(post, NOTES_NAV);
   return (
     <>
       <ArticleJsonLd

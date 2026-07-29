@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
-import { getCultureEntryBySlug } from "@/lib/content/get-culture";
-import { getPostBySlug } from "@/lib/content/get-posts";
-import { getReadingEntryBySlug } from "@/lib/content/get-reading";
-import { getRunningEntryBySlug } from "@/lib/content/get-running";
-import { getPlaceEntryBySlug } from "@/lib/content/get-place";
+import {
+  getCultureEntries,
+  getCultureEntryBySlug,
+} from "@/lib/content/get-culture";
+import {
+  getReadingEntries,
+  getReadingEntryBySlug,
+} from "@/lib/content/get-reading";
+import {
+  getRunningEntries,
+  getRunningEntryBySlug,
+} from "@/lib/content/get-running";
+import { getPlaceEntries } from "@/lib/content/get-place";
+import { loadJournalPosts } from "@/lib/content/story-repository";
 import { hasWriteSession } from "@/lib/write/auth";
 import {
   allocateUniqueSlug,
@@ -168,10 +177,13 @@ export async function POST(request: Request) {
           }
         }
 
+        const readingSlugs = new Set(
+          (await getReadingEntries()).map((entry) => entry.slug),
+        );
         const slug = resolveCreateSlug(
           String(form.get("slug") ?? ""),
           buildSafeDatedSlug(readOn, `${title} ${author}`),
-          (candidate) => Boolean(getReadingEntryBySlug(candidate)),
+          (candidate) => readingSlugs.has(candidate),
         );
 
         const entry: ReadingEntry = {
@@ -197,7 +209,7 @@ export async function POST(request: Request) {
       }
 
       const slug = resolveUpdateSlug(String(form.get("slug") ?? ""));
-      if (!slug || !getReadingEntryBySlug(slug)) {
+      if (!slug || !(await getReadingEntryBySlug(slug))) {
         return NextResponse.json(
           { error: "독서 기록을 선택하세요." },
           { status: 400 },
@@ -235,12 +247,15 @@ export async function POST(request: Request) {
           );
         }
 
+        const runningBySlug = new Map(
+          (await getRunningEntries()).map((entry) => [entry.slug, entry]),
+        );
         const slug = resolveCreateSlug(
           String(form.get("slug") ?? ""),
           buildSafeDatedSlug(ranOn, title),
-          (candidate) => Boolean(getRunningEntryBySlug(candidate)),
+          (candidate) => runningBySlug.has(candidate),
         );
-        const existing = getRunningEntryBySlug(slug);
+        const existing = runningBySlug.get(slug);
         const entry: RunningEntry = {
           id: existing?.id ?? `session-${slug}`,
           slug,
@@ -265,7 +280,7 @@ export async function POST(request: Request) {
       }
 
       const slug = resolveUpdateSlug(String(form.get("slug") ?? ""));
-      if (!slug || !getRunningEntryBySlug(slug)) {
+      if (!slug || !(await getRunningEntryBySlug(slug))) {
         return NextResponse.json(
           { error: "러닝 기록을 선택하세요." },
           { status: 400 },
@@ -300,12 +315,15 @@ export async function POST(request: Request) {
           );
         }
 
+        const cultureBySlug = new Map(
+          (await getCultureEntries()).map((entry) => [entry.slug, entry]),
+        );
         const slug = resolveCreateSlug(
           String(form.get("slug") ?? ""),
           buildSafeDatedSlug(watchedOn, title),
-          (candidate) => Boolean(getCultureEntryBySlug(candidate)),
+          (candidate) => cultureBySlug.has(candidate),
         );
-        const existing = getCultureEntryBySlug(slug);
+        const existing = cultureBySlug.get(slug);
         const entry: CultureEntry = {
           id: existing?.id ?? `culture-${slug}`,
           slug,
@@ -329,7 +347,7 @@ export async function POST(request: Request) {
       }
 
       const slug = resolveUpdateSlug(String(form.get("slug") ?? ""));
-      if (!slug || !getCultureEntryBySlug(slug)) {
+      if (!slug || !(await getCultureEntryBySlug(slug))) {
         return NextResponse.json(
           { error: "관람 기록을 선택하세요." },
           { status: 400 },
@@ -390,17 +408,20 @@ export async function POST(request: Request) {
         );
       }
 
+      const placeBySlug = new Map(
+        (await getPlaceEntries(category)).map((entry) => [entry.slug, entry]),
+      );
       const requestedSlug = String(form.get("slug") ?? "").trim();
       const slug =
-        requestedSlug && getPlaceEntryBySlug(category, requestedSlug)
+        requestedSlug && placeBySlug.has(requestedSlug)
           ? resolveUpdateSlug(requestedSlug)
           : resolveCreateSlug(
               requestedSlug,
               buildSafeDatedSlug(visitedOn, effectiveTitle),
-              (candidate) => Boolean(getPlaceEntryBySlug(category, candidate)),
+              (candidate) => placeBySlug.has(candidate),
             );
 
-      const existing = getPlaceEntryBySlug(category, slug);
+      const existing = placeBySlug.get(slug);
       const defaultTag =
         category === "food"
           ? kind === "cafe"
@@ -466,15 +487,22 @@ export async function POST(request: Request) {
         );
       }
 
+      const journalSlugs = new Set(
+        (await loadJournalPosts())
+          .filter(
+            (post) =>
+              post.space === space && post.category === journalCategory,
+          )
+          .map((post) => post.slug),
+      );
       const requestedSlug = String(form.get("slug") ?? "").trim();
       const slug =
-        requestedSlug && getPostBySlug(space, journalCategory, requestedSlug)
+        requestedSlug && journalSlugs.has(requestedSlug)
           ? resolveUpdateSlug(requestedSlug)
           : resolveCreateSlug(
               requestedSlug,
               buildSafeDatedSlug(publishedOn, title),
-              (candidate) =>
-                Boolean(getPostBySlug(space, journalCategory, candidate)),
+              (candidate) => journalSlugs.has(candidate),
             );
 
       const post: Post = {

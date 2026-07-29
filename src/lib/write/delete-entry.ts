@@ -12,6 +12,10 @@ import {
   readingWriteEntriesPath,
 } from "@/lib/content/get-reading";
 import {
+  dbDeleteContentBySlug,
+  dbDeleteJournalPost,
+} from "@/lib/content/story-write";
+import {
   getPhotosDir,
   getReviewFileCandidates,
   getReviewsDir,
@@ -84,6 +88,7 @@ export async function deletePost(
   );
   if (next.length === list.length) return false;
   await writeJsonArray(postsPath(), next);
+  await dbDeleteJournalPost(space, category, slug);
   return true;
 }
 
@@ -94,10 +99,11 @@ export async function deleteReadingEntry(slug: string): Promise<boolean> {
   if (next.length === list.length) return false;
   await writeJsonArray(filePath, next);
   await removeReviewFiles("reading", slug);
-  const presentation = getReadingPresentationPath(slug);
+  const presentation = await getReadingPresentationPath(slug);
   if (presentation && existsSync(presentation)) {
     await unlink(presentation);
   }
+  await dbDeleteContentBySlug("reading", slug);
   return true;
 }
 
@@ -108,6 +114,7 @@ export async function deleteCultureEntry(slug: string): Promise<boolean> {
   await writeJsonArray(culturePath(), next);
   await removeReviewFiles("culture", slug);
   await removePhotos("culture", slug);
+  await dbDeleteContentBySlug("culture", slug);
   return true;
 }
 
@@ -118,6 +125,7 @@ export async function deleteRunningSession(slug: string): Promise<boolean> {
   await writeJsonArray(runningSessionsPath(), next);
   await removeReviewFiles("running", slug);
   await removePhotos("running", slug);
+  await dbDeleteContentBySlug("running", slug);
   return true;
 }
 
@@ -131,5 +139,6 @@ export async function deletePlaceEntry(
   await writeJsonArray(placePath(domain), next);
   await removeReviewFiles(domain, slug);
   await removePhotos(domain, slug);
+  await dbDeleteContentBySlug(domain, slug);
   return true;
 }

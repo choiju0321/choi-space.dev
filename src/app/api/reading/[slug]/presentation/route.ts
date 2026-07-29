@@ -23,18 +23,18 @@ function isUploadAllowed() {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const entry = getReadingEntryBySlug(slug);
+  const entry = await getReadingEntryBySlug(slug);
 
   if (!entry) {
     return NextResponse.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });
   }
 
-  if (!hasReadingPresentation(slug)) {
+  if (!(await hasReadingPresentation(slug))) {
     return NextResponse.json({ error: "발제문이 없습니다." }, { status: 404 });
   }
 
   try {
-    const filePath = getReadingPresentationPath(slug);
+    const filePath = await getReadingPresentationPath(slug);
     const bytes = await readFile(filePath);
     const fileName =
       basename(filePath) === "presentation.pdf"
@@ -65,7 +65,7 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 
   const { slug } = await context.params;
-  const entry = getReadingEntryBySlug(slug);
+  const entry = await getReadingEntryBySlug(slug);
 
   if (!entry) {
     return NextResponse.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });
@@ -93,7 +93,7 @@ export async function PUT(request: Request, context: RouteContext) {
     );
   }
 
-  const target = getReadingPresentationWritePath(slug);
+  const target = await getReadingPresentationWritePath(slug);
   await mkdir(dirname(target), { recursive: true });
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(target, buffer);

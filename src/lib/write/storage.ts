@@ -48,6 +48,14 @@ import {
 import { datingProfilesPath } from "@/lib/content/get-dating";
 import { readingWriteEntriesPath } from "@/lib/content/get-reading";
 import { getProfile, profilePath } from "@/lib/content/get-profile";
+import {
+  dbUpsertCultureEntry,
+  dbUpsertJournalPost,
+  dbUpsertPlaceEntry,
+  dbUpsertReadingEntry,
+  dbUpsertRunningEntry,
+  dbUpdateContentBody,
+} from "@/lib/content/story-write";
 import type { DatingProfile } from "@/types/dating";
 import type { ReadingEntry } from "@/types/reading";
 import {
@@ -95,6 +103,7 @@ export async function saveReviewMarkdown(
     normalized + "\n",
     "utf8",
   );
+  await dbUpdateContentBody(category, slug, normalized);
 }
 
 export async function savePhotos(
@@ -188,6 +197,7 @@ export async function upsertCultureEntry(entry: CultureEntry) {
   if (index >= 0) list[index] = entry;
   else list.unshift(entry);
   await writeJsonArray(cultureEntriesPath(), list);
+  await dbUpsertCultureEntry(entry);
 }
 
 export async function upsertPlaceEntry(domain: PlaceDomain, entry: PlaceEntry) {
@@ -196,6 +206,7 @@ export async function upsertPlaceEntry(domain: PlaceDomain, entry: PlaceEntry) {
   if (index >= 0) list[index] = entry;
   else list.unshift(entry);
   await writeJsonArray(placeEntriesPath(domain), list);
+  await dbUpsertPlaceEntry(domain, entry);
 }
 
 export async function upsertRunningSession(entry: RunningEntry) {
@@ -204,6 +215,7 @@ export async function upsertRunningSession(entry: RunningEntry) {
   if (index >= 0) list[index] = entry;
   else list.unshift(entry);
   await writeJsonArray(runningSessionsPath(), list);
+  await dbUpsertRunningEntry(entry);
 }
 
 export async function upsertReadingEntry(entry: ReadingEntry) {
@@ -214,6 +226,7 @@ export async function upsertReadingEntry(entry: ReadingEntry) {
   else list.unshift(entry);
   list.sort((a, b) => b.readOn.localeCompare(a.readOn));
   await writeJsonArray(filePath, list);
+  await dbUpsertReadingEntry(entry);
 }
 
 export async function upsertPost(entry: Post) {
@@ -231,6 +244,7 @@ export async function upsertPost(entry: Post) {
   if (index >= 0) list[index] = { ...list[index], ...normalized };
   else list.unshift(normalized);
   await writeJsonArray(postsEntriesPath(), list);
+  await dbUpsertJournalPost(normalized);
 }
 
 export async function upsertWorkProject(

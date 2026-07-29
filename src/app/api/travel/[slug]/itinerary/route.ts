@@ -36,18 +36,18 @@ function isXlsx(file: File) {
 
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params;
-  const entry = getPlaceEntryBySlug("travel", slug);
+  const entry = await getPlaceEntryBySlug("travel", slug);
 
   if (!entry) {
     return NextResponse.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });
   }
 
-  if (!hasTravelItinerary(slug)) {
+  if (!(await hasTravelItinerary(slug))) {
     return NextResponse.json({ error: "여행 계획서가 없습니다." }, { status: 404 });
   }
 
   try {
-    const filePath = getTravelItineraryPath(slug);
+    const filePath = await getTravelItineraryPath(slug);
     const bytes = await readFile(filePath);
     const fileName =
       basename(filePath) === "itinerary.xlsx"
@@ -78,7 +78,7 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 
   const { slug } = await context.params;
-  const entry = getPlaceEntryBySlug("travel", slug);
+  const entry = await getPlaceEntryBySlug("travel", slug);
 
   if (!entry) {
     return NextResponse.json({ error: "기록을 찾을 수 없습니다." }, { status: 404 });
@@ -106,7 +106,7 @@ export async function PUT(request: Request, context: RouteContext) {
     );
   }
 
-  const target = getTravelItineraryWritePath(slug);
+  const target = await getTravelItineraryWritePath(slug);
   await mkdir(dirname(target), { recursive: true });
   const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(target, buffer);
