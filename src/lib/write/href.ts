@@ -111,6 +111,8 @@ export type BuildFinanceWriteHrefOptions = {
   mode?: "new" | "existing";
   /** property-task: 소속 케이스 */
   caseSlug?: string;
+  /** property-task: 상위 할 일 slug (하위 추가) */
+  parentSlug?: string;
 };
 
 /** Finance Write — `/write?category=finance&kind=…` */
@@ -121,6 +123,7 @@ export function buildFinanceWriteHref(
   params.set("category", "finance");
   params.set("kind", options.kind ?? "occasion");
   if (options.caseSlug) params.set("case", options.caseSlug);
+  if (options.parentSlug) params.set("parent", options.parentSlug);
   if (options.slug) {
     params.set("slug", options.slug);
     params.set("mode", options.mode ?? "existing");

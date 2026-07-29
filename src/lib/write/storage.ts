@@ -1,5 +1,10 @@
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import path from "node:path";
+import {
+  buildPropertyWbsTree,
+  flattenPropertyWbs,
+} from "@/lib/write/finance-drafts";
+import { resolvePropertyCategories } from "@/types/finance";
 import type { DocumentCollection } from "@/content/document-forms";
 import type { CultureEntry } from "@/types/culture";
 import type { RunningEntry } from "@/types/running";
@@ -349,15 +354,12 @@ export async function upsertFinanceClaim(item: FinanceClaim) {
 export async function upsertFinancePropertyCase(item: FinancePropertyCase) {
   const filePath = financePropertyCasesPath();
   const list = await readJsonArray<FinancePropertyCase>(filePath);
+  // WBS 트리 순서(부모 바로 다음에 자식)로 저장 — JSON diff 최소화·가독성
   const cleaned: FinancePropertyCase = {
     ...item,
-    tasks: [...(item.tasks ?? [])].sort((a, b) => {
-      const so = (a.sortOrder ?? 999) - (b.sortOrder ?? 999);
-      if (so !== 0) return so;
-      const da = a.dueDate ?? a.endDate ?? "9999-99-99";
-      const db = b.dueDate ?? b.endDate ?? "9999-99-99";
-      return da.localeCompare(db);
-    }),
+    tasks: flattenPropertyWbs(
+      buildPropertyWbsTree(item.tasks ?? [], resolvePropertyCategories(item)),
+    ).map((node) => node.task),
   };
   const index = list.findIndex((entry) => entry.slug === cleaned.slug);
   if (index >= 0) list[index] = cleaned;

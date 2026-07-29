@@ -153,14 +153,17 @@ export type FinancePropertyKind =
 
 export type FinancePropertyCaseStatus = "active" | "paused" | "done";
 
-export type FinancePropertyTaskPhase =
-  | "booking"
-  | "purchase"
-  | "checkout"
-  | "move-day"
-  | "install"
-  | "admin"
-  | "wrapup";
+/**
+ * 카테고리(WBS 레벨1)의 id. 더 이상 고정 enum이 아니라 **케이스별 자유 문자열**이다.
+ * 새 케이스는 아래 기본 7개(seed)로 시작하고, 케이스마다 추가/수정/삭제/재정렬할 수 있다.
+ */
+export type FinancePropertyTaskPhase = string;
+
+/** 케이스별 WBS 최상위 카테고리. 배열 순서가 곧 번호(1..N) */
+export type FinancePropertyCategory = {
+  id: string;
+  label: string;
+};
 
 export type FinancePropertyTaskStatus = "todo" | "doing" | "done";
 
@@ -168,8 +171,10 @@ export type FinancePropertyTask = {
   id: string;
   slug: string;
   title: string;
-  /** ①계약·예약 … ⑦마무리 */
+  /** ①계약·예약 … ⑦마무리 (트리 최상위 카테고리 = 자손 전체의 루트 phase) */
   phase: FinancePropertyTaskPhase;
+  /** 상위 할 일 slug. 없으면 phase 바로 아래(레벨1). 무한 깊이 WBS (1.1.1.1 …) */
+  parentSlug?: string;
   status: FinancePropertyTaskStatus;
   /** 레거시 D-구간 힌트(선택). 신규 Write에서는 쓰지 않음 — 일정은 dueDate·간트 */
   window?: string;
@@ -179,11 +184,13 @@ export type FinancePropertyTask = {
   startDate?: string;
   /** 간트에서 고른 종료일 YYYY-MM-DD */
   endDate?: string;
-  /** YYYY-MM-DD — Write에서 관리하는 마감 */
+  /** YYYY-MM-DD — Write에서 관리하는 마감 (간트 막대의 끝) */
   dueDate?: string;
+  /** 상태를 '진행'으로 바꾼 날 — 간트 막대의 시작 (자동 기록) */
+  startedAt?: string;
   doneAt?: string;
   note?: string;
-  /** WBS 하위 순번 (1.N 의 N) */
+  /** 같은 부모(형제) 안에서의 정렬 순번. 표시 코드는 렌더 시 위치로 재계산 */
   sortOrder?: number;
 };
 
@@ -199,6 +206,8 @@ export type FinancePropertyCase = {
   moveInAt?: string;
   location?: string;
   note?: string;
+  /** 케이스별 WBS 카테고리(레벨1). 없으면 기본 7개로 간주 */
+  categories?: FinancePropertyCategory[];
   tasks: FinancePropertyTask[];
 };
 
@@ -240,6 +249,22 @@ export const FINANCE_PROPERTY_TASK_PHASE_ORDER: FinancePropertyTaskPhase[] = [
   "admin",
   "wrapup",
 ];
+
+/** 새 케이스가 시작할 때 심는 기본 카테고리 7개 (이사 표준) */
+export const DEFAULT_FINANCE_PROPERTY_CATEGORIES: FinancePropertyCategory[] =
+  FINANCE_PROPERTY_TASK_PHASE_ORDER.map((id) => ({
+    id,
+    label: FINANCE_PROPERTY_TASK_PHASE_LABEL[id],
+  }));
+
+/** 케이스의 카테고리 — 없으면(레거시) 기본 7개로 폴백 */
+export function resolvePropertyCategories(
+  item: Pick<FinancePropertyCase, "categories">,
+): FinancePropertyCategory[] {
+  return item.categories && item.categories.length > 0
+    ? item.categories
+    : DEFAULT_FINANCE_PROPERTY_CATEGORIES;
+}
 
 export const FINANCE_PROPERTY_TASK_STATUS_LABEL: Record<
   FinancePropertyTaskStatus,

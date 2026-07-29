@@ -16,7 +16,11 @@ import {
   parseBankSaladLedgerBuffer,
 } from "@/lib/finance/parse-banksalad-ledger";
 import { hasWriteSession } from "@/lib/write/auth";
-import { cleanLedgerTitle } from "@/lib/write/finance-drafts";
+import {
+  cleanLedgerTitle,
+  collectPropertyDescendantSlugs,
+  nextPropertySiblingOrder,
+} from "@/lib/write/finance-drafts";
 import {
   mergeFinanceLedgerEntries,
   slugifyPart,
@@ -45,6 +49,7 @@ import type {
 import {
   FINANCE_CLAIM_DEFAULT_INSURER,
   FINANCE_LEDGER_TYPE_LABEL,
+  resolvePropertyCategories,
 } from "@/types/finance";
 
 export const dynamic = "force-dynamic";
@@ -569,6 +574,7 @@ export async function POST(request: Request) {
         moveInAt,
         location,
         note,
+        categories: existing?.categories,
         tasks: existing?.tasks ?? [],
       };
 
@@ -587,7 +593,119 @@ export async function POST(request: Request) {
       });
     }
 
-    if (writeKind === "property-task" || writeKind === "property-task-status" || writeKind === "property-task-dates") {
+    if (
+      writeKind === "property-category" ||
+      writeKind === "property-category-delete" ||
+      writeKind === "property-category-move"
+    ) {
+      const caseSlug = String(form.get("caseSlug") ?? "").trim();
+      if (!caseSlug) {
+        return NextResponse.json(
+          { error: "caseSlug가 필요합니다." },
+          { status: 400 },
+        );
+      }
+      const caseItem = getFinancePropertyCase(caseSlug);
+      if (!caseItem) {
+        return NextResponse.json(
+          { error: "케이스를 찾을 수 없습니다." },
+          { status: 404 },
+        );
+      }
+
+      // 현재 카테고리 (없으면 기본 7개를 materialize 후 편집)
+      const categories = resolvePropertyCategories(caseItem).map((category) => ({
+        ...category,
+      }));
+
+      if (writeKind === "property-category") {
+        const mode = String(form.get("mode") ?? "new");
+        const label = String(form.get("label") ?? "").trim();
+        if (!label) {
+          return NextResponse.json(
+            { error: "카테고리 이름이 필요합니다." },
+            { status: 400 },
+          );
+        }
+        if (mode === "existing") {
+          const id = String(form.get("id") ?? "").trim();
+          const target = categories.find((category) => category.id === id);
+          if (!target) {
+            return NextResponse.json(
+              { error: "카테고리를 찾을 수 없습니다." },
+              { status: 404 },
+            );
+          }
+          target.label = label;
+        } else {
+          const existingIds = new Set(categories.map((category) => category.id));
+          const base = slugifyPart(label) || "category";
+          let id = base;
+          let n = 2;
+          while (existingIds.has(id)) id = `${base}-${n++}`;
+          categories.push({ id, label });
+        }
+      } else if (writeKind === "property-category-delete") {
+        const id = String(form.get("id") ?? "").trim();
+        if (!categories.some((category) => category.id === id)) {
+          return NextResponse.json(
+            { error: "카테고리를 찾을 수 없습니다." },
+            { status: 404 },
+          );
+        }
+        if (categories.length <= 1) {
+          return NextResponse.json(
+            { error: "카테고리는 최소 1개가 필요합니다." },
+            { status: 400 },
+          );
+        }
+        if (caseItem.tasks.some((task) => task.phase === id)) {
+          return NextResponse.json(
+            {
+              error:
+                "이 카테고리에 할 일이 있어 삭제할 수 없습니다. 먼저 옮기거나 지우세요.",
+            },
+            { status: 400 },
+          );
+        }
+        const index = categories.findIndex((category) => category.id === id);
+        categories.splice(index, 1);
+      } else {
+        // move (up/down)
+        const id = String(form.get("id") ?? "").trim();
+        const direction = String(form.get("direction") ?? "").trim();
+        const index = categories.findIndex((category) => category.id === id);
+        if (index < 0) {
+          return NextResponse.json(
+            { error: "카테고리를 찾을 수 없습니다." },
+            { status: 404 },
+          );
+        }
+        const swapWith = direction === "up" ? index - 1 : index + 1;
+        if (swapWith >= 0 && swapWith < categories.length) {
+          const tmp = categories[index];
+          categories[index] = categories[swapWith];
+          categories[swapWith] = tmp;
+        }
+      }
+
+      await upsertFinancePropertyCase({ ...caseItem, categories });
+      revalidatePath("/finance/property");
+      revalidatePath("/finance");
+      return NextResponse.json({
+        ok: true,
+        kind: writeKind,
+        caseSlug,
+        href: "/finance/property",
+      });
+    }
+
+    if (
+      writeKind === "property-task" ||
+      writeKind === "property-task-status" ||
+      writeKind === "property-task-dates" ||
+      writeKind === "property-task-delete"
+    ) {
       const caseSlug = String(form.get("caseSlug") ?? "").trim();
       if (!caseSlug) {
         return NextResponse.json(
@@ -623,9 +741,13 @@ export async function POST(request: Request) {
           const next: FinancePropertyTask = {
             ...task,
             status,
+            // 진행/완료로 바뀔 때 시작일(간트 막대 시작)을 없으면 오늘로 스탬프
+            startedAt:
+              status === "todo" ? undefined : (task.startedAt ?? today),
             doneAt: status === "done" ? (task.doneAt ?? today) : undefined,
           };
           if (status !== "done") delete next.doneAt;
+          if (status === "todo") delete next.startedAt;
           return Object.fromEntries(
             Object.entries(next).filter(([, value]) => value !== undefined),
           ) as FinancePropertyTask;
@@ -718,22 +840,49 @@ export async function POST(request: Request) {
         });
       }
 
+      if (writeKind === "property-task-delete") {
+        const taskSlug = String(form.get("taskSlug") ?? "").trim();
+        if (!taskSlug) {
+          return NextResponse.json(
+            { error: "taskSlug가 필요합니다." },
+            { status: 400 },
+          );
+        }
+        if (!caseItem.tasks.some((task) => task.slug === taskSlug)) {
+          return NextResponse.json(
+            { error: "할 일을 찾을 수 없습니다." },
+            { status: 404 },
+          );
+        }
+
+        // 하위 전체를 함께 삭제 (캐스케이드)
+        const descendants = collectPropertyDescendantSlugs(
+          caseItem.tasks,
+          taskSlug,
+        );
+        const removeSet = new Set([taskSlug, ...descendants]);
+        const tasks = caseItem.tasks.filter(
+          (task) => !removeSet.has(task.slug),
+        );
+
+        await upsertFinancePropertyCase({ ...caseItem, tasks });
+        revalidatePath("/finance/property");
+        revalidatePath("/finance");
+        return NextResponse.json({
+          ok: true,
+          kind: "property-task-delete",
+          caseSlug,
+          taskSlug,
+          removed: removeSet.size,
+          href: "/finance/property",
+        });
+      }
+
       const mode = String(form.get("mode") ?? "existing");
       const title = String(form.get("title") ?? "").trim();
       if (!title) {
         return NextResponse.json({ error: "제목이 필요합니다." }, { status: 400 });
       }
-
-      const phaseRaw = String(form.get("phase") ?? "booking").trim();
-      const phase: FinancePropertyTaskPhase =
-        phaseRaw === "purchase" ||
-        phaseRaw === "checkout" ||
-        phaseRaw === "move-day" ||
-        phaseRaw === "install" ||
-        phaseRaw === "admin" ||
-        phaseRaw === "wrapup"
-          ? phaseRaw
-          : "booking";
 
       const statusRaw = String(form.get("status") ?? "todo").trim();
       const status: FinancePropertyTaskStatus =
@@ -741,7 +890,6 @@ export async function POST(request: Request) {
 
       const dueDate = String(form.get("dueDate") ?? "").trim() || undefined;
       const note = String(form.get("note") ?? "").trim() || undefined;
-      const sortOrderRaw = String(form.get("sortOrder") ?? "").trim();
       // start/end는 간트에서만. Write의 dueDate가 간트 구간을 덮지 않음.
       const startDateExplicit = String(form.get("startDate") ?? "").trim();
       const endDateExplicit = String(form.get("endDate") ?? "").trim();
@@ -765,32 +913,66 @@ export async function POST(request: Request) {
           ? caseItem.tasks.find((task) => task.slug === resolved.slug)
           : undefined;
 
-      let sortOrder = existingTask?.sortOrder;
-      if (sortOrderRaw) {
-        const n = Number(sortOrderRaw);
-        if (!Number.isFinite(n) || n < 1) {
+      // 상위 할 일: 있으면 그 밑, 없으면 phase 바로 아래(레벨1)
+      const parentSlugRaw = String(form.get("parentSlug") ?? "").trim();
+      let parentSlug: string | undefined;
+      let phase: FinancePropertyTaskPhase;
+      if (parentSlugRaw) {
+        const parentTask = caseItem.tasks.find(
+          (task) => task.slug === parentSlugRaw,
+        );
+        if (!parentTask) {
           return NextResponse.json(
-            { error: "WBS 순번(Index)이 올바르지 않습니다." },
+            { error: "상위 할 일을 찾을 수 없습니다." },
             { status: 400 },
           );
         }
-        sortOrder = Math.round(n);
-      } else if (sortOrder == null) {
-        const samePhase = caseItem.tasks.filter(
-          (task) => task.phase === phase && task.slug !== resolved.slug,
+        // 자기 자신·자손을 부모로 지정하면 순환 → 거부
+        if (existingTask) {
+          const forbidden = new Set([
+            existingTask.slug,
+            ...collectPropertyDescendantSlugs(caseItem.tasks, existingTask.slug),
+          ]);
+          if (forbidden.has(parentSlugRaw)) {
+            return NextResponse.json(
+              { error: "자기 자신이나 하위 할 일을 상위로 지정할 수 없습니다." },
+              { status: 400 },
+            );
+          }
+        }
+        parentSlug = parentTask.slug;
+        phase = parentTask.phase; // 자식은 루트 phase를 상속
+      } else {
+        // 최상위: 케이스의 카테고리 중 하나여야 함 (없으면 첫 카테고리로)
+        const caseCategories = resolvePropertyCategories(caseItem);
+        const phaseRaw = String(form.get("phase") ?? "").trim();
+        const matched = caseCategories.find(
+          (category) => category.id === phaseRaw,
         );
-        sortOrder =
-          samePhase.reduce(
-            (acc, task) => Math.max(acc, task.sortOrder ?? 0),
-            0,
-          ) + 1;
+        phase = matched?.id ?? caseCategories[0].id;
+        parentSlug = undefined;
       }
+
+      // 부모/phase가 그대로면 기존 순번 유지, 아니면 새 형제 그룹 끝으로
+      const parentUnchanged =
+        (existingTask?.parentSlug || undefined) === parentSlug &&
+        existingTask?.phase === phase;
+      const sortOrder =
+        existingTask && parentUnchanged && existingTask.sortOrder != null
+          ? existingTask.sortOrder
+          : nextPropertySiblingOrder(
+              caseItem.tasks,
+              parentSlug,
+              phase,
+              resolved.slug,
+            );
 
       const task: FinancePropertyTask = {
         id: existingTask?.id ?? resolved.slug,
         slug: resolved.slug,
         title,
         phase,
+        parentSlug,
         status,
         window: existingTask?.window,
         windowOrder: existingTask?.windowOrder,
@@ -799,6 +981,8 @@ export async function POST(request: Request) {
           : existingTask?.startDate,
         endDate: endDateExplicit ? endDateExplicit : existingTask?.endDate,
         dueDate: dueDate ?? existingTask?.dueDate,
+        startedAt:
+          status === "todo" ? undefined : (existingTask?.startedAt ?? today),
         doneAt:
           status === "done"
             ? (existingTask?.doneAt ?? today)
