@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/container";
 import { FadeIn } from "@/components/ui/fade-in";
 import { ContentBreadcrumb } from "@/features/content/content-breadcrumb";
 import { EmptyState } from "@/features/content/empty-state";
-import { PostCard, PostCardList } from "@/features/content/post-card";
+import { PostCardList } from "@/features/content/post-card";
 import type { NavSection } from "@/content/nav";
 import type { PostListItem } from "@/types/post";
 import { cn } from "@/lib/utils/cn";
@@ -15,7 +15,6 @@ type SpaceOverviewProps = {
   section: NavSection;
   title: string;
   summary: string;
-  featured: PostListItem | null;
   latest: PostListItem[];
   exploreHint?: string;
 };
@@ -24,7 +23,6 @@ export function SpaceOverview({
   section,
   title,
   summary,
-  featured,
   latest,
   exploreHint = "카테고리를 골라 기록을 탐색하세요.",
 }: SpaceOverviewProps) {
@@ -33,7 +31,6 @@ export function SpaceOverview({
       section={section}
       title={title}
       summary={summary}
-      featured={featured}
       latest={latest}
       exploreHint={exploreHint}
     />
@@ -44,7 +41,6 @@ function SpaceOverviewClient({
   section,
   title,
   summary,
-  featured,
   latest,
   exploreHint,
 }: SpaceOverviewProps) {
@@ -54,12 +50,6 @@ function SpaceOverviewClient({
     if (activeCategory === "all") return latest;
     return latest.filter((post) => post.category === activeCategory);
   }, [activeCategory, latest]);
-
-  const featuredVisible =
-    featured &&
-    (activeCategory === "all" || featured.category === activeCategory)
-      ? featured
-      : null;
 
   return (
     <div className="pb-24 pt-10 sm:pt-14">
@@ -114,12 +104,6 @@ function SpaceOverviewClient({
             })}
           </div>
         </FadeIn>
-
-        {featuredVisible ? (
-          <div className="mt-14">
-            <PostCard post={featuredVisible} variant="featured" />
-          </div>
-        ) : null}
 
         <FadeIn delayMs={100} className="mt-16">
           <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">

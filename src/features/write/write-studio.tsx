@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { GROWTH_NAV, NOTES_NAV } from "@/content/nav";
 import type { WriteCategory } from "@/types/place";
@@ -23,6 +24,8 @@ type FoodStopDraft = {
   rating: string;
   note: string;
   photos: File[];
+  existingPhotos: string[];
+  removedExistingPhotos: string[];
 };
 
 export type WriteDraft = {
@@ -44,6 +47,7 @@ export type WriteDraft = {
   tags?: string;
   body?: string;
   watchedAt?: string;
+  existingPhotos?: string[];
 };
 
 type ClubOption = { id: string; label: string };
@@ -151,6 +155,8 @@ function newFoodStop(): FoodStopDraft {
     rating: "",
     note: "",
     photos: [],
+    existingPhotos: [],
+    removedExistingPhotos: [],
   };
 }
 
@@ -177,6 +183,8 @@ function foodStopFromDraft(d: WriteDraft): FoodStopDraft {
     rating: ratingMatch?.[1] ?? "",
     note,
     photos: [],
+    existingPhotos: d.existingPhotos ?? [],
+    removedExistingPhotos: [],
   };
 }
 
@@ -216,19 +224,77 @@ function appendFoodStopToFormData(
   for (const file of stop.photos) {
     stopData.append("photos", file);
   }
+  for (const path of stop.removedExistingPhotos) {
+    stopData.append("removePhotos", path);
+  }
 }
 
 function FoodPhotoPicker({
   files,
   onChange,
+  existingPhotos,
+  removedExistingPhotos,
+  onRemovedExistingChange,
 }: {
   files: File[];
   onChange: (files: File[]) => void;
+  existingPhotos: string[];
+  removedExistingPhotos: string[];
+  onRemovedExistingChange: (paths: string[]) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const visibleExisting = existingPhotos.filter(
+    (path) => !removedExistingPhotos.includes(path),
+  );
+
+  function markExistingRemoved(path: string) {
+    onRemovedExistingChange(
+      removedExistingPhotos.includes(path)
+        ? removedExistingPhotos
+        : [...removedExistingPhotos, path],
+    );
+  }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {visibleExisting.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-xs text-[var(--color-muted)]">
+            등록된 사진 {visibleExisting.length}장
+          </p>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {visibleExisting.map((path) => (
+              <li
+                key={path}
+                className="overflow-hidden rounded-md ring-1 ring-[var(--color-border)]"
+              >
+                <div className="relative aspect-[4/3] bg-[var(--color-surface-muted)]">
+                  <Image
+                    src={path}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 50vw, 160px"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => markExistingRemoved(path)}
+                  className="w-full py-2 text-xs text-[var(--color-muted)] underline-offset-4 hover:underline"
+                >
+                  삭제
+                </button>
+              </li>
+            ))}
+          </ul>
+          {removedExistingPhotos.length > 0 ? (
+            <p className="text-xs text-[var(--color-muted)]">
+              삭제 예정 {removedExistingPhotos.length}장 · 저장하면 파일에서 제거됩니다.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+      <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         <input
           ref={inputRef}
@@ -288,6 +354,7 @@ function FoodPhotoPicker({
           ))}
         </ul>
       ) : null}
+      </div>
     </div>
   );
 }
@@ -434,6 +501,11 @@ function FoodVenueFields({
             <FoodPhotoPicker
               files={stop.photos}
               onChange={(photos) => onChange({ photos })}
+              existingPhotos={stop.existingPhotos}
+              removedExistingPhotos={stop.removedExistingPhotos}
+              onRemovedExistingChange={(removedExistingPhotos) =>
+                onChange({ removedExistingPhotos })
+              }
             />
           </Field>
         </div>
@@ -473,10 +545,20 @@ export function WriteStudio({
   const [foodSingleStop, setFoodSingleStop] = useState<FoodStopDraft>(() =>
     initialCategory === "food" && draft ? foodStopFromDraft(draft) : newFoodStop(),
   );
+  const [entryNewPhotos, setEntryNewPhotos] = useState<File[]>([]);
+  const [removedExistingPhotos, setRemovedExistingPhotos] = useState<string[]>(
+    [],
+  );
+  const existingPhotos = draft?.existingPhotos ?? [];
 
   const editingSlug = initialSlug?.trim() || "";
   const isEditing = Boolean(editingSlug);
   const formKey = `${category}:${editingSlug}:${mode}:${draft?.publishedOn ?? ""}`;
+
+  useEffect(() => {
+    setEntryNewPhotos([]);
+    setRemovedExistingPhotos([]);
+  }, [formKey]);
 
   useEffect(() => {
     if (category !== "food") return;
@@ -668,6 +750,13 @@ export function WriteStudio({
         setFoodSingleStop(newFoodStop());
         router.refresh();
         return;
+      }
+
+      for (const path of removedExistingPhotos) {
+        data.append("removePhotos", path);
+      }
+      for (const file of entryNewPhotos) {
+        data.append("photos", file);
       }
 
       const response = await fetch("/api/write", {
@@ -1291,12 +1380,12 @@ export function WriteStudio({
 
         {supportsPhotos && category !== "food" ? (
           <Field label="사진">
-            <input
-              name="photos"
-              type="file"
-              accept="image/*"
-              multiple
-              className="block w-full text-sm text-[var(--color-muted)]"
+            <FoodPhotoPicker
+              files={entryNewPhotos}
+              onChange={setEntryNewPhotos}
+              existingPhotos={existingPhotos}
+              removedExistingPhotos={removedExistingPhotos}
+              onRemovedExistingChange={setRemovedExistingPhotos}
             />
           </Field>
         ) : null}

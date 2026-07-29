@@ -1,4 +1,4 @@
-import { mkdir, writeFile, readFile } from "node:fs/promises";
+import { mkdir, unlink, writeFile, readFile } from "node:fs/promises";
 import path from "node:path";
 import {
   buildPropertyWbsTree,
@@ -123,6 +123,47 @@ export async function savePhotos(
   }
 
   return saved;
+}
+
+export function filterSafePhotoPublicPaths(
+  category: WriteCategory,
+  slug: string,
+  publicPaths: string[],
+) {
+  const prefix = `/images/${category}/${slug}/`;
+  return publicPaths.filter(
+    (value) =>
+      value.startsWith(prefix) &&
+      !value.includes("..") &&
+      /\/[^/]+\.(jpe?g|png|webp|gif)$/i.test(value),
+  );
+}
+
+export async function deletePhotosByPublicPaths(
+  category: WriteCategory,
+  slug: string,
+  publicPaths: string[],
+) {
+  const safe = filterSafePhotoPublicPaths(category, slug, publicPaths);
+  for (const publicPath of safe) {
+    const filePath = path.join(getPhotosDir(category, slug), path.basename(publicPath));
+    await unlink(filePath).catch(() => undefined);
+  }
+}
+
+export async function applyPhotoChanges(
+  category: WriteCategory,
+  slug: string,
+  options: { removePublicPaths?: string[]; newFiles?: File[] },
+) {
+  await deletePhotosByPublicPaths(
+    category,
+    slug,
+    options.removePublicPaths ?? [],
+  );
+  if (options.newFiles?.length) {
+    await savePhotos(category, slug, options.newFiles);
+  }
 }
 
 function cultureEntriesPath() {

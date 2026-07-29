@@ -28,7 +28,7 @@ import {
   getWorkProject,
   getWorkSeason,
 } from "@/lib/content/get-work";
-import { readReviewBody } from "@/lib/content/life-media";
+import { listPhotoPublicPaths, readReviewBody } from "@/lib/content/life-media";
 import { hasWriteSession, isWriteSecretConfigured } from "@/lib/write/auth";
 import type { CareerWriteKind, FinanceWriteKind, WorkWriteKind } from "@/lib/write/href";
 import {
@@ -206,6 +206,7 @@ async function loadDraft(
       distanceKm: String(entry.distanceKm),
       place: entry.place,
       body: body ?? undefined,
+      existingPhotos: listPhotoPublicPaths("running", slug),
     };
   }
 
@@ -221,6 +222,7 @@ async function loadDraft(
       place: entry.place,
       kind: entry.kind,
       body: body ?? undefined,
+      existingPhotos: listPhotoPublicPaths("culture", slug),
     };
   }
 
@@ -238,6 +240,7 @@ async function loadDraft(
       naverMapUrl: entry.naverMapUrl,
       catchTableUrl: entry.catchTableUrl,
       body: body ?? undefined,
+      existingPhotos: listPhotoPublicPaths(category, slug),
     };
   }
 

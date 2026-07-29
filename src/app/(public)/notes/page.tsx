@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { SpaceOverview } from "@/features/content/space-overview";
 import { NOTES_NAV } from "@/content/nav";
-import {
-  getFeaturedPosts,
-  getLatestPosts,
-} from "@/lib/content/get-posts";
+import { getLatestPosts } from "@/lib/content/get-posts";
 
 export const metadata: Metadata = {
   title: "Notes",
@@ -12,17 +9,13 @@ export const metadata: Metadata = {
 };
 
 export default function NotesOverviewPage() {
-  const featured = getFeaturedPosts("notes", 1)[0] ?? null;
-  const latest = getLatestPosts("notes", 6).filter(
-    (post) => post.id !== featured?.id,
-  );
+  const latest = getLatestPosts("notes", 6);
 
   return (
     <SpaceOverview
       section={NOTES_NAV}
       title="Notes"
       summary="정보를 정리하는 공간입니다. 금융, 부동산, 생산성, 팁, 아카이브."
-      featured={featured}
       latest={latest}
       exploreHint="필요한 기록만 골라 읽으세요."
     />

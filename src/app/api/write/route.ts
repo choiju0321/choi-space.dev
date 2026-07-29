@@ -13,7 +13,7 @@ import {
   sanitizePublicSlug,
 } from "@/lib/write/entry-guards";
 import {
-  savePhotos,
+  applyPhotoChanges,
   saveReviewMarkdown,
   upsertCultureEntry,
   upsertPlaceEntry,
@@ -83,6 +83,25 @@ function resolveCreateSlug(
 
 function resolveUpdateSlug(requested: string): string {
   return requested.trim();
+}
+
+function removePhotoPathsFromForm(form: FormData) {
+  return form
+    .getAll("removePhotos")
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+}
+
+async function syncEntryPhotos(
+  category: WriteCategory,
+  slug: string,
+  form: FormData,
+  photos: File[],
+) {
+  await applyPhotoChanges(category, slug, {
+    removePublicPaths: removePhotoPathsFromForm(form),
+    newFiles: photos,
+  });
 }
 
 export async function POST(request: Request) {
@@ -237,7 +256,7 @@ export async function POST(request: Request) {
         };
         await upsertRunningSession(entry);
         if (body) await saveReviewMarkdown("running", slug, body);
-        await savePhotos("running", slug, photos);
+        await syncEntryPhotos("running", slug, form, photos);
         return NextResponse.json({
           ok: true,
           slug,
@@ -253,7 +272,7 @@ export async function POST(request: Request) {
         );
       }
       if (body) await saveReviewMarkdown("running", slug, body);
-      await savePhotos("running", slug, photos);
+      await syncEntryPhotos("running", slug, form, photos);
       return NextResponse.json({
         ok: true,
         slug,
@@ -301,7 +320,7 @@ export async function POST(request: Request) {
         };
         await upsertCultureEntry(entry);
         if (body) await saveReviewMarkdown("culture", slug, body);
-        await savePhotos("culture", slug, photos);
+        await syncEntryPhotos("culture", slug, form, photos);
         return NextResponse.json({
           ok: true,
           slug,
@@ -317,7 +336,7 @@ export async function POST(request: Request) {
         );
       }
       if (body) await saveReviewMarkdown("culture", slug, body);
-      await savePhotos("culture", slug, photos);
+      await syncEntryPhotos("culture", slug, form, photos);
       return NextResponse.json({
         ok: true,
         slug,
@@ -404,7 +423,7 @@ export async function POST(request: Request) {
 
       await upsertPlaceEntry(category, entry);
       if (body) await saveReviewMarkdown(category, slug, body);
-      await savePhotos(category, slug, photos);
+      await syncEntryPhotos(category, slug, form, photos);
       return NextResponse.json({
         ok: true,
         slug,
