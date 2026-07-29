@@ -112,6 +112,9 @@ type PageProps = {
     kind?: string;
     collection?: string;
     case?: string;
+    parent?: string;
+    phase?: string;
+    tab?: string;
   }>;
 };
 
@@ -272,6 +275,9 @@ export default async function WritePage({ searchParams }: PageProps) {
   const financeMode =
     asMode(params.mode) ?? (financeSlug ? "existing" : "new");
   const financeCaseSlug = params.case?.trim() || undefined;
+  const financeParentSlug = params.parent?.trim() || undefined;
+  const financePhase = params.phase?.trim() || undefined;
+  const financeReturnTab = params.tab?.trim() || undefined;
 
   const datingSlug = params.slug?.trim() || undefined;
   const datingMode =
@@ -493,6 +499,9 @@ export default async function WritePage({ searchParams }: PageProps) {
               draft={financePropertyTaskDraft}
               cases={propertyCases}
               defaultCaseSlug={financeCaseSlug}
+              defaultParentSlug={financeParentSlug}
+              defaultPhase={financePhase}
+              returnTab={financeReturnTab}
             />
           ) : (
             <FinanceOccasionWriteForm

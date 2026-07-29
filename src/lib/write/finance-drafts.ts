@@ -9,15 +9,13 @@ import type {
   FinanceOccasionKind,
   FinancePropertyCase,
   FinancePropertyCaseStatus,
+  FinancePropertyCategory,
   FinancePropertyKind,
   FinancePropertyTask,
   FinancePropertyTaskPhase,
   FinancePropertyTaskStatus,
 } from "@/types/finance";
-import {
-  FINANCE_CLAIM_DEFAULT_INSURER,
-  FINANCE_PROPERTY_TASK_PHASE_ORDER,
-} from "@/types/finance";
+import { FINANCE_CLAIM_DEFAULT_INSURER } from "@/types/finance";
 
 export type FinanceOccasionWriteDraft = {
   kind?: FinanceOccasionKind;
@@ -88,8 +86,9 @@ export type FinancePropertyTaskWriteDraft = {
   caseSlug?: string;
   title?: string;
   phase?: FinancePropertyTaskPhase;
+  /** 상위 할 일 slug (없으면 phase 바로 아래) */
+  parentSlug?: string;
   status?: FinancePropertyTaskStatus;
-  sortOrder?: string;
   startDate?: string;
   endDate?: string;
   dueDate?: string;
@@ -189,8 +188,8 @@ export function financePropertyTaskToDraft(
     caseSlug,
     title: task.title,
     phase: task.phase,
+    parentSlug: task.parentSlug,
     status: task.status,
-    sortOrder: task.sortOrder != null ? String(task.sortOrder) : "",
     startDate: task.startDate,
     endDate: task.endDate,
     dueDate: task.dueDate,
@@ -198,19 +197,43 @@ export function financePropertyTaskToDraft(
   };
 }
 
+/** 리프(자식 없는 할 일) 기준 통계 — 진행률·남은일 계산의 기준 */
+export function propertyLeafStats(tasks: FinancePropertyTask[]) {
+  const parents = new Set(
+    tasks
+      .map((task) => task.parentSlug)
+      .filter((slug): slug is string => Boolean(slug)),
+  );
+  const leaves = tasks.filter((task) => !parents.has(task.slug));
+  const done = leaves.filter((task) => task.status === "done").length;
+  return { total: leaves.length, done, open: leaves.length - done };
+}
+
 export function countPropertyOpenTasks(item: FinancePropertyCase) {
-  return item.tasks.filter((task) => task.status !== "done").length;
+  return propertyLeafStats(item.tasks).open;
+}
+
+/** 같은 부모(형제) 안에서 다음 정렬 순번 — 자동 순번 매김 */
+export function nextPropertySiblingOrder(
+  tasks: FinancePropertyTask[],
+  parentSlug: string | undefined,
+  phase: FinancePropertyTaskPhase,
+  excludeSlug?: string,
+) {
+  const siblings = tasks.filter((task) => {
+    if (task.slug === excludeSlug) return false;
+    const p = task.parentSlug || undefined;
+    if (p) return p === parentSlug;
+    return !parentSlug && task.phase === phase;
+  });
+  return (
+    siblings.reduce((acc, task) => Math.max(acc, task.sortOrder ?? 0), 0) + 1
+  );
 }
 
 export function sortPropertyTasks(tasks: FinancePropertyTask[]) {
-  const phaseRank = Object.fromEntries(
-    FINANCE_PROPERTY_TASK_PHASE_ORDER.map((phase, index) => [phase, index]),
-  ) as Record<FinancePropertyTaskPhase, number>;
-
+  // 카테고리 간 순서는 트리 빌더가 categories 순서로 처리 → 여기선 형제 순번만
   return [...tasks].sort((a, b) => {
-    const pa = phaseRank[a.phase] ?? 99;
-    const pb = phaseRank[b.phase] ?? 99;
-    if (pa !== pb) return pa - pb;
     const so = (a.sortOrder ?? 999) - (b.sortOrder ?? 999);
     if (so !== 0) return so;
     const da = a.dueDate ?? a.endDate ?? "9999-99-99";
@@ -224,58 +247,200 @@ export function sortPropertyTasks(tasks: FinancePropertyTask[]) {
   });
 }
 
-export function groupPropertyTasksByPhase(tasks: FinancePropertyTask[]) {
-  const sorted = sortPropertyTasks(tasks);
-  return FINANCE_PROPERTY_TASK_PHASE_ORDER.map((phase) => ({
-    phase,
-    tasks: sorted.filter((task) => task.phase === phase),
-  })).filter((group) => group.tasks.length > 0);
-}
-
-/** WBS: 1(카테고리) > 1.1(할 일). 날짜(Window)는 일정 메타일 뿐 인덱스가 아님 */
-export type PropertyWbsTask = {
+/**
+ * WBS 트리: 카테고리(1) > 할 일(1.1) > 하위(1.1.1) … 무한 깊이.
+ * 코드는 정렬 후 위치(1-based)로 계산하고, 진행률은 리프 기준으로 집계한다.
+ * 카테고리(레벨1)는 케이스별 `categories` 순서를 따른다.
+ */
+export type PropertyWbsNode = {
   code: string;
+  depth: number;
   task: FinancePropertyTask;
+  children: PropertyWbsNode[];
+  /** 자손 리프 수 (자신이 리프면 1) */
+  leafTotal: number;
+  /** 완료된 자손 리프 수 */
+  leafDone: number;
+  /** 자식이 있으면 컨테이너 — 상태는 진행률로 자동 계산 */
+  isParent: boolean;
 };
 
 export type PropertyWbsCategory = {
   code: string;
-  phase: FinancePropertyTaskPhase;
-  tasks: PropertyWbsTask[];
+  categoryId: FinancePropertyTaskPhase;
+  label: string;
+  nodes: PropertyWbsNode[];
+  leafTotal: number;
+  leafDone: number;
 };
+
+/** 정렬된 태스크를 루트(카테고리 직속) + 부모별 자식 맵으로 분해 */
+function propertyChildrenMap(tasks: FinancePropertyTask[]) {
+  const sorted = sortPropertyTasks(tasks);
+  const slugSet = new Set(sorted.map((task) => task.slug));
+  const childrenByParent = new Map<string, FinancePropertyTask[]>();
+  const roots: FinancePropertyTask[] = [];
+  for (const task of sorted) {
+    const parent =
+      task.parentSlug && slugSet.has(task.parentSlug) ? task.parentSlug : null;
+    if (parent) {
+      const list = childrenByParent.get(parent) ?? [];
+      list.push(task);
+      childrenByParent.set(parent, list);
+    } else {
+      roots.push(task);
+    }
+  }
+  return { roots, childrenByParent };
+}
 
 export function buildPropertyWbsTree(
   tasks: FinancePropertyTask[],
+  categories: FinancePropertyCategory[],
 ): PropertyWbsCategory[] {
-  const sorted = sortPropertyTasks(tasks);
-  const categories: PropertyWbsCategory[] = [];
+  const { roots, childrenByParent } = propertyChildrenMap(tasks);
 
-  FINANCE_PROPERTY_TASK_PHASE_ORDER.forEach((phase, phaseIndex) => {
-    const phaseTasks = sorted.filter((task) => task.phase === phase);
-    if (phaseTasks.length === 0) return;
+  function buildNode(
+    task: FinancePropertyTask,
+    parentCode: string,
+    index: number,
+    depth: number,
+  ): PropertyWbsNode {
+    const code = `${parentCode}.${index}`;
+    const childTasks = childrenByParent.get(task.slug) ?? [];
+    const children = childTasks.map((child, i) =>
+      buildNode(child, code, i + 1, depth + 1),
+    );
+    let leafTotal = 0;
+    let leafDone = 0;
+    if (children.length === 0) {
+      leafTotal = 1;
+      leafDone = task.status === "done" ? 1 : 0;
+    } else {
+      for (const child of children) {
+        leafTotal += child.leafTotal;
+        leafDone += child.leafDone;
+      }
+    }
+    return {
+      code,
+      depth,
+      task,
+      children,
+      leafTotal,
+      leafDone,
+      isParent: children.length > 0,
+    };
+  }
 
-    const catCode = String(phaseIndex + 1);
-    categories.push({
-      code: catCode,
-      phase,
-      tasks: phaseTasks.map((task, taskIndex) => ({
-        code: `${catCode}.${task.sortOrder ?? taskIndex + 1}`,
-        task,
-      })),
-    });
+  function buildCategory(
+    categoryId: string,
+    label: string,
+    index: number,
+    catRoots: FinancePropertyTask[],
+  ): PropertyWbsCategory {
+    const catCode = String(index + 1);
+    const nodes = catRoots.map((task, i) => buildNode(task, catCode, i + 1, 0));
+    let leafTotal = 0;
+    let leafDone = 0;
+    for (const node of nodes) {
+      leafTotal += node.leafTotal;
+      leafDone += node.leafDone;
+    }
+    return { code: catCode, categoryId, label, nodes, leafTotal, leafDone };
+  }
+
+  const result: PropertyWbsCategory[] = [];
+  categories.forEach((category, index) => {
+    const catRoots = roots.filter((task) => task.phase === category.id);
+    result.push(buildCategory(category.id, category.label, index, catRoots));
   });
 
-  return categories;
+  // 안전망: 카테고리 목록에 없는 phase를 가진 루트는 '미분류'로 모아 보존
+  const known = new Set(categories.map((category) => category.id));
+  const orphanRoots = roots.filter((task) => !known.has(task.phase));
+  if (orphanRoots.length > 0) {
+    result.push(
+      buildCategory("_uncategorized", "미분류", categories.length, orphanRoots),
+    );
+  }
+
+  return result;
 }
 
-export function propertyWbsCodeMap(tasks: FinancePropertyTask[]) {
-  const map = new Map<string, string>();
-  for (const category of buildPropertyWbsTree(tasks)) {
-    for (const item of category.tasks) {
-      map.set(item.task.slug, item.code);
+/** 트리를 부모→자식(선순위) 순서로 평탄화 — 간트·코드맵용 */
+export function flattenPropertyWbs(
+  categories: PropertyWbsCategory[],
+): PropertyWbsNode[] {
+  const out: PropertyWbsNode[] = [];
+  const walk = (nodes: PropertyWbsNode[]) => {
+    for (const node of nodes) {
+      out.push(node);
+      walk(node.children);
+    }
+  };
+  for (const category of categories) walk(category.nodes);
+  return out;
+}
+
+/** 진행률/상태 필터로 트리를 가지치기 — 매칭 노드의 조상은 유지 */
+export function filterPropertyWbs(
+  categories: PropertyWbsCategory[],
+  keepLeaf: (node: PropertyWbsNode) => boolean,
+): PropertyWbsCategory[] {
+  const prune = (nodes: PropertyWbsNode[]): PropertyWbsNode[] => {
+    const out: PropertyWbsNode[] = [];
+    for (const node of nodes) {
+      const children = prune(node.children);
+      // 컨테이너는 살아남은 자식이 있을 때만, 리프는 조건 통과 시 유지
+      if (children.length > 0 || (!node.isParent && keepLeaf(node))) {
+        out.push({ ...node, children });
+      }
+    }
+    return out;
+  };
+  return categories
+    .map((category) => ({ ...category, nodes: prune(category.nodes) }))
+    .filter((category) => category.nodes.length > 0);
+}
+
+/** 상태 필터 후에도 할 일 없는(빈) 카테고리는 목록에 남긴다 */
+export function mergeEmptyPropertyWbsCategories(
+  filtered: PropertyWbsCategory[],
+  fullTree: PropertyWbsCategory[],
+): PropertyWbsCategory[] {
+  const byId = new Map(filtered.map((category) => [category.categoryId, category]));
+  for (const category of fullTree) {
+    if (category.nodes.length === 0) {
+      byId.set(category.categoryId, category);
     }
   }
-  return map;
+  return fullTree
+    .filter((category) => byId.has(category.categoryId))
+    .map((category) => byId.get(category.categoryId)!);
+}
+
+/** slug의 모든 자손 slug — 삭제 캐스케이드·사이클(재부모) 방지 */
+export function collectPropertyDescendantSlugs(
+  tasks: FinancePropertyTask[],
+  slug: string,
+): string[] {
+  const childrenByParent = new Map<string, FinancePropertyTask[]>();
+  for (const task of tasks) {
+    if (!task.parentSlug) continue;
+    const list = childrenByParent.get(task.parentSlug) ?? [];
+    list.push(task);
+    childrenByParent.set(task.parentSlug, list);
+  }
+  const out: string[] = [];
+  const stack = [...(childrenByParent.get(slug) ?? [])];
+  while (stack.length) {
+    const task = stack.pop()!;
+    out.push(task.slug);
+    const kids = childrenByParent.get(task.slug);
+    if (kids) stack.push(...kids);
+  }
+  return out;
 }
 
 export function groupPropertyTasksByWindow(tasks: FinancePropertyTask[]) {
@@ -349,71 +514,77 @@ export function formatPropertyShortDate(iso: string) {
   return `${Number(m)}/${Number(d)}`;
 }
 
+/**
+ * 간트 막대 구간을 상태·Due Date에서 자동 도출한다 (수동 날짜 선택 없음).
+ * - 진행(doing): startedAt(진행 누른 날) ~ dueDate
+ * - 완료(done): startedAt/doneAt ~ dueDate (done 색)
+ * - 할일(todo) + Due: 오늘 ~ dueDate 예정 막대 (옅게)
+ * - 그 외: 레거시 window D-구간이 있으면 폴백, 없으면 막대 없음
+ * `scheduled`=진행/완료 실제 구간, `done`=완료.
+ */
 export function propertyTaskSpan(
   task: FinancePropertyTask,
   moveInAt?: string,
+  todayIso?: string,
 ): {
   startOffset: number;
   endOffset: number;
   startDate?: string;
   endDate?: string;
-  /** 간트에 저장된 실제 일정인지 (아니면 window 제안) */
   scheduled: boolean;
+  done: boolean;
 } {
-  if (task.startDate || task.endDate) {
-    const startDate = task.startDate ?? task.endDate!;
-    const endDate = task.endDate ?? task.startDate!;
-    const ordered =
-      startDate <= endDate
-        ? { startDate, endDate }
-        : { startDate: endDate, endDate: startDate };
-    if (moveInAt) {
+  const due = task.dueDate;
+  let startDate: string | undefined;
+  let endDate: string | undefined;
+  let scheduled = false;
+  let done = false;
+
+  if (task.status === "done") {
+    startDate = task.startedAt ?? task.doneAt ?? due;
+    endDate = due ?? task.doneAt ?? task.startedAt;
+    scheduled = true;
+    done = true;
+  } else if (task.status === "doing") {
+    startDate = task.startedAt ?? todayIso;
+    endDate = due ?? task.startedAt ?? todayIso;
+    scheduled = true;
+  } else if (due) {
+    // 할일 + Due → 오늘~Due 예정 막대
+    startDate = todayIso ?? due;
+    endDate = due;
+    scheduled = false;
+  } else {
+    // 폴백: 레거시 window D-구간
+    const offsets = propertyWindowOffsets(task.window);
+    if (offsets && moveInAt) {
+      const startOffset = Math.min(offsets.start, offsets.end);
+      const endOffset = Math.max(offsets.start, offsets.end);
       return {
-        startOffset: daysBetweenIso(moveInAt, ordered.startDate),
-        endOffset: daysBetweenIso(moveInAt, ordered.endDate),
-        startDate: ordered.startDate,
-        endDate: ordered.endDate,
-        scheduled: true,
+        startOffset,
+        endOffset,
+        startDate: addDaysIso(moveInAt, startOffset),
+        endDate: addDaysIso(moveInAt, endOffset),
+        scheduled: false,
+        done: false,
       };
     }
-    return {
-      startOffset: 0,
-      endOffset: 0,
-      startDate: ordered.startDate,
-      endDate: ordered.endDate,
-      scheduled: true,
-    };
+    return { startOffset: 0, endOffset: 0, scheduled: false, done: false };
   }
 
-  if (task.dueDate) {
-    if (moveInAt) {
-      const offset = daysBetweenIso(moveInAt, task.dueDate);
-      return {
-        startOffset: offset,
-        endOffset: offset,
-        startDate: task.dueDate,
-        endDate: task.dueDate,
-        scheduled: true,
-      };
-    }
-    return {
-      startOffset: 0,
-      endOffset: 0,
-      startDate: task.dueDate,
-      endDate: task.dueDate,
-      scheduled: true,
-    };
+  if (startDate && endDate && startDate > endDate) {
+    const swap = startDate;
+    startDate = endDate;
+    endDate = swap;
   }
 
-  const offsets = propertyWindowOffsets(task.window) ?? { start: 0, end: 0 };
-  const startOffset = Math.min(offsets.start, offsets.end);
-  const endOffset = Math.max(offsets.start, offsets.end);
   return {
-    startOffset,
-    endOffset,
-    startDate: moveInAt ? addDaysIso(moveInAt, startOffset) : undefined,
-    endDate: moveInAt ? addDaysIso(moveInAt, endOffset) : undefined,
-    scheduled: false,
+    startOffset: moveInAt && startDate ? daysBetweenIso(moveInAt, startDate) : 0,
+    endOffset: moveInAt && endDate ? daysBetweenIso(moveInAt, endDate) : 0,
+    startDate,
+    endDate,
+    scheduled,
+    done,
   };
 }
 

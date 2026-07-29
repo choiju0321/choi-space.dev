@@ -111,7 +111,29 @@ export type BuildFinanceWriteHrefOptions = {
   mode?: "new" | "existing";
   /** property-task: 소속 케이스 */
   caseSlug?: string;
+  /** property-task: 상위 할 일 slug (하위 추가) */
+  parentSlug?: string;
+  /** property-task: 카테고리(레벨1)에 바로 붙일 때 */
+  phase?: string;
+  /** property 목록으로 돌아올 때 복원할 필터 탭 (예: purchase) */
+  tab?: string;
 };
+
+/** Finance · Real Estate 목록 — 케이스·카테고리 탭 복원 */
+export function buildFinancePropertyHref(options: {
+  caseSlug?: string;
+  tab?: string;
+  view?: "list" | "gantt";
+} = {}) {
+  const params = new URLSearchParams();
+  if (options.caseSlug) params.set("case", options.caseSlug);
+  if (options.tab) params.set("tab", options.tab);
+  if (options.view && options.view !== "list") {
+    params.set("view", options.view);
+  }
+  const query = params.toString();
+  return query ? `/finance/property?${query}` : "/finance/property";
+}
 
 /** Finance Write — `/write?category=finance&kind=…` */
 export function buildFinanceWriteHref(
@@ -121,6 +143,9 @@ export function buildFinanceWriteHref(
   params.set("category", "finance");
   params.set("kind", options.kind ?? "occasion");
   if (options.caseSlug) params.set("case", options.caseSlug);
+  if (options.parentSlug) params.set("parent", options.parentSlug);
+  if (options.phase) params.set("phase", options.phase);
+  if (options.tab) params.set("tab", options.tab);
   if (options.slug) {
     params.set("slug", options.slug);
     params.set("mode", options.mode ?? "existing");

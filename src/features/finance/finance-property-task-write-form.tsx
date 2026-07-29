@@ -5,11 +5,15 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import type { FinancePropertyTaskWriteDraft } from "@/lib/write/finance-drafts";
 import {
-  FINANCE_PROPERTY_TASK_PHASE_LABEL,
-  FINANCE_PROPERTY_TASK_PHASE_ORDER,
+  buildPropertyWbsTree,
+  collectPropertyDescendantSlugs,
+  flattenPropertyWbs,
+} from "@/lib/write/finance-drafts";
+import { buildFinancePropertyHref } from "@/lib/write/href";
+import {
   FINANCE_PROPERTY_TASK_STATUS_LABEL,
+  resolvePropertyCategories,
   type FinancePropertyCase,
-  type FinancePropertyTaskPhase,
   type FinancePropertyTaskStatus,
 } from "@/types/finance";
 
@@ -20,6 +24,11 @@ type FinancePropertyTaskWriteFormProps = {
   draft?: FinancePropertyTaskWriteDraft | null;
   cases: FinancePropertyCase[];
   defaultCaseSlug?: string;
+  defaultParentSlug?: string;
+  /** 최상위 할 일 — 카테고리 id (phase:…) */
+  defaultPhase?: string;
+  /** 저장 후 Property 목록에서 복원할 필터 탭 */
+  returnTab?: string;
 };
 
 const fieldClass = cn(
@@ -32,27 +41,11 @@ const fieldClass = cn(
 const labelClass =
   "block text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase";
 
-function phaseNumber(phase: FinancePropertyTaskPhase) {
-  const index = FINANCE_PROPERTY_TASK_PHASE_ORDER.indexOf(phase);
-  return index >= 0 ? index + 1 : 1;
-}
-
-function nextSortOrder(
-  cases: FinancePropertyCase[],
-  caseSlug: string,
-  phase: FinancePropertyTaskPhase,
-  excludeSlug?: string,
-) {
-  const caseItem = cases.find((item) => item.slug === caseSlug);
-  const same =
-    caseItem?.tasks.filter(
-      (task) => task.phase === phase && task.slug !== excludeSlug,
-    ) ?? [];
-  const max = same.reduce(
-    (acc, task) => Math.max(acc, task.sortOrder ?? 0),
-    0,
-  );
-  return max + 1;
+/** 부모 선택값 인코딩: 최상위는 `phase:<categoryId>`, 하위는 `task:<slug>` */
+function encodeParentValue(draft?: FinancePropertyTaskWriteDraft | null) {
+  if (draft?.parentSlug) return `task:${draft.parentSlug}`;
+  if (draft?.phase) return `phase:${draft.phase}`;
+  return null;
 }
 
 export function FinancePropertyTaskWriteForm({
@@ -62,41 +55,100 @@ export function FinancePropertyTaskWriteForm({
   draft,
   cases,
   defaultCaseSlug,
+  defaultParentSlug,
+  defaultPhase,
+  returnTab,
 }: FinancePropertyTaskWriteFormProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [caseSlug, setCaseSlug] = useState(
-    draft?.caseSlug ?? defaultCaseSlug ?? cases[0]?.slug ?? "",
+  const initialCaseSlug =
+    draft?.caseSlug ?? defaultCaseSlug ?? cases[0]?.slug ?? "";
+  const initialCase = cases.find((item) => item.slug === initialCaseSlug);
+  const initialCategories = resolvePropertyCategories(
+    initialCase ?? { categories: undefined },
   );
+  const initialParentValue =
+    encodeParentValue(draft) ??
+    (defaultParentSlug
+      ? `task:${defaultParentSlug}`
+      : `phase:${defaultPhase && initialCategories.some((item) => item.id === defaultPhase) ? defaultPhase : (initialCategories[0]?.id ?? "")}`);
+
+  const [caseSlug, setCaseSlug] = useState(initialCaseSlug);
   const [title, setTitle] = useState(draft?.title ?? "");
-  const [phase, setPhase] = useState<FinancePropertyTaskPhase>(
-    draft?.phase ?? "booking",
-  );
+  const [parentValue, setParentValue] = useState<string>(initialParentValue);
   const [status, setStatus] = useState<FinancePropertyTaskStatus>(
     draft?.status ?? "todo",
-  );
-  const [sortOrder, setSortOrder] = useState(
-    draft?.sortOrder ??
-      String(
-        nextSortOrder(
-          cases,
-          draft?.caseSlug ?? defaultCaseSlug ?? cases[0]?.slug ?? "",
-          draft?.phase ?? "booking",
-          draft?.slug,
-        ),
-      ),
   );
   const [dueDate, setDueDate] = useState(draft?.dueDate ?? "");
   const [note, setNote] = useState(draft?.note ?? "");
   const [slug] = useState(draft?.slug ?? "");
 
+  const selectedCase = useMemo(
+    () => cases.find((item) => item.slug === caseSlug),
+    [cases, caseSlug],
+  );
+
+  const categories = useMemo(
+    () => resolvePropertyCategories(selectedCase ?? { categories: undefined }),
+    [selectedCase],
+  );
+
+  const tree = useMemo(
+    () => buildPropertyWbsTree(selectedCase?.tasks ?? [], categories),
+    [selectedCase, categories],
+  );
+  const flatNodes = useMemo(() => flattenPropertyWbs(tree), [tree]);
+
+  function categoryNumber(categoryId: string) {
+    const index = categories.findIndex((category) => category.id === categoryId);
+    return index >= 0 ? index + 1 : 1;
+  }
+
+  // 편집 시 자기 자신·자손은 부모로 지정 불가 (순환 방지)
+  const forbiddenParents = useMemo(() => {
+    if (mode !== "existing" || !slug || !selectedCase) {
+      return new Set<string>();
+    }
+    return new Set([
+      slug,
+      ...collectPropertyDescendantSlugs(selectedCase.tasks, slug),
+    ]);
+  }, [mode, slug, selectedCase]);
+
+  const parsed = useMemo(() => {
+    if (parentValue.startsWith("task:")) {
+      const parentSlug = parentValue.slice(5);
+      const node = flatNodes.find((item) => item.task.slug === parentSlug);
+      return {
+        parentSlug,
+        phase: node?.task.phase ?? categories[0]?.id ?? "",
+        parentCode: node?.code,
+        siblings: node?.children ?? [],
+      };
+    }
+    const phaseId = parentValue.slice("phase:".length);
+    const category = tree.find((item) => item.categoryId === phaseId);
+    return {
+      parentSlug: undefined as string | undefined,
+      phase: phaseId,
+      parentCode: String(categoryNumber(phaseId)),
+      siblings: category?.nodes ?? [],
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parentValue, flatNodes, tree, categories]);
+
   const wbsPreview = useMemo(() => {
-    const n = Number(sortOrder);
-    const index = Number.isFinite(n) && n > 0 ? Math.round(n) : "?";
-    return `${phaseNumber(phase)}.${index}`;
-  }, [phase, sortOrder]);
+    const parentCode = parsed.parentCode ?? String(categoryNumber(parsed.phase));
+    const existingPos = slug
+      ? parsed.siblings.findIndex((item) => item.task.slug === slug)
+      : -1;
+    const index =
+      existingPos >= 0 ? existingPos + 1 : parsed.siblings.length + 1;
+    return `${parentCode}.${index}`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parsed, slug]);
 
   if (!configured) {
     return (
@@ -131,15 +183,6 @@ export function FinancePropertyTaskWriteForm({
     );
   }
 
-  function onPhaseChange(next: FinancePropertyTaskPhase) {
-    setPhase(next);
-    if (mode === "new") {
-      setSortOrder(
-        String(nextSortOrder(cases, caseSlug, next, slug || undefined)),
-      );
-    }
-  }
-
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
@@ -150,9 +193,12 @@ export function FinancePropertyTaskWriteForm({
       body.set("mode", mode);
       body.set("caseSlug", caseSlug);
       body.set("title", title);
-      body.set("phase", phase);
+      if (parsed.parentSlug) {
+        body.set("parentSlug", parsed.parentSlug);
+      } else {
+        body.set("phase", parsed.phase);
+      }
       body.set("status", status);
-      body.set("sortOrder", sortOrder);
       body.set("dueDate", dueDate);
       body.set("note", note);
       if (slug.trim()) body.set("slug", slug.trim());
@@ -171,7 +217,12 @@ export function FinancePropertyTaskWriteForm({
         return;
       }
 
-      router.push(payload?.href ?? "/finance/property");
+      router.push(
+        buildFinancePropertyHref({
+          caseSlug,
+          tab: returnTab || parsed.phase || undefined,
+        }),
+      );
       router.refresh();
     } catch {
       setError("저장에 실패했습니다.");
@@ -188,8 +239,9 @@ export function FinancePropertyTaskWriteForm({
         {mode === "new" ? "새 할 일" : "할 일 수정"}
       </p>
       <p className="text-sm leading-6 text-[var(--color-muted-soft)]">
-        카테고리 + 순번으로 WBS(`{wbsPreview}`)를 잡고, Due date만 넣으면
-        됩니다. 일정 구간은 간트에서 저장하세요.
+        상위 할 일을 고르면 WBS 번호(<span className="tabular-nums">{wbsPreview}</span>
+        )가 자동으로 매겨집니다. 무한 깊이로 하위를 쌓을 수 있어요. 일정 구간은
+        진행 상태·Due Date로 간트에 자동 표시됩니다.
       </p>
 
       <div>
@@ -204,9 +256,11 @@ export function FinancePropertyTaskWriteForm({
             const next = event.target.value;
             setCaseSlug(next);
             if (mode === "new") {
-              setSortOrder(
-                String(nextSortOrder(cases, next, phase, slug || undefined)),
+              const nextCase = cases.find((item) => item.slug === next);
+              const nextCategories = resolvePropertyCategories(
+                nextCase ?? { categories: undefined },
               );
+              setParentValue(`phase:${nextCategories[0]?.id ?? ""}`);
             }
           }}
           required
@@ -234,39 +288,39 @@ export function FinancePropertyTaskWriteForm({
         />
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2">
         <div>
-          <label className={labelClass} htmlFor="task-phase">
-            Category
+          <label className={labelClass} htmlFor="task-parent">
+            상위 (Parent)
           </label>
           <select
-            id="task-phase"
+            id="task-parent"
             className={fieldClass}
-            value={phase}
-            onChange={(event) =>
-              onPhaseChange(event.target.value as FinancePropertyTaskPhase)
-            }
+            value={parentValue}
+            onChange={(event) => setParentValue(event.target.value)}
           >
-            {FINANCE_PROPERTY_TASK_PHASE_ORDER.map((item) => (
-              <option key={item} value={item}>
-                {phaseNumber(item)}. {FINANCE_PROPERTY_TASK_PHASE_LABEL[item]}
-              </option>
-            ))}
+            <optgroup label="최상위 (카테고리 바로 아래)">
+              {categories.map((category, index) => (
+                <option key={category.id} value={`phase:${category.id}`}>
+                  {index + 1}. {category.label}
+                </option>
+              ))}
+            </optgroup>
+            {flatNodes.length > 0 ? (
+              <optgroup label="하위로 넣을 상위 할 일">
+                {flatNodes.map((node) => (
+                  <option
+                    key={node.task.slug}
+                    value={`task:${node.task.slug}`}
+                    disabled={forbiddenParents.has(node.task.slug)}
+                  >
+                    {"  ".repeat(node.depth + 1)}
+                    {node.code} {node.task.title}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
           </select>
-        </div>
-        <div>
-          <label className={labelClass} htmlFor="task-index">
-            Index (WBS)
-          </label>
-          <input
-            id="task-index"
-            className={fieldClass}
-            value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value)}
-            inputMode="numeric"
-            required
-            placeholder="1"
-          />
           <p className="mt-2 text-xs tabular-nums text-[var(--color-muted-soft)]">
             → {wbsPreview}
           </p>
@@ -293,6 +347,9 @@ export function FinancePropertyTaskWriteForm({
               </option>
             ))}
           </select>
+          <p className="mt-2 text-xs text-[var(--color-muted-soft)]">
+            하위 할 일이 생기면 상태는 진행률로 자동 계산됩니다.
+          </p>
         </div>
       </div>
 

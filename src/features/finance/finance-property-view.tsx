@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FadeIn } from "@/components/ui/fade-in";
 import {
   AdminActionLink,
@@ -11,23 +11,30 @@ import {
 import { ContentBreadcrumb } from "@/features/content/content-breadcrumb";
 import { FINANCE_NAV } from "@/content/nav";
 import { cn } from "@/lib/utils/cn";
-import { buildFinanceWriteHref } from "@/lib/write/href";
+import {
+  buildFinancePropertyHref,
+  buildFinanceWriteHref,
+} from "@/lib/write/href";
 import {
   buildPropertyWbsTree,
+  collectPropertyDescendantSlugs,
   countPropertyOpenTasks,
-  formatPropertyShortDate,
+  filterPropertyWbs,
+  flattenPropertyWbs,
+  mergeEmptyPropertyWbsCategories,
+  propertyLeafStats,
   propertyTaskSpan,
-  sortPropertyTasks,
+  type PropertyWbsCategory,
+  type PropertyWbsNode,
 } from "@/lib/write/finance-drafts";
 import {
   FINANCE_PROPERTY_CASE_STATUS_LABEL,
   FINANCE_PROPERTY_KIND_LABEL,
-  FINANCE_PROPERTY_TASK_PHASE_LABEL,
-  FINANCE_PROPERTY_TASK_PHASE_ORDER,
   FINANCE_PROPERTY_TASK_STATUS_LABEL,
+  resolvePropertyCategories,
   type FinancePropertyCase,
+  type FinancePropertyCategory,
   type FinancePropertyTask,
-  type FinancePropertyTaskPhase,
   type FinancePropertyTaskStatus,
 } from "@/types/finance";
 
@@ -36,17 +43,13 @@ type FinancePropertyViewProps = {
 };
 
 type ViewMode = "list" | "gantt";
-type FilterTab = "open" | "all" | FinancePropertyTaskPhase | "done";
+/** "open" · "all" · "done" 는 예약어, 그 외는 카테고리 id */
+type FilterTab = string;
 
-const FILTER_TABS: { id: FilterTab; label: string }[] = [
-  { id: "open", label: "남은일" },
-  { id: "all", label: "전체" },
-  ...FINANCE_PROPERTY_TASK_PHASE_ORDER.map((phase) => ({
-    id: phase as FilterTab,
-    label: FINANCE_PROPERTY_TASK_PHASE_LABEL[phase],
-  })),
-  { id: "done", label: "완료" },
-];
+/** 카테고리 관리 mutation body */
+type CategoryBody = Record<string, string>;
+
+type CategorySubmitResult = { ok: boolean; categoryId?: string };
 
 const actionButtonClass = cn(
   "inline-flex h-8 items-center px-2.5 text-[0.75rem] tracking-wide",
@@ -55,297 +58,208 @@ const actionButtonClass = cn(
 );
 
 const fieldClass = cn(
-  "mt-2 w-full rounded-md px-3 py-2.5 text-sm",
+  "w-full rounded-md px-3 py-2 text-sm",
   "bg-[var(--color-background)] text-[var(--color-foreground)]",
   "ring-1 ring-[var(--color-border)] outline-none",
   "focus:ring-2 focus:ring-[var(--color-accent)]",
 );
 
-const labelClass =
-  "block text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase";
+const GANTT_LABEL_COL = "w-40 shrink-0 sm:w-56";
 
-function TaskRow({
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** 리프 기준 진행률 바 (컨테이너 노드용) */
+function ProgressMeter({ done, total }: { done: number; total: number }) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className="relative h-1.5 w-24 overflow-hidden rounded-full bg-[var(--color-border)]/40">
+        <span
+          className="absolute inset-y-0 left-0 rounded-full bg-[var(--color-foreground)]/60"
+          style={{ width: `${pct}%` }}
+        />
+      </span>
+      <span className="tabular-nums">
+        {done}/{total} · {pct}%
+      </span>
+    </span>
+  );
+}
+
+function NodeRow({
   caseSlug,
-  task,
-  wbsCode,
-  busy,
+  node,
+  filterTab,
+  busyKey,
   onStatus,
-  onSchedule,
+  onDelete,
 }: {
   caseSlug: string;
-  task: FinancePropertyTask;
-  wbsCode: string;
-  busy: boolean;
+  node: PropertyWbsNode;
+  filterTab: FilterTab;
+  busyKey: string | null;
   onStatus: (
     caseSlug: string,
     taskSlug: string,
     status: FinancePropertyTaskStatus,
   ) => void;
-  onSchedule: (task: FinancePropertyTask) => void;
+  onDelete: (caseSlug: string, taskSlug: string) => void;
 }) {
+  const { task, code, depth, isParent, leafDone, leafTotal } = node;
+  const busy = busyKey === `${caseSlug}:${task.slug}`;
+  const paddingLeft = 24 + depth * 20;
+
   const editHref = buildFinanceWriteHref({
     kind: "property-task",
     slug: task.slug,
     caseSlug,
+    tab: filterTab,
+  });
+  const addChildHref = buildFinanceWriteHref({
+    kind: "property-task",
+    caseSlug,
+    parentSlug: task.slug,
+    tab: filterTab,
   });
 
   return (
-    <li className="border-t border-[var(--color-border)]/70 py-5 pl-6 sm:pl-10">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 max-w-xl">
-          <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
-            {FINANCE_PROPERTY_TASK_STATUS_LABEL[task.status]}
-            {task.dueDate ? (
+    <>
+      <li
+        className="border-t border-[var(--color-border)]/70 py-5 pr-1"
+        style={{ paddingLeft }}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 max-w-xl">
+            <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
+              {isParent ? (
+                <ProgressMeter done={leafDone} total={leafTotal} />
+              ) : (
+                FINANCE_PROPERTY_TASK_STATUS_LABEL[task.status]
+              )}
+              {task.dueDate ? (
+                <>
+                  <span className="mx-2 text-[var(--color-border)]">·</span>
+                  <span className="tabular-nums">Due {task.dueDate}</span>
+                </>
+              ) : null}
+            </p>
+            <h3
+              className={cn(
+                "mt-1 font-[family-name:var(--font-display)] font-semibold tracking-tight",
+                depth === 0 ? "text-lg" : "text-base",
+                !isParent && task.status === "done"
+                  ? "text-[var(--color-muted)] line-through"
+                  : "text-[var(--color-foreground)]",
+              )}
+            >
+              <span className="mr-2 tabular-nums text-[var(--color-muted-soft)]">
+                {code}
+              </span>
+              {task.title}
+            </h3>
+            {task.note ? (
+              <p className="mt-2 text-sm leading-6 text-[var(--color-muted-soft)]">
+                {task.note}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap justify-end gap-2">
+            {!isParent ? (
               <>
-                <span className="mx-2 text-[var(--color-border)]">·</span>
-                <span className="tabular-nums">Due {task.dueDate}</span>
-              </>
-            ) : task.startDate || task.endDate ? (
-              <>
-                <span className="mx-2 text-[var(--color-border)]">·</span>
-                <span className="tabular-nums normal-case tracking-normal">
-                  {formatPropertyShortDate(task.startDate ?? task.endDate!)}
-                  {task.endDate &&
-                  task.startDate &&
-                  task.endDate !== task.startDate
-                    ? `–${formatPropertyShortDate(task.endDate)}`
-                    : ""}
-                </span>
+                {task.status !== "todo" ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    className={actionButtonClass}
+                    onClick={() => onStatus(caseSlug, task.slug, "todo")}
+                  >
+                    할일
+                  </button>
+                ) : null}
+                {task.status !== "doing" ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    className={actionButtonClass}
+                    onClick={() => onStatus(caseSlug, task.slug, "doing")}
+                  >
+                    진행
+                  </button>
+                ) : null}
+                {task.status !== "done" ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    className={actionButtonClass}
+                    onClick={() => onStatus(caseSlug, task.slug, "done")}
+                  >
+                    완료
+                  </button>
+                ) : null}
               </>
             ) : null}
-          </p>
-          <h3
-            className={cn(
-              "mt-1 font-[family-name:var(--font-display)] text-lg font-semibold tracking-tight",
-              task.status === "done"
-                ? "text-[var(--color-muted)] line-through"
-                : "text-[var(--color-foreground)]",
-            )}
-          >
-            <span className="mr-2 tabular-nums text-[var(--color-muted-soft)]">
-              {wbsCode}
-            </span>
-            {task.title}
-          </h3>
-          {task.note ? (
-            <p className="mt-2 text-sm leading-6 text-[var(--color-muted-soft)]">
-              {task.note}
-            </p>
-          ) : null}
-        </div>
-        <div className="flex flex-wrap justify-end gap-2">
-          {task.status !== "todo" ? (
+            <AdminActionLink
+              href={addChildHref}
+              className="h-8 px-2.5 text-[0.75rem]"
+            >
+              + 하위
+            </AdminActionLink>
+            <AdminActionLink href={editHref} className="h-8 px-2.5 text-[0.75rem]">
+              Edit
+            </AdminActionLink>
             <button
               type="button"
               disabled={busy}
-              className={actionButtonClass}
-              onClick={() => onStatus(caseSlug, task.slug, "todo")}
+              className={cn(
+                actionButtonClass,
+                "text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
+              )}
+              onClick={() => onDelete(caseSlug, task.slug)}
             >
-              할일
+              삭제
             </button>
-          ) : null}
-          {task.status !== "doing" ? (
-            <button
-              type="button"
-              disabled={busy}
-              className={actionButtonClass}
-              onClick={() => onStatus(caseSlug, task.slug, "doing")}
-            >
-              진행
-            </button>
-          ) : null}
-          {task.status !== "done" ? (
-            <button
-              type="button"
-              disabled={busy}
-              className={actionButtonClass}
-              onClick={() => onStatus(caseSlug, task.slug, "done")}
-            >
-              완료
-            </button>
-          ) : null}
-          <button
-            type="button"
-            disabled={busy}
-            className={actionButtonClass}
-            onClick={() => onSchedule(task)}
-          >
-            일정
-          </button>
-          <AdminActionLink href={editHref} className="h-8 px-2.5 text-[0.75rem]">
-            Edit
-          </AdminActionLink>
-        </div>
-      </div>
-    </li>
-  );
-}
-
-function ScheduleModal({
-  task,
-  moveInAt,
-  busy,
-  onClose,
-  onSave,
-}: {
-  task: FinancePropertyTask;
-  moveInAt?: string;
-  busy: boolean;
-  onClose: () => void;
-  onSave: (dates: { startDate: string; endDate: string } | null) => Promise<void>;
-}) {
-  const suggested = propertyTaskSpan(task, moveInAt);
-  const [startDate, setStartDate] = useState(
-    task.startDate ?? suggested.startDate ?? moveInAt ?? "",
-  );
-  const [endDate, setEndDate] = useState(
-    task.endDate ?? suggested.endDate ?? moveInAt ?? "",
-  );
-
-  function applySuggested() {
-    if (suggested.startDate) setStartDate(suggested.startDate);
-    if (suggested.endDate) setEndDate(suggested.endDate);
-  }
-
-  async function save() {
-    if (!startDate && !endDate) return;
-    const start = startDate || endDate;
-    const end = endDate || startDate;
-    const ordered =
-      start <= end
-        ? { startDate: start, endDate: end }
-        : { startDate: end, endDate: start };
-    await onSave(ordered);
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-foreground)]/25 p-4"
-      role="presentation"
-      onClick={onClose}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="property-schedule-title"
-        className={cn(
-          "w-full max-w-md border border-[var(--color-border)]",
-          "bg-[var(--color-background)] p-6 shadow-lg",
-        )}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
-          Schedule
-          {task.window ? (
-            <>
-              <span className="mx-2 text-[var(--color-border)]">·</span>
-              <span className="normal-case tracking-normal">{task.window}</span>
-            </>
-          ) : null}
-        </p>
-        <h2
-          id="property-schedule-title"
-          className="mt-2 font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight text-[var(--color-foreground)]"
-        >
-          {task.title}
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--color-muted-soft)]">
-          시작·종료일을 고른 뒤 저장하세요. 하루면 같은 날짜로 두면 됩니다.
-        </p>
-
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className={labelClass} htmlFor="schedule-start">
-              Start
-            </label>
-            <input
-              id="schedule-start"
-              type="date"
-              className={fieldClass}
-              value={startDate}
-              onChange={(event) => setStartDate(event.target.value)}
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="schedule-end">
-              End
-            </label>
-            <input
-              id="schedule-end"
-              type="date"
-              className={fieldClass}
-              value={endDate}
-              onChange={(event) => setEndDate(event.target.value)}
-            />
           </div>
         </div>
-
-        {suggested.startDate && suggested.endDate && !suggested.scheduled ? (
-          <button
-            type="button"
-            className="mt-4 text-sm text-[var(--color-muted)] underline underline-offset-4 transition-opacity hover:opacity-70"
-            onClick={applySuggested}
-          >
-            D-구간 제안 적용 ({formatPropertyShortDate(suggested.startDate)}
-            {suggested.endDate !== suggested.startDate
-              ? `–${formatPropertyShortDate(suggested.endDate)}`
-              : ""}
-            )
-          </button>
-        ) : null}
-
-        <div className="mt-8 flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={busy || (!startDate && !endDate)}
-            className={actionButtonClass}
-            onClick={() => void save()}
-          >
-            저장
-          </button>
-          <button
-            type="button"
-            disabled={busy}
-            className={actionButtonClass}
-            onClick={onClose}
-          >
-            취소
-          </button>
-          <button
-            type="button"
-            disabled={busy}
-            className={cn(actionButtonClass, "ml-auto")}
-            onClick={() => void onSave(null)}
-          >
-            일정 지우기
-          </button>
-        </div>
-      </div>
-    </div>
+      </li>
+      {node.children.map((child) => (
+        <NodeRow
+          key={child.task.slug}
+          caseSlug={caseSlug}
+          node={child}
+          filterTab={filterTab}
+          busyKey={busyKey}
+          onStatus={onStatus}
+          onDelete={onDelete}
+        />
+      ))}
+    </>
   );
 }
 
 function PropertyGantt({
-  tasks,
+  categories,
   moveInAt,
-  onSchedule,
 }: {
-  tasks: FinancePropertyTask[];
+  categories: PropertyWbsCategory[];
   moveInAt?: string;
-  onSchedule: (task: FinancePropertyTask) => void;
 }) {
+  const today = useMemo(() => todayIso(), []);
+  const allNodes = useMemo(() => flattenPropertyWbs(categories), [categories]);
+
   const range = useMemo(() => {
     let min = -30;
     let max = 30;
-    for (const task of tasks) {
-      const span = propertyTaskSpan(task, moveInAt);
+    for (const node of allNodes) {
+      const span = propertyTaskSpan(node.task, moveInAt, today);
       min = Math.min(min, span.startOffset);
       max = Math.max(max, span.endOffset);
     }
     min = Math.min(min, -30);
     max = Math.max(max, 30);
     return { min, max, span: max - min };
-  }, [tasks, moveInAt]);
+  }, [allNodes, moveInAt, today]);
 
   const ticks = useMemo(() => {
     const values = [-30, -21, -14, -7, 0, 7, 14, 21, 30].filter(
@@ -355,8 +269,6 @@ function PropertyGantt({
     if (!values.includes(range.max)) values.push(range.max);
     return [...new Set(values)].sort((a, b) => a - b);
   }, [range]);
-
-  const groups = useMemo(() => buildPropertyWbsTree(tasks), [tasks]);
 
   function offsetToPercent(offset: number) {
     if (range.span <= 0) return 0;
@@ -380,7 +292,7 @@ function PropertyGantt({
     );
   }
 
-  if (tasks.length === 0) {
+  if (allNodes.length === 0) {
     return (
       <p className="mt-8 text-sm text-[var(--color-muted-soft)]">
         표시할 할 일이 없습니다.
@@ -391,13 +303,15 @@ function PropertyGantt({
   return (
     <div className="mt-8">
       <p className="text-sm leading-6 text-[var(--color-muted-soft)]">
-        D-30~D+30을 한 화면에 압축해 보여줍니다. 행을 누르면 일정 모달에서
-        날짜를 고르세요. 연한 막대=D-제안 · 진한 막대=저장 일정.
+        D-30~D+30을 한 화면에 압축해 보여줍니다. 막대는 <b>진행 상태</b>와{" "}
+        <b>Due Date</b>로 자동 계산됩니다 — 옅은 막대=예정(오늘~Due) · 진한
+        막대=진행 · 회색=완료.
       </p>
 
       <div className="mt-6">
-        <div className="mb-2 flex items-end gap-3">
-          <div className="w-36 shrink-0 sm:w-44" />
+        {/* 공통 타임라인 축 */}
+        <div className="mb-3 flex items-end gap-3">
+          <div className={GANTT_LABEL_COL} />
           <div className="relative h-5 min-w-0 flex-1">
             {ticks.map((offset) => (
               <span
@@ -416,30 +330,81 @@ function PropertyGantt({
           </div>
         </div>
 
-        {groups.map((category) => (
-          <div key={category.phase} className="mb-6">
-            <p className="mb-2 text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
-              <span className="tabular-nums">{category.code}</span>
-              <span className="mx-2 text-[var(--color-border)]">·</span>
-              {FINANCE_PROPERTY_TASK_PHASE_LABEL[category.phase]}
-            </p>
-            <ul className="space-y-1.5">
-              {category.tasks.map(({ code, task }) => {
-                  const span = propertyTaskSpan(task, moveInAt);
-                  return (
-                    <li key={task.slug}>
-                      <button
-                        type="button"
-                        onClick={() => onSchedule(task)}
-                        className="flex w-full items-center gap-3 text-left transition-opacity hover:opacity-70"
-                      >
+        {/* 대분류(카테고리)별 그룹 */}
+        <div>
+          {categories.map((category) => {
+            const catNodes = flattenPropertyWbs([category]);
+            let catStart = Infinity;
+            let catEnd = -Infinity;
+            for (const node of catNodes) {
+              const span = propertyTaskSpan(node.task, moveInAt, today);
+              if (span.startDate && span.endDate) {
+                catStart = Math.min(catStart, span.startOffset);
+                catEnd = Math.max(catEnd, span.endOffset);
+              }
+            }
+            const hasCatSpan = Number.isFinite(catStart);
+            const pct =
+              category.leafTotal > 0
+                ? Math.round((category.leafDone / category.leafTotal) * 100)
+                : 0;
+
+            return (
+              <div
+                key={category.categoryId}
+                className="border-t border-[var(--color-border)]/70 py-4 first:border-t-0"
+              >
+                {/* 카테고리 헤더 + 요약 막대 */}
+                <div className="mb-2.5 flex items-center gap-3">
+                  <span
+                    className={cn(
+                      GANTT_LABEL_COL,
+                      "truncate text-[0.7rem] font-semibold tracking-[0.14em] text-[var(--color-foreground)] uppercase",
+                    )}
+                  >
+                    <span className="tabular-nums text-[var(--color-muted)]">
+                      {category.code}
+                    </span>
+                    <span className="mx-1.5 text-[var(--color-border)]">·</span>
+                    {category.label}
+                    <span className="ml-2 tabular-nums font-normal normal-case tracking-normal text-[var(--color-muted-soft)]">
+                      {pct}%
+                    </span>
+                  </span>
+                  <span className="relative h-5 min-w-0 flex-1">
+                    <span
+                      aria-hidden
+                      className="absolute inset-y-0 w-px bg-[var(--color-foreground)]/25"
+                      style={{ left: `${offsetToPercent(0)}%` }}
+                    />
+                    {hasCatSpan ? (
+                      <span
+                        aria-hidden
+                        className="absolute top-1.5 bottom-1.5 rounded-[1px] bg-[var(--color-foreground)]/12"
+                        style={barStyle(catStart, catEnd)}
+                      />
+                    ) : null}
+                  </span>
+                </div>
+
+                {/* 카테고리 내 할 일 (트리 순서·깊이 들여쓰기) */}
+                <ul className="space-y-1.5">
+                  {catNodes.map((node) => {
+                    const { task, code, depth, isParent } = node;
+                    const span = propertyTaskSpan(task, moveInAt, today);
+                    return (
+                      <li key={task.slug} className="flex items-center gap-3">
                         <span
                           className={cn(
-                            "w-36 shrink-0 truncate text-xs sm:w-44",
-                            task.status === "done"
-                              ? "text-[var(--color-muted-soft)] line-through"
-                              : "text-[var(--color-foreground)]",
+                            GANTT_LABEL_COL,
+                            "truncate text-xs",
+                            isParent
+                              ? "font-medium text-[var(--color-foreground)]"
+                              : task.status === "done"
+                                ? "text-[var(--color-muted-soft)] line-through"
+                                : "text-[var(--color-foreground)]",
                           )}
+                          style={{ paddingLeft: 12 + depth * 12 }}
                           title={task.title}
                         >
                           <span className="mr-1.5 tabular-nums text-[var(--color-muted-soft)]">
@@ -457,29 +422,188 @@ function PropertyGantt({
                             <span
                               className={cn(
                                 "absolute top-0.5 bottom-0.5 rounded-[1px]",
-                                span.scheduled
-                                  ? task.status === "done"
-                                    ? "bg-[var(--color-muted-soft)]/60"
-                                    : "bg-[var(--color-foreground)]/45"
-                                  : "bg-[var(--color-foreground)]/18",
+                                span.done
+                                  ? "bg-[var(--color-muted-soft)]/60"
+                                  : span.scheduled
+                                    ? "bg-[var(--color-foreground)]/45"
+                                    : "bg-[var(--color-foreground)]/18",
                               )}
                               style={barStyle(span.startOffset, span.endOffset)}
                               title={
                                 span.scheduled
                                   ? `${span.startDate} ~ ${span.endDate}`
-                                  : `${task.window ?? ""} (제안)`
+                                  : `예정 ${span.startDate} ~ ${span.endDate}`
                               }
                             />
                           ) : null}
                         </span>
-                      </button>
-                    </li>
-                  );
-                })}
-            </ul>
-          </div>
-        ))}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
       </div>
+    </div>
+  );
+}
+
+function CategoryManager({
+  caseSlug,
+  categories,
+  taskCountByCat,
+  busy,
+  onSubmit,
+  onFocusCategory,
+}: {
+  caseSlug: string;
+  categories: FinancePropertyCategory[];
+  taskCountByCat: Record<string, number>;
+  busy: boolean;
+  onSubmit: (body: CategoryBody) => Promise<CategorySubmitResult>;
+  onFocusCategory?: (categoryId: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [newLabel, setNewLabel] = useState("");
+
+  return (
+    <div className="mt-8 border-t border-[var(--color-border)]/70 pt-5">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="text-[0.7rem] font-medium uppercase tracking-[0.14em] text-[var(--color-muted)] transition-colors hover:text-[var(--color-foreground)]"
+      >
+        1. 카테고리 관리 {open ? "▾" : "▸"}
+      </button>
+
+      {open ? (
+        <div className="mt-4 max-w-xl space-y-2">
+          {categories.map((category, index) => {
+            const count = taskCountByCat[category.id] ?? 0;
+            return (
+              <div
+                key={category.id}
+                className="flex flex-wrap items-center gap-2"
+              >
+                <span className="w-5 shrink-0 tabular-nums text-xs text-[var(--color-muted-soft)]">
+                  {index + 1}
+                </span>
+                <input
+                  key={`${category.id}:${category.label}`}
+                  defaultValue={category.label}
+                  className={cn(fieldClass, "min-w-[9rem] flex-1")}
+                  onBlur={(event) => {
+                    const value = event.target.value.trim();
+                    if (value && value !== category.label) {
+                      void onSubmit({
+                        kind: "property-category",
+                        mode: "existing",
+                        caseSlug,
+                        id: category.id,
+                        label: value,
+                      });
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  disabled={busy || index === 0}
+                  className={actionButtonClass}
+                  aria-label="위로"
+                  onClick={() =>
+                    void onSubmit({
+                      kind: "property-category-move",
+                      caseSlug,
+                      id: category.id,
+                      direction: "up",
+                    })
+                  }
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || index === categories.length - 1}
+                  className={actionButtonClass}
+                  aria-label="아래로"
+                  onClick={() =>
+                    void onSubmit({
+                      kind: "property-category-move",
+                      caseSlug,
+                      id: category.id,
+                      direction: "down",
+                    })
+                  }
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || count > 0 || categories.length <= 1}
+                  className={cn(actionButtonClass, "text-[var(--color-muted)]")}
+                  title={
+                    count > 0
+                      ? `할 일 ${count}개 — 비워야 삭제할 수 있습니다`
+                      : undefined
+                  }
+                  onClick={() =>
+                    void onSubmit({
+                      kind: "property-category-delete",
+                      caseSlug,
+                      id: category.id,
+                    })
+                  }
+                >
+                  삭제
+                </button>
+                {count > 0 ? (
+                  <span className="text-xs tabular-nums text-[var(--color-muted-soft)]">
+                    {count}개
+                  </span>
+                ) : null}
+              </div>
+            );
+          })}
+
+          <div className="flex flex-wrap items-center gap-2 pt-2">
+            <span className="w-5 shrink-0" />
+            <input
+              value={newLabel}
+              onChange={(event) => setNewLabel(event.target.value)}
+              placeholder="새 카테고리 이름"
+              className={cn(fieldClass, "min-w-[9rem] flex-1")}
+            />
+            <button
+              type="button"
+              disabled={busy || !newLabel.trim()}
+              className={actionButtonClass}
+              onClick={async () => {
+                const result = await onSubmit({
+                  kind: "property-category",
+                  mode: "new",
+                  caseSlug,
+                  label: newLabel.trim(),
+                });
+                if (result.ok) {
+                  setNewLabel("");
+                  if (result.categoryId) {
+                    onFocusCategory?.(result.categoryId);
+                  }
+                }
+              }}
+            >
+              + 추가
+            </button>
+          </div>
+          <p className="pt-1 text-xs leading-5 text-[var(--color-muted-soft)]">
+            순서가 곧 WBS 번호(1·2·3…)입니다. 카테고리를 만든 뒤, 아래에서 큰
+            갈래 할 일(+ Task) → 세부 할 일(+ 하위) 순으로 쌓으세요. 할 일이
+            든 카테고리는 비워야 삭제할 수 있어요.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -492,7 +616,9 @@ function CasePanel({
   setViewMode,
   busyKey,
   onStatus,
-  onSaveDates,
+  onDelete,
+  onCategory,
+  onFocusCategory,
 }: {
   item: FinancePropertyCase;
   filterTab: FilterTab;
@@ -505,38 +631,58 @@ function CasePanel({
     taskSlug: string,
     status: FinancePropertyTaskStatus,
   ) => void;
-  onSaveDates: (
-    caseSlug: string,
-    taskSlug: string,
-    dates: { startDate: string; endDate: string } | null,
-  ) => Promise<void>;
+  onDelete: (caseSlug: string, taskSlug: string) => void;
+  onCategory: (body: CategoryBody) => Promise<CategorySubmitResult>;
+  onFocusCategory: (categoryId: string) => void;
 }) {
-  const [scheduleTask, setScheduleTask] = useState<FinancePropertyTask | null>(
-    null,
-  );
-  const tasks = useMemo(() => sortPropertyTasks(item.tasks), [item.tasks]);
-  const filtered = useMemo(() => {
-    if (filterTab === "all") return tasks;
-    if (filterTab === "open") return tasks.filter((task) => task.status !== "done");
-    if (filterTab === "done") return tasks.filter((task) => task.status === "done");
-    return tasks.filter((task) => task.phase === filterTab);
-  }, [tasks, filterTab]);
-
-  const wbsTree = useMemo(
-    () => buildPropertyWbsTree(filtered),
-    [filtered],
+  const categories = useMemo(() => resolvePropertyCategories(item), [item]);
+  const tree = useMemo(
+    () => buildPropertyWbsTree(item.tasks, categories),
+    [item.tasks, categories],
   );
 
-  const openCount = countPropertyOpenTasks(item);
-  const doneCount = item.tasks.filter((task) => task.status === "done").length;
+  const systemFilterTabs = useMemo(
+    () =>
+      [
+        { id: "open", label: "남은일" },
+        { id: "all", label: "전체" },
+        { id: "done", label: "완료" },
+      ] as const,
+    [],
+  );
 
-  // keep modal task in sync after optimistic refresh
-  const modalTask = useMemo(() => {
-    if (!scheduleTask) return null;
-    return (
-      item.tasks.find((task) => task.slug === scheduleTask.slug) ?? scheduleTask
-    );
-  }, [item.tasks, scheduleTask]);
+  const categoryFilterTabs = useMemo(
+    () =>
+      categories.map((category) => ({
+        id: category.id,
+        label: category.label,
+      })),
+    [categories],
+  );
+
+  const visibleCategories = useMemo(() => {
+    if (filterTab === "all") return tree;
+    if (filterTab === "open") {
+      return mergeEmptyPropertyWbsCategories(
+        filterPropertyWbs(tree, (node) => node.task.status !== "done"),
+        tree,
+      );
+    }
+    if (filterTab === "done") {
+      return filterPropertyWbs(tree, (node) => node.task.status === "done");
+    }
+    return tree.filter((category) => category.categoryId === filterTab);
+  }, [tree, filterTab]);
+
+  const stats = propertyLeafStats(item.tasks);
+
+  const taskCountByCat = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const task of item.tasks) {
+      counts[task.phase] = (counts[task.phase] ?? 0) + 1;
+    }
+    return counts;
+  }, [item.tasks]);
 
   return (
     <section className="mt-10">
@@ -576,28 +722,21 @@ function CasePanel({
             href={buildFinanceWriteHref({
               kind: "property",
               slug: item.slug,
+              tab: filterTab,
             })}
           >
             Edit
           </AdminActionLink>
-          <AdminActionLink
-            href={buildFinanceWriteHref({
-              kind: "property-task",
-              caseSlug: item.slug,
-            })}
-          >
-            + Task
-          </AdminActionLink>
         </AdminContentToolbar>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-4 border-y border-[var(--color-border)]/70 py-5">
+      <div className="mt-8 grid grid-cols-3 gap-4 border-y border-[var(--color-border)]/70 py-5">
         <div>
           <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
             남은 일
           </p>
           <p className="mt-2 font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight tabular-nums text-[var(--color-foreground)]">
-            {openCount}
+            {stats.open}
           </p>
         </div>
         <div>
@@ -605,7 +744,17 @@ function CasePanel({
             완료
           </p>
           <p className="mt-2 font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight tabular-nums text-[var(--color-foreground)]">
-            {doneCount}
+            {stats.done}
+          </p>
+        </div>
+        <div>
+          <p className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
+            진행률
+          </p>
+          <p className="mt-2 font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight tabular-nums text-[var(--color-foreground)]">
+            {stats.total > 0
+              ? `${Math.round((stats.done / stats.total) * 100)}%`
+              : "—"}
           </p>
         </div>
       </div>
@@ -642,109 +791,250 @@ function CasePanel({
         })}
       </div>
 
-      <div
-        role="tablist"
-        aria-label="카테고리 필터"
-        className="mt-6 flex flex-wrap gap-x-5 gap-y-2"
-      >
-        {FILTER_TABS.map((tab) => {
-          const selected = tab.id === filterTab;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={() => setFilterTab(tab.id)}
-              className={cn(
-                "pb-1 text-[0.75rem] tracking-wide transition-colors",
-                selected
-                  ? "text-[var(--color-foreground)] underline underline-offset-4"
-                  : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
-              )}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+      <div className="mt-6 space-y-3">
+        <div
+          role="tablist"
+          aria-label="상태 필터"
+          className="flex flex-wrap items-center gap-x-5 gap-y-2"
+        >
+          {systemFilterTabs.map((tab) => {
+            const selected = tab.id === filterTab;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setFilterTab(tab.id)}
+                className={cn(
+                  "pb-1 text-[0.75rem] tracking-wide transition-colors",
+                  selected
+                    ? "text-[var(--color-foreground)] underline underline-offset-4"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
+                )}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+        {categoryFilterTabs.length > 0 ? (
+          <div
+            role="tablist"
+            aria-label="카테고리"
+            className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-t border-[var(--color-border)]/70 pt-3"
+          >
+            <span className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-[var(--color-muted-soft)]">
+              카테고리
+            </span>
+            {categoryFilterTabs.map((tab) => {
+              const selected = tab.id === filterTab;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setFilterTab(tab.id)}
+                  className={cn(
+                    "pb-1 text-[0.8125rem] tracking-wide transition-colors",
+                    selected
+                      ? "text-[var(--color-foreground)] underline underline-offset-4"
+                      : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
       </div>
+
+      <CategoryManager
+        caseSlug={item.slug}
+        categories={categories}
+        taskCountByCat={taskCountByCat}
+        busy={Boolean(busyKey)}
+        onSubmit={onCategory}
+        onFocusCategory={onFocusCategory}
+      />
+
+      <p className="mt-8 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-[var(--color-muted-soft)]">
+        2. 할 일
+        <span className="mx-2 font-normal normal-case tracking-normal text-[var(--color-border)]">
+          ·
+        </span>
+        <span className="font-normal normal-case tracking-normal text-[var(--color-muted)]">
+          카테고리별 큰 갈래(+ Task) → 세부(+ 하위)
+        </span>
+      </p>
 
       {viewMode === "gantt" ? (
         <PropertyGantt
-          tasks={filtered}
+          categories={visibleCategories.filter(
+            (category) => category.nodes.length > 0,
+          )}
           moveInAt={item.moveInAt}
-          onSchedule={setScheduleTask}
         />
-      ) : filtered.length === 0 ? (
-        <p className="mt-8 text-sm text-[var(--color-muted-soft)]">
-          {item.tasks.length === 0
-            ? "할 일이 없습니다. + Task로 일정을 추가하세요."
-            : "이 필터에 해당하는 할 일이 없습니다."}
-        </p>
+      ) : visibleCategories.length === 0 ? (
+        <div className="mt-4 space-y-3">
+          <p className="text-sm text-[var(--color-muted-soft)]">
+            {item.tasks.length === 0
+              ? "아직 할 일이 없습니다. 위에서 카테고리를 확인한 뒤, 아래 + Task로 큰 갈래를 추가하세요."
+              : "이 필터에 해당하는 할 일이 없습니다."}
+          </p>
+          {filterTab !== "open" &&
+          filterTab !== "all" &&
+          filterTab !== "done" ? (
+            <AdminActionLink
+              href={buildFinanceWriteHref({
+                kind: "property-task",
+                caseSlug: item.slug,
+                phase: filterTab,
+                tab: filterTab,
+              })}
+            >
+              + Task
+            </AdminActionLink>
+          ) : categories[0] ? (
+            <AdminActionLink
+              href={buildFinanceWriteHref({
+                kind: "property-task",
+                caseSlug: item.slug,
+                phase: categories[0].id,
+                tab: filterTab === "all" ? categories[0].id : filterTab,
+              })}
+            >
+              + Task · {categories[0].label}
+            </AdminActionLink>
+          ) : null}
+        </div>
       ) : (
-        <div className="mt-8 space-y-10">
-          {wbsTree.map((category) => (
-            <section key={category.phase}>
-              <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold tracking-tight text-[var(--color-foreground)]">
-                <span className="tabular-nums text-[var(--color-muted)]">
-                  {category.code}
-                </span>
-                <span className="mx-2 text-[var(--color-border)]">·</span>
-                {FINANCE_PROPERTY_TASK_PHASE_LABEL[category.phase]}
-              </h3>
-              <ul className="mt-3 border-b border-[var(--color-border)]/70">
-                {category.tasks.map(({ code, task }) => (
-                  <TaskRow
-                    key={task.slug}
-                    caseSlug={item.slug}
-                    task={task}
-                    wbsCode={code}
-                    busy={busyKey === `${item.slug}:${task.slug}`}
-                    onStatus={onStatus}
-                    onSchedule={setScheduleTask}
-                  />
-                ))}
-              </ul>
+        <div className="mt-4 space-y-10">
+          {visibleCategories.map((category) => (
+            <section key={category.categoryId}>
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <h3 className="flex flex-wrap items-baseline gap-x-3 font-[family-name:var(--font-display)] text-lg font-semibold tracking-tight text-[var(--color-foreground)]">
+                  <span>
+                    <span className="tabular-nums text-[var(--color-muted)]">
+                      {category.code}
+                    </span>
+                    <span className="mx-2 text-[var(--color-border)]">·</span>
+                    {category.label}
+                  </span>
+                  <span className="text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase">
+                    <ProgressMeter
+                      done={category.leafDone}
+                      total={category.leafTotal}
+                    />
+                  </span>
+                </h3>
+                <AdminActionLink
+                  href={buildFinanceWriteHref({
+                    kind: "property-task",
+                    caseSlug: item.slug,
+                    phase: category.categoryId,
+                    tab:
+                      filterTab === "open" ||
+                      filterTab === "all" ||
+                      filterTab === "done"
+                        ? category.categoryId
+                        : filterTab,
+                  })}
+                  className="h-8 px-2.5 text-[0.75rem]"
+                >
+                  + Task
+                </AdminActionLink>
+              </div>
+              {category.nodes.length === 0 ? (
+                <p className="mt-3 text-sm text-[var(--color-muted-soft)]">
+                  이 카테고리에 큰 갈래 할 일이 없습니다.
+                </p>
+              ) : (
+                <ul className="mt-3 border-b border-[var(--color-border)]/70">
+                  {category.nodes.map((node) => (
+                    <NodeRow
+                      key={node.task.slug}
+                      caseSlug={item.slug}
+                      node={node}
+                      filterTab={filterTab}
+                      busyKey={busyKey}
+                      onStatus={onStatus}
+                      onDelete={onDelete}
+                    />
+                  ))}
+                </ul>
+              )}
             </section>
           ))}
         </div>
       )}
-
-      {modalTask ? (
-        <ScheduleModal
-          key={modalTask.slug}
-          task={modalTask}
-          moveInAt={item.moveInAt}
-          busy={Boolean(busyKey)}
-          onClose={() => setScheduleTask(null)}
-          onSave={async (dates) => {
-            await onSaveDates(item.slug, modalTask.slug, dates);
-            setScheduleTask(null);
-          }}
-        />
-      ) : null}
     </section>
   );
 }
 
 export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
   const router = useRouter();
-  const [activeSlug, setActiveSlug] = useState(
-    () =>
-      cases.find((item) => item.status === "active")?.slug ??
-      cases[0]?.slug ??
-      "",
+  const searchParams = useSearchParams();
+
+  const defaultCaseSlug =
+    cases.find((item) => item.status === "active")?.slug ??
+    cases[0]?.slug ??
+    "";
+  const caseFromUrl = searchParams.get("case")?.trim() ?? "";
+  const tabFromUrl = searchParams.get("tab")?.trim() ?? "";
+  const viewFromUrl = searchParams.get("view")?.trim() ?? "";
+
+  const [activeSlug, setActiveSlug] = useState(() => {
+    if (caseFromUrl && cases.some((item) => item.slug === caseFromUrl)) {
+      return caseFromUrl;
+    }
+    return defaultCaseSlug;
+  });
+  const [filterTab, setFilterTab] = useState<FilterTab>(
+    () => tabFromUrl || "open",
   );
-  const [filterTab, setFilterTab] = useState<FilterTab>("open");
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    viewFromUrl === "gantt" ? "gantt" : "list",
+  );
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<
     Record<string, FinancePropertyTaskStatus>
   >({});
-  const [dateOverrides, setDateOverrides] = useState<
-    Record<string, { startDate?: string; endDate?: string; dueDate?: string } | null>
-  >({});
+
+  const syncListUrl = useCallback(
+    (next: {
+      caseSlug?: string;
+      tab?: FilterTab;
+      view?: ViewMode;
+    }) => {
+      const href = buildFinancePropertyHref({
+        caseSlug: next.caseSlug ?? activeSlug,
+        tab: next.tab ?? filterTab,
+        view: next.view ?? viewMode,
+      });
+      router.replace(href, { scroll: false });
+    },
+    [activeSlug, filterTab, viewMode, router],
+  );
+
+  function selectCase(slug: string) {
+    setActiveSlug(slug);
+    setFilterTab("open");
+    syncListUrl({ caseSlug: slug, tab: "open" });
+  }
+
+  function selectFilterTab(tab: FilterTab) {
+    setFilterTab(tab);
+    syncListUrl({ tab });
+  }
+
+  function selectViewMode(mode: ViewMode) {
+    setViewMode(mode);
+    syncListUrl({ view: mode });
+  }
 
   const displayCases = useMemo(() => {
     return cases.map((item) => ({
@@ -752,90 +1042,16 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
       tasks: item.tasks.map((task) => {
         const key = `${item.slug}:${task.slug}`;
         const status = overrides[key];
-        const dates = dateOverrides[key];
-        let next = task;
         if (status && status !== task.status) {
-          next = { ...next, status };
+          return { ...task, status };
         }
-        if (dates === null) {
-          const cleared = { ...next };
-          delete cleared.startDate;
-          delete cleared.endDate;
-          delete cleared.dueDate;
-          next = cleared;
-        } else if (dates) {
-          next = {
-            ...next,
-            startDate: dates.startDate,
-            endDate: dates.endDate,
-            dueDate: dates.dueDate ?? dates.endDate,
-          };
-        }
-        return next;
+        return task;
       }),
     }));
-  }, [cases, overrides, dateOverrides]);
+  }, [cases, overrides]);
 
   const active =
     displayCases.find((item) => item.slug === activeSlug) ?? displayCases[0];
-
-  async function onSaveDates(
-    caseSlug: string,
-    taskSlug: string,
-    dates: { startDate: string; endDate: string } | null,
-  ) {
-    const key = `${caseSlug}:${taskSlug}`;
-    if (busyKey) return;
-    setError(null);
-    setBusyKey(key);
-    setDateOverrides((prev) => ({
-      ...prev,
-      [key]:
-        dates == null
-          ? null
-          : {
-              startDate: dates.startDate,
-              endDate: dates.endDate,
-              dueDate: dates.endDate,
-            },
-    }));
-
-    try {
-      const body = new FormData();
-      body.set("kind", "property-task-dates");
-      body.set("caseSlug", caseSlug);
-      body.set("taskSlug", taskSlug);
-      if (dates == null) {
-        body.set("clear", "1");
-      } else {
-        body.set("startDate", dates.startDate);
-        body.set("endDate", dates.endDate);
-      }
-      const res = await fetch("/api/write/finance", { method: "POST", body });
-      const data = (await res.json().catch(() => null)) as {
-        error?: string;
-      } | null;
-      if (!res.ok) {
-        setDateOverrides((prev) => {
-          const next = { ...prev };
-          delete next[key];
-          return next;
-        });
-        setError(data?.error ?? "일정 저장에 실패했습니다.");
-        return;
-      }
-      router.refresh();
-    } catch {
-      setDateOverrides((prev) => {
-        const next = { ...prev };
-        delete next[key];
-        return next;
-      });
-      setError("일정 저장에 실패했습니다.");
-    } finally {
-      setBusyKey(null);
-    }
-  }
 
   async function onStatus(
     caseSlug: string,
@@ -880,6 +1096,68 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
     }
   }
 
+  async function onDelete(caseSlug: string, taskSlug: string) {
+    const key = `${caseSlug}:${taskSlug}`;
+    if (busyKey) return;
+    const caseItem = cases.find((item) => item.slug === caseSlug);
+    const descendants = caseItem
+      ? collectPropertyDescendantSlugs(caseItem.tasks, taskSlug)
+      : [];
+    const message =
+      descendants.length > 0
+        ? `이 할 일과 하위 ${descendants.length}개(총 ${descendants.length + 1}개)를 삭제합니다. 계속할까요?`
+        : "이 할 일을 삭제합니다. 계속할까요?";
+    if (typeof window !== "undefined" && !window.confirm(message)) return;
+
+    setError(null);
+    setBusyKey(key);
+    try {
+      const body = new FormData();
+      body.set("kind", "property-task-delete");
+      body.set("caseSlug", caseSlug);
+      body.set("taskSlug", taskSlug);
+      const res = await fetch("/api/write/finance", { method: "POST", body });
+      const data = (await res.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      if (!res.ok) {
+        setError(data?.error ?? "삭제에 실패했습니다.");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("삭제에 실패했습니다.");
+    } finally {
+      setBusyKey(null);
+    }
+  }
+
+  async function onCategory(body: CategoryBody): Promise<CategorySubmitResult> {
+    if (busyKey) return { ok: false };
+    setError(null);
+    setBusyKey("category");
+    try {
+      const form = new FormData();
+      for (const [k, v] of Object.entries(body)) form.set(k, v);
+      const res = await fetch("/api/write/finance", { method: "POST", body: form });
+      const data = (await res.json().catch(() => null)) as {
+        error?: string;
+        categoryId?: string;
+      } | null;
+      if (!res.ok) {
+        setError(data?.error ?? "카테고리 처리에 실패했습니다.");
+        return { ok: false };
+      }
+      router.refresh();
+      return { ok: true, categoryId: data?.categoryId };
+    } catch {
+      setError("카테고리 처리에 실패했습니다.");
+      return { ok: false };
+    } finally {
+      setBusyKey(null);
+    }
+  }
+
   return (
     <div className="pb-8">
       <FadeIn>
@@ -899,8 +1177,9 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
               Real Estate
             </h1>
             <p className="mt-3 max-w-xl text-base leading-7 text-[var(--color-muted)]">
-              이사 할 일을 WBS(`1` → `1.1`)로 보고, 간트·모달로 일정을
-              잡습니다. 예산은 다음에 붙입니다.
+              이사 할 일을 WBS 트리(<span className="tabular-nums">1 → 1.1 → 1.1.1</span>
+              )로 무한 깊이까지 나눠 보고, 간트로 일정을 봅니다. 카테고리는
+              케이스마다 자유롭게 추가·수정·정렬할 수 있습니다.
             </p>
           </div>
           <AdminContentToolbar className="pb-0">
@@ -933,10 +1212,7 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
                     type="button"
                     role="tab"
                     aria-selected={selected}
-                    onClick={() => {
-                      setActiveSlug(item.slug);
-                      setFilterTab("open");
-                    }}
+                    onClick={() => selectCase(item.slug)}
                     className={cn(
                       "-mb-px border-b pb-3 text-[0.8125rem] tracking-wide transition-colors",
                       selected
@@ -962,12 +1238,14 @@ export function FinancePropertyView({ cases }: FinancePropertyViewProps) {
             <CasePanel
               item={active}
               filterTab={filterTab}
-              setFilterTab={setFilterTab}
+              setFilterTab={selectFilterTab}
               viewMode={viewMode}
-              setViewMode={setViewMode}
+              setViewMode={selectViewMode}
               busyKey={busyKey}
               onStatus={onStatus}
-              onSaveDates={onSaveDates}
+              onDelete={onDelete}
+              onCategory={onCategory}
+              onFocusCategory={selectFilterTab}
             />
           ) : null}
         </FadeIn>

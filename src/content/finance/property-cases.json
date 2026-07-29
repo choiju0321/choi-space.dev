@@ -20,6 +20,29 @@
         "sortOrder": 1
       },
       {
+        "id": "2026-07-25-1",
+        "slug": "2026-07-25-1",
+        "title": "(1차) 예비세입자 방문",
+        "phase": "booking",
+        "parentSlug": "10-01-이사-날짜-확정",
+        "status": "done",
+        "dueDate": "2026-07-25",
+        "startedAt": "2026-07-29",
+        "doneAt": "2026-07-29",
+        "sortOrder": 1
+      },
+      {
+        "id": "2026-07-30-2",
+        "slug": "2026-07-30-2",
+        "title": "(2차) 예비세입자 방문",
+        "phase": "booking",
+        "parentSlug": "10-01-이사-날짜-확정",
+        "status": "doing",
+        "dueDate": "2026-07-30",
+        "startedAt": "2026-07-29",
+        "sortOrder": 2
+      },
+      {
         "id": "10-02-입주일-잔금일-확인",
         "slug": "10-02-입주일-잔금일-확인",
         "title": "입주일/잔금일 확인",
@@ -102,7 +125,7 @@
       {
         "id": "10-01-가전-가구-구매-계획",
         "slug": "10-01-가전-가구-구매-계획",
-        "title": "가전/가구 구매 계획",
+        "title": "가전 구매",
         "phase": "purchase",
         "status": "todo",
         "window": "D-30 ~ D-21",
@@ -110,44 +133,98 @@
         "sortOrder": 1
       },
       {
-        "id": "20-02-냉장고-구매",
-        "slug": "20-02-냉장고-구매",
-        "title": "냉장고 구매",
+        "id": "2026-09-14",
+        "slug": "2026-09-14",
+        "title": "(필수) 냉장고 구매",
         "phase": "purchase",
-        "status": "todo",
-        "window": "D-20 ~ D-14",
-        "windowOrder": 20,
+        "parentSlug": "10-01-가전-가구-구매-계획",
+        "status": "doing",
+        "dueDate": "2026-09-14",
+        "startedAt": "2026-07-29",
+        "sortOrder": 1
+      },
+      {
+        "id": "2026-09-14-sqcg",
+        "slug": "2026-09-14-sqcg",
+        "title": "(필수) 세탁기+건조기 구매",
+        "phase": "purchase",
+        "parentSlug": "10-01-가전-가구-구매-계획",
+        "status": "doing",
+        "dueDate": "2026-09-14",
+        "startedAt": "2026-07-29",
         "sortOrder": 2
       },
       {
-        "id": "20-03-세탁기-구매",
-        "slug": "20-03-세탁기-구매",
-        "title": "세탁기 구매",
+        "id": "2026-09-14-tki8",
+        "slug": "2026-09-14-tki8",
+        "title": "(필수) 에어컨 구매",
         "phase": "purchase",
-        "status": "todo",
-        "window": "D-20 ~ D-14",
-        "windowOrder": 20,
+        "parentSlug": "10-01-가전-가구-구매-계획",
+        "status": "doing",
+        "dueDate": "2026-09-14",
+        "startedAt": "2026-07-29",
         "sortOrder": 3
       },
       {
-        "id": "20-04-침대-구매",
-        "slug": "20-04-침대-구매",
-        "title": "침대 구매",
+        "id": "2026-10-14",
+        "slug": "2026-10-14",
+        "title": "(선택) 스타일러 구매",
         "phase": "purchase",
+        "parentSlug": "10-01-가전-가구-구매-계획",
         "status": "todo",
-        "window": "D-20 ~ D-14",
-        "windowOrder": 20,
+        "dueDate": "2026-10-14",
         "sortOrder": 4
       },
       {
-        "id": "20-05-커튼-블라인드-주문",
-        "slug": "20-05-커튼-블라인드-주문",
-        "title": "커튼/블라인드 주문",
+        "id": "2026-10-14-va7x",
+        "slug": "2026-10-14-va7x",
+        "title": "(선택) 정수기 구매",
+        "phase": "purchase",
+        "parentSlug": "10-01-가전-가구-구매-계획",
+        "status": "todo",
+        "dueDate": "2026-10-14",
+        "sortOrder": 5
+      },
+      {
+        "id": "2026-10-14-vo1u",
+        "slug": "2026-10-14-vo1u",
+        "title": "(선택) 압력밥솥 구매",
+        "phase": "purchase",
+        "parentSlug": "10-01-가전-가구-구매-계획",
+        "status": "todo",
+        "dueDate": "2026-10-14",
+        "sortOrder": 6
+      },
+      {
+        "id": "20-02-냉장고-구매",
+        "slug": "20-02-냉장고-구매",
+        "title": "가구 구매",
         "phase": "purchase",
         "status": "todo",
         "window": "D-20 ~ D-14",
         "windowOrder": 20,
-        "sortOrder": 5
+        "dueDate": "2026-09-14",
+        "sortOrder": 2
+      },
+      {
+        "id": "2026-09-14-x2el",
+        "slug": "2026-09-14-x2el",
+        "title": "(필수) 침대 구매",
+        "phase": "purchase",
+        "parentSlug": "20-02-냉장고-구매",
+        "status": "todo",
+        "dueDate": "2026-09-14",
+        "sortOrder": 1
+      },
+      {
+        "id": "2026-09-14-xlgb",
+        "slug": "2026-09-14-xlgb",
+        "title": "(선택) 커튼/블라인드 주문",
+        "phase": "purchase",
+        "parentSlug": "20-02-냉장고-구매",
+        "status": "todo",
+        "dueDate": "2026-09-14",
+        "sortOrder": 2
       },
       {
         "id": "20-06-불필요한-물건-정리",
@@ -160,24 +237,106 @@
         "sortOrder": 6
       },
       {
-        "id": "20-07-당근-판매",
-        "slug": "20-07-당근-판매",
+        "id": "2026-09-13",
+        "slug": "2026-09-13",
         "title": "당근 판매",
         "phase": "purchase",
-        "status": "todo",
-        "window": "D-20 ~ D-14",
-        "windowOrder": 20,
-        "sortOrder": 7
+        "parentSlug": "20-06-불필요한-물건-정리",
+        "status": "doing",
+        "dueDate": "2026-09-13",
+        "startedAt": "2026-07-29",
+        "sortOrder": 1
       },
       {
-        "id": "20-08-폐기물-신고",
-        "slug": "20-08-폐기물-신고",
+        "id": "2026-07-27",
+        "slug": "2026-07-27",
+        "title": "건조기",
+        "phase": "purchase",
+        "parentSlug": "2026-09-13",
+        "status": "done",
+        "dueDate": "2026-07-27",
+        "startedAt": "2026-07-29",
+        "doneAt": "2026-07-29",
+        "note": "80,000원",
+        "sortOrder": 1
+      },
+      {
+        "id": "2026-07-27-zrkd",
+        "slug": "2026-07-27-zrkd",
+        "title": "다이슨청소기",
+        "phase": "purchase",
+        "parentSlug": "2026-09-13",
+        "status": "done",
+        "dueDate": "2026-07-28",
+        "startedAt": "2026-07-29",
+        "doneAt": "2026-07-29",
+        "note": "20,000원",
+        "sortOrder": 2
+      },
+      {
+        "id": "2026-07-29",
+        "slug": "2026-07-29",
+        "title": "모니터암",
+        "phase": "purchase",
+        "parentSlug": "2026-09-13",
+        "status": "done",
+        "dueDate": "2026-07-29",
+        "startedAt": "2026-07-29",
+        "doneAt": "2026-07-29",
+        "note": "10,000원",
+        "sortOrder": 3
+      },
+      {
+        "id": "2026-09-13-1yh1",
+        "slug": "2026-09-13-1yh1",
+        "title": "화장대",
+        "phase": "purchase",
+        "parentSlug": "2026-09-13",
+        "status": "doing",
+        "dueDate": "2026-09-13",
+        "startedAt": "2026-07-29",
+        "note": "20,000원",
+        "sortOrder": 4
+      },
+      {
+        "id": "2026-09-13-2bw9",
+        "slug": "2026-09-13-2bw9",
+        "title": "책상",
+        "phase": "purchase",
+        "parentSlug": "2026-09-13",
+        "status": "todo",
+        "dueDate": "2026-09-13",
+        "sortOrder": 5
+      },
+      {
+        "id": "2026-09-13-2ori",
+        "slug": "2026-09-13-2ori",
+        "title": "침대+매트리스",
+        "phase": "purchase",
+        "parentSlug": "2026-09-13",
+        "status": "todo",
+        "dueDate": "2026-09-13",
+        "sortOrder": 6
+      },
+      {
+        "id": "2026-09-13-3hsd",
+        "slug": "2026-09-13-3hsd",
         "title": "폐기물 신고",
         "phase": "purchase",
+        "parentSlug": "20-06-불필요한-물건-정리",
         "status": "todo",
-        "window": "D-20 ~ D-14",
-        "windowOrder": 20,
-        "sortOrder": 8
+        "dueDate": "2026-09-13",
+        "sortOrder": 2
+      },
+      {
+        "id": "2026-09-14-49su",
+        "slug": "2026-09-14-49su",
+        "title": "종량제 봉투 처리",
+        "phase": "purchase",
+        "parentSlug": "20-06-불필요한-물건-정리",
+        "status": "todo",
+        "dueDate": "2026-09-14",
+        "sortOrder": 3
       },
       {
         "id": "40-09-짐-포장-시작",
@@ -198,16 +357,6 @@
         "window": "D-7 ~ D-3",
         "windowOrder": 40,
         "sortOrder": 10
-      },
-      {
-        "id": "40-11-종량제봉투-최대한-사용",
-        "slug": "40-11-종량제봉투-최대한-사용",
-        "title": "종량제봉투 최대한 사용",
-        "phase": "purchase",
-        "status": "todo",
-        "window": "D-7 ~ D-3",
-        "windowOrder": 40,
-        "sortOrder": 11
       },
       {
         "id": "40-12-우편물-확인",
@@ -618,6 +767,40 @@
         "window": "D+30",
         "windowOrder": 90,
         "sortOrder": 9
+      }
+    ],
+    "categories": [
+      {
+        "id": "booking",
+        "label": "계약·예약"
+      },
+      {
+        "id": "purchase",
+        "label": "구매·준비"
+      },
+      {
+        "id": "checkout",
+        "label": "퇴실 정산"
+      },
+      {
+        "id": "move-day",
+        "label": "이사 당일"
+      },
+      {
+        "id": "install",
+        "label": "입주 및 설치"
+      },
+      {
+        "id": "admin",
+        "label": "행정 처리"
+      },
+      {
+        "id": "wrapup",
+        "label": "마무리"
+      },
+      {
+        "id": "category",
+        "label": "테스트"
       }
     ]
   }
