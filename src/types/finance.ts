@@ -274,3 +274,46 @@ export const FINANCE_PROPERTY_TASK_STATUS_LABEL: Record<
   doing: "진행",
   done: "완료",
 };
+
+/**
+ * 청약/분양 공고 (크롤링·오픈API로 적재). 개인 일정(FinancePropertyCase)과 별개로,
+ * 외부에서 올라온 공고를 모아 보고 텔레그램으로 알림하는 용도.
+ */
+export type FinancePropertyListingSource = "applyhome" | "private-rental";
+
+export type FinancePropertyListing = {
+  /** 중복 판정용 안정 키. 예: `applyhome:<주택관리번호>` · `private-rental:<slug>` */
+  id: string;
+  source: FinancePropertyListingSource;
+  /** 표시용 출처 라벨. "청약홈" · "롯데캐슬 엘리스" 등 */
+  sourceLabel: string;
+  title: string;
+  /** 유형 (APT · 오피스텔 · 민간임대 등) */
+  kind?: string;
+  /** 공급 지역명 */
+  region?: string;
+  /** 공급 위치(주소) */
+  address?: string;
+  /** 모집공고일 YYYY-MM-DD */
+  noticeDate?: string;
+  /** 청약접수 시작 YYYY-MM-DD */
+  applyStart?: string;
+  /** 청약접수 종료 YYYY-MM-DD */
+  applyEnd?: string;
+  /** 공급 규모(세대수) */
+  totalSupply?: number;
+  /** 공고 상세 URL */
+  url?: string;
+  /** 크롤에서 최초로 발견한 시각 ISO — 신규 판정·정렬용 */
+  firstSeenAt: string;
+  /** 텔레그램 알림 전송 시각 ISO (전송됐으면 값 존재) */
+  notifiedAt?: string;
+};
+
+export const FINANCE_PROPERTY_LISTING_SOURCE_LABEL: Record<
+  FinancePropertyListingSource,
+  string
+> = {
+  applyhome: "청약홈",
+  "private-rental": "민간임대",
+};

@@ -6,6 +6,7 @@ import type {
   FinanceLedgerEntry,
   FinanceOccasion,
   FinancePropertyCase,
+  FinancePropertyListing,
 } from "@/types/finance";
 
 export function financeOccasionsPath() {
@@ -26,6 +27,10 @@ export function financeClaimsPath() {
 
 export function financePropertyCasesPath() {
   return path.join(process.cwd(), "src/content/finance/property-cases.json");
+}
+
+export function financePropertyListingsPath() {
+  return path.join(process.cwd(), "src/content/finance/property-listings.json");
 }
 
 function readJsonArrayFile<T>(filePath: string): T[] {
@@ -96,6 +101,12 @@ export function getFinanceMedicalLedgerEntries(): FinanceLedgerEntry[] {
 
 export function getFinancePropertyCases(): FinancePropertyCase[] {
   return readJsonArrayFile<FinancePropertyCase>(financePropertyCasesPath());
+}
+
+export function getFinancePropertyListings(): FinancePropertyListing[] {
+  return readJsonArrayFile<FinancePropertyListing>(
+    financePropertyListingsPath(),
+  );
 }
 
 export function getFinancePropertyCase(
