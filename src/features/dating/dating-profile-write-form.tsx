@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { parseDuoProfilePaste } from "@/lib/dating/parse-duo-paste";
 import {
   datingPhotoSrc,
 } from "@/lib/dating/labels";
@@ -84,6 +85,43 @@ export function DatingProfileWriteForm({
   const [note, setNote] = useState(draft?.note ?? "");
   const [slug] = useState(draft?.slug ?? "");
   const existingPhotos = draft?.photos ?? [];
+  const [pasteText, setPasteText] = useState("");
+  const [pasteMessage, setPasteMessage] = useState<string | null>(null);
+
+  function applyPasteFill() {
+    setError(null);
+    setPasteMessage(null);
+    const { draft: parsed, filledKeys } = parseDuoProfilePaste(pasteText);
+    if (filledKeys.length === 0) {
+      setPasteMessage("채울 필드를 찾지 못했습니다. 텍스트 형식을 확인하세요.");
+      return;
+    }
+
+    if (parsed.memberId != null) setMemberId(parsed.memberId);
+    if (parsed.gender != null) setGender(parsed.gender);
+    if (parsed.birthYearLabel != null) setBirthYearLabel(parsed.birthYearLabel);
+    if (parsed.surname != null) setSurname(parsed.surname);
+    if (parsed.residence != null) setResidence(parsed.residence);
+    if (parsed.religion != null) setReligion(parsed.religion);
+    if (parsed.height != null) setHeight(parsed.height);
+    if (parsed.hobby != null) setHobby(parsed.hobby);
+    if (parsed.highSchool != null) setHighSchool(parsed.highSchool);
+    if (parsed.university != null) setUniversity(parsed.university);
+    if (parsed.graduate != null) setGraduate(parsed.graduate);
+    if (parsed.company != null) setCompany(parsed.company);
+    if (parsed.department != null) setDepartment(parsed.department);
+    if (parsed.title != null) setTitle(parsed.title);
+    if (parsed.field != null) setField(parsed.field);
+    if (parsed.location != null) setLocation(parsed.location);
+    if (parsed.familyFather != null) setFamilyFather(parsed.familyFather);
+    if (parsed.familyMother != null) setFamilyMother(parsed.familyMother);
+    if (parsed.familyOther != null) setFamilyOther(parsed.familyOther);
+    if (parsed.intro != null) setIntro(parsed.intro);
+    if (parsed.idealType != null) setIdealType(parsed.idealType);
+    if (parsed.managerNote != null) setManagerNote(parsed.managerNote);
+
+    setPasteMessage(`${filledKeys.length}개 필드를 채웠습니다. 아래를 검수 후 저장하세요.`);
+  }
 
   if (!configured) {
     return (
@@ -175,6 +213,36 @@ export function DatingProfileWriteForm({
       <h2 className="mt-2 font-[family-name:var(--font-display)] text-xl font-semibold tracking-tight text-[var(--color-foreground)]">
         {mode === "new" ? "새 프로필" : "프로필 수정"}
       </h2>
+
+      <section className="mt-8 rounded-md border border-[var(--color-border)]/70 p-4 sm:p-5">
+        <p className={labelClass}>프로필 텍스트 붙여넣기</p>
+        <p className="mt-2 text-sm text-[var(--color-muted)]">
+          듀오 「님의 PROFILE」 전문을 붙여 넣고 폼에 채운 뒤, 아래에서 검수해
+          저장하세요. 받은 날짜·사진은 직접 입력합니다.
+        </p>
+        <textarea
+          className={cn(fieldClass, "min-h-40 font-mono text-[0.8rem] leading-6")}
+          value={pasteText}
+          onChange={(event) => setPasteText(event.target.value)}
+          placeholder={`2010127829 님의 PROFILE\n저는 … 여성입니다.\n★ 학력사항\n…`}
+        />
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={applyPasteFill}
+            className={cn(
+              "inline-flex h-9 items-center px-3 text-[0.75rem] tracking-wide",
+              "border border-[var(--color-border)] text-[var(--color-foreground)]",
+              "transition-opacity hover:opacity-70",
+            )}
+          >
+            폼에 채우기
+          </button>
+          {pasteMessage ? (
+            <p className="text-sm text-[var(--color-muted)]">{pasteMessage}</p>
+          ) : null}
+        </div>
+      </section>
 
       <section className="mt-8 grid gap-5 sm:grid-cols-2">
         <label className="block">

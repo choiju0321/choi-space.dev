@@ -76,9 +76,10 @@ export function MediaFolderAttachments({
   }, [apiPath, open]);
 
   function onUploadChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files;
+    // FileList는 live — value를 비우면 참조도 비워지므로 먼저 복사
+    const selected = Array.from(event.target.files ?? []);
     event.target.value = "";
-    if (!selected?.length) return;
+    if (!selected.length) return;
 
     setUploadError(null);
     if (!open) setOpen(true);
@@ -86,45 +87,53 @@ export function MediaFolderAttachments({
     startTransition(async () => {
       const next = [...files];
 
-      for (const file of Array.from(selected)) {
-        const body = new FormData();
-        body.append("file", file);
+      try {
+        for (const file of selected) {
+          const body = new FormData();
+          body.append("file", file);
 
-        const response = await fetch(apiPath, { method: "PUT", body });
-        if (!response.ok) {
-          const payload = (await response.json().catch(() => null)) as {
-            error?: string;
-          } | null;
-          setUploadError(
-            payload?.error ?? `"${file.name}" 업로드에 실패했습니다.`,
+          const response = await fetch(apiPath, { method: "PUT", body });
+          if (!response.ok) {
+            const payload = (await response.json().catch(() => null)) as {
+              error?: string;
+            } | null;
+            setUploadError(
+              payload?.error ?? `"${file.name}" 업로드에 실패했습니다.`,
+            );
+            setFiles(next);
+            return;
+          }
+
+          const payload = (await response.json()) as {
+            fileName: string;
+            path: string;
+            href: string;
+          };
+
+          const existing = next.findIndex(
+            (item) => item.name === payload.fileName,
           );
-          setFiles(next);
-          return;
+          const row: MediaFile = {
+            name: payload.fileName,
+            path: payload.path,
+            sizeLabel: "",
+            href: payload.href,
+          };
+          if (existing >= 0) next[existing] = row;
+          else next.push(row);
         }
 
-        const payload = (await response.json()) as {
-          fileName: string;
-          path: string;
-          href: string;
-        };
-
-        const existing = next.findIndex((item) => item.name === payload.fileName);
-        const row: MediaFile = {
-          name: payload.fileName,
-          path: payload.path,
-          sizeLabel: "",
-          href: payload.href,
-        };
-        if (existing >= 0) next[existing] = row;
-        else next.push(row);
-      }
-
-      const refresh = await fetch(apiPath);
-      if (refresh.ok) {
-        const payload = (await refresh.json()) as { files: MediaFile[] };
-        setFiles(payload.files ?? next);
-        setLoaded(true);
-      } else {
+        const refresh = await fetch(apiPath);
+        if (refresh.ok) {
+          const payload = (await refresh.json()) as { files: MediaFile[] };
+          setFiles(payload.files ?? next);
+          setLoaded(true);
+        } else {
+          setFiles(next);
+          setLoaded(true);
+        }
+      } catch {
+        setUploadError("업로드 중 네트워크 오류가 발생했습니다.");
         setFiles(next);
         setLoaded(true);
       }

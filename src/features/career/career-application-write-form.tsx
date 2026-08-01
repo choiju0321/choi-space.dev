@@ -154,7 +154,7 @@ export function CareerApplicationWriteForm({
             value={slug}
             onChange={(event) => setSlug(event.target.value)}
             disabled={mode === "existing"}
-            placeholder="비우면 회사-시즌에서 생성"
+            placeholder="miraeasset-capital-2026 (한글 회사는 영문 필수)"
           />
         </div>
         <div>

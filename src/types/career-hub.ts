@@ -45,6 +45,26 @@ export type CareerProcessStep = {
   date?: string;
   note?: string;
   attachments?: boolean;
+  /** 채용공고 단계 — URL + 붙여넣기 정리본 */
+  posting?: CareerPostingBrief;
+};
+
+/** 채용공고 붙여넣기 정리 결과 */
+export type CareerPostingSection = {
+  heading: string;
+  body: string;
+};
+
+export type CareerPostingBrief = {
+  url?: string;
+  title?: string;
+  role?: string;
+  deadline?: string;
+  location?: string;
+  employmentType?: string;
+  sections: CareerPostingSection[];
+  /** 원문 (재편집용) */
+  sourceText?: string;
 };
 
 export type CareerHubEntry = {

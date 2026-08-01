@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { MediaFolderAttachments } from "@/features/content/media-folder-attachments";
+import { ProcessPostingPanel } from "@/features/career/process-posting-panel";
+import { statusActionsForProcessStep } from "@/content/career/process";
 import { cn } from "@/lib/utils/cn";
 import {
   CAREER_STEP_KIND_LABEL,
@@ -11,15 +13,16 @@ import {
   type CareerProcessStepStatus,
 } from "@/types/career-hub";
 
-const STATUSES = Object.keys(
-  CAREER_STEP_STATUS_LABEL,
-) as CareerProcessStepStatus[];
-
 const fieldClass = cn(
   "mt-1.5 w-full rounded-md px-2.5 py-2 text-sm",
   "bg-[var(--color-background)] text-[var(--color-foreground)]",
   "ring-1 ring-[var(--color-border)] outline-none",
   "focus:ring-2 focus:ring-[var(--color-accent)]",
+);
+
+const actionButtonClass = cn(
+  "text-sm underline underline-offset-4 transition-opacity",
+  "hover:opacity-70 disabled:opacity-50",
 );
 
 function statusTone(status: CareerProcessStepStatus) {
@@ -33,37 +36,46 @@ function statusTone(status: CareerProcessStepStatus) {
 
 type ProcessStepRowProps = {
   applicationSlug: string;
+  company?: string;
   step: CareerProcessStep;
   index: number;
 };
 
 export function ProcessStepRow({
   applicationSlug,
+  company,
   step,
   index,
 }: ProcessStepRowProps) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [pendingStatus, setPendingStatus] =
+    useState<CareerProcessStepStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState(step.note ?? "");
   const [date, setDate] = useState(step.date ?? "");
-  const [status, setStatus] = useState(step.status);
+  const statusActions = statusActionsForProcessStep(step.kind, step.status);
 
   const allowAttachments = step.attachments !== false;
 
-  function onSave(event: React.FormEvent) {
-    event.preventDefault();
+  function postStep(fields: {
+    note?: string;
+    date?: string;
+    status: CareerProcessStepStatus;
+    statusClick?: boolean;
+  }) {
     setError(null);
+    if (fields.statusClick) setPendingStatus(fields.status);
 
     startTransition(async () => {
       const body = new FormData();
       body.set("kind", "process-step");
       body.set("application", applicationSlug);
       body.set("step", step.slug);
-      body.set("note", note);
-      body.set("date", date);
-      body.set("status", status);
+      body.set("note", fields.note ?? "");
+      body.set("date", fields.date ?? "");
+      body.set("status", fields.status);
 
       const response = await fetch("/api/write/career", {
         method: "POST",
@@ -73,6 +85,8 @@ export function ProcessStepRow({
         error?: string;
       } | null;
 
+      setPendingStatus(null);
+
       if (!response.ok) {
         setError(payload?.error ?? "저장에 실패했습니다.");
         return;
@@ -80,6 +94,24 @@ export function ProcessStepRow({
 
       setEditing(false);
       router.refresh();
+    });
+  }
+
+  function onSaveNote(event: React.FormEvent) {
+    event.preventDefault();
+    postStep({
+      note,
+      date,
+      status: step.status,
+    });
+  }
+
+  function onStatusClick(nextStatus: CareerProcessStepStatus) {
+    postStep({
+      note: step.note ?? "",
+      date: step.date ?? "",
+      status: nextStatus,
+      statusClick: true,
     });
   }
 
@@ -116,6 +148,28 @@ export function ProcessStepRow({
                   {step.date}
                 </p>
               ) : null}
+              {statusActions.length > 0 ? (
+                <div className="mt-3 flex flex-wrap justify-end gap-x-4 gap-y-1">
+                  {statusActions.map((action) => (
+                    <button
+                      key={action.status}
+                      type="button"
+                      disabled={pending}
+                      onClick={() => onStatusClick(action.status)}
+                      className={cn(
+                        actionButtonClass,
+                        action.status === "fail"
+                          ? "text-red-700"
+                          : "text-[var(--color-foreground)]",
+                      )}
+                    >
+                      {pendingStatus === action.status
+                        ? "저장 중…"
+                        : action.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -125,7 +179,6 @@ export function ProcessStepRow({
             onClick={() => {
               setNote(step.note ?? "");
               setDate(step.date ?? "");
-              setStatus(step.status);
               setError(null);
               setEditing(true);
             }}
@@ -142,7 +195,7 @@ export function ProcessStepRow({
       </div>
 
       {editing ? (
-        <form onSubmit={onSave} className="mt-5 max-w-xl space-y-4">
+        <form onSubmit={onSaveNote} className="mt-5 max-w-xl space-y-4">
           <div>
             <label
               className="block text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase"
@@ -158,44 +211,20 @@ export function ProcessStepRow({
               placeholder="질문·피드백 · 발표자료"
             />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label
-                className="block text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase"
-                htmlFor={`step-date-${step.slug}`}
-              >
-                Date
-              </label>
-              <input
-                id={`step-date-${step.slug}`}
-                className={fieldClass}
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-                placeholder="2026-06-09"
-              />
-            </div>
-            <div>
-              <label
-                className="block text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase"
-                htmlFor={`step-status-${step.slug}`}
-              >
-                Status
-              </label>
-              <select
-                id={`step-status-${step.slug}`}
-                className={fieldClass}
-                value={status}
-                onChange={(event) =>
-                  setStatus(event.target.value as CareerProcessStepStatus)
-                }
-              >
-                {STATUSES.map((item) => (
-                  <option key={item} value={item}>
-                    {CAREER_STEP_STATUS_LABEL[item]}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label
+              className="block text-[0.7rem] font-medium tracking-[0.14em] text-[var(--color-muted-soft)] uppercase"
+              htmlFor={`step-date-${step.slug}`}
+            >
+              Date
+            </label>
+            <input
+              id={`step-date-${step.slug}`}
+              className={fieldClass}
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+              placeholder="2026-06-09"
+            />
           </div>
 
           {error ? (
@@ -229,10 +258,32 @@ export function ProcessStepRow({
         </form>
       ) : null}
 
+      {!editing && error ? (
+        <p className="mt-3 text-sm text-red-700" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {step.kind === "posting" ? (
+        <ProcessPostingPanel
+          applicationSlug={applicationSlug}
+          company={company}
+          stepSlug={step.slug}
+          status={step.status}
+          note={step.note}
+          date={step.date}
+          posting={step.posting}
+        />
+      ) : null}
+
       {allowAttachments ? (
         <MediaFolderAttachments
           apiPath={`/api/career/applications/${encodeURIComponent(applicationSlug)}/steps/${encodeURIComponent(step.slug)}/files`}
-          emptyHint="이 단계 자료(공고·이력서·면접 메모 등)를 첨부하세요."
+          emptyHint={
+            step.kind === "posting"
+              ? "공고 PDF·캡처가 있으면 여기에 첨부하세요."
+              : "이 단계 자료(공고·이력서·면접 메모 등)를 첨부하세요."
+          }
         />
       ) : null}
     </li>

@@ -15,7 +15,7 @@ import {
   CAREER_SECTIONS,
   type CareerSectionId,
 } from "@/content/career/sections";
-import { getApplicationStatusLabel } from "@/content/career/process";
+import { getApplicationStatusLabel, getVisibleProcessSteps } from "@/content/career/process";
 import type { DocumentCollection } from "@/content/document-forms";
 import { buildCareerWriteHref } from "@/lib/write/href";
 import {
@@ -96,7 +96,8 @@ function PackageRow({ item }: { item: CareerPackageItem }) {
 
 function ApplicationRow({ item }: { item: CareerApplication }) {
   const statusLabel = getApplicationStatusLabel(item);
-  const passed = item.process.filter(
+  const visible = getVisibleProcessSteps(item.process);
+  const passed = visible.filter(
     (step) => step.status === "pass" || step.status === "done",
   ).length;
   const editHref = buildCareerWriteHref({
@@ -128,7 +129,7 @@ function ApplicationRow({ item }: { item: CareerApplication }) {
                 {item.summary}
               </p>
               <p className="mt-3 text-sm text-[var(--color-muted-soft)]">
-                프로세스 {passed}/{item.process.length}
+                프로세스 {passed}/{visible.length}
                 <span
                   aria-hidden
                   className="ml-2 inline-block transition-transform group-hover:translate-x-0.5"

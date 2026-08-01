@@ -77,7 +77,7 @@ export function inferInterviewRounds(process: CareerProcessStep[]): number {
   return Math.max(...rounds);
 }
 
-/** 기존 단계의 note · date · attachments를 slug 기준으로 유지 */
+/** 기존 단계의 note · date · attachments · status를 slug 기준으로 유지 */
 export function mergeProcessBySlug(
   built: CareerProcessStep[],
   previous?: CareerProcessStep[],
@@ -92,6 +92,8 @@ export function mergeProcessBySlug(
       note: old.note ?? step.note,
       date: old.date ?? step.date,
       attachments: old.attachments ?? step.attachments,
+      status: old.status ?? step.status,
+      posting: old.posting ?? step.posting,
     };
   });
 }
