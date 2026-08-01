@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-pptx",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Consulting-style Financial IT Project Portfolio (pptxgenjs)",
+  "scripts": {
+    "icons": "node generate-icons.js",
+    "build": "node generate-icons.js && node create-pptx.js",
+    "pptx": "node create-pptx.js",
+    "mirae": "node create-mirae-pptx.js"
+  },
+  "dependencies": {
+    "pptxgenjs": "^3.12.0",
+    "sharp": "^0.34.2"
+  }
+}

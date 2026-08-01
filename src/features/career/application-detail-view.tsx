@@ -8,6 +8,7 @@ import { ProcessStepRow } from "@/features/career/process-step-row";
 import {
   getApplicationCurrentStep,
   getApplicationStatusLabel,
+  getVisibleProcessSteps,
 } from "@/content/career/process";
 import { buildCareerWriteHref } from "@/lib/write/href";
 import type { CareerApplication } from "@/types/career-hub";
@@ -21,6 +22,7 @@ export function ApplicationDetailView({
 }: ApplicationDetailViewProps) {
   const statusLabel = getApplicationStatusLabel(application);
   const current = getApplicationCurrentStep(application.process);
+  const visibleSteps = getVisibleProcessSteps(application.process);
   const editHref = buildCareerWriteHref({
     kind: "application",
     slug: application.slug,
@@ -78,19 +80,21 @@ export function ApplicationDetailView({
           Process
         </p>
         <p className="mt-2 max-w-xl text-sm leading-7 text-[var(--color-muted)]">
-          채용공고 → 지원서류 → 서류전형 → 면접(n차) → 최종. 단계별 note · date ·
-          status는 인라인으로 고칠 수 있습니다.
+          채용공고 → 지원서류 → 서류전형 → 면접(n차) → 최종. 완료·합격 시 다음
+          단계가 진행으로 열리고, 불합격 이후 단계는 생략(숨김)됩니다. 채용공고는
+          URL·본문 붙여넣기로 정리할 수 있습니다.
         </p>
-        {application.process.length === 0 ? (
+        {visibleSteps.length === 0 ? (
           <p className="mt-6 text-sm text-[var(--color-muted-soft)]">
             프로세스가 아직 없습니다.
           </p>
         ) : (
           <ul className="mt-6 border-b border-[var(--color-border)]/70">
-            {application.process.map((step, index) => (
+            {visibleSteps.map((step, index) => (
               <ProcessStepRow
                 key={step.id}
                 applicationSlug={application.slug}
+                company={application.company}
                 step={step}
                 index={index}
               />

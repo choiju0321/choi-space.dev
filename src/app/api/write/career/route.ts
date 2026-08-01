@@ -8,6 +8,11 @@ import {
   getCareerLanguageItem,
   getCareerMaster,
 } from "@/lib/content/get-career-hub";
+import {
+  allowedStatusesForProcessStepKind,
+  applyProcessStepStatusChange,
+} from "@/content/career/process";
+import { parseCareerPostingFormValue } from "@/lib/career/posting";
 import { hasWriteSession } from "@/lib/write/auth";
 import {
   parseFailAt,
@@ -241,13 +246,46 @@ export async function POST(request: Request) {
         );
       }
 
-      const process = application.process.map((step, index) =>
+      const currentStep = application.process[stepIndex];
+      const allowed = allowedStatusesForProcessStepKind(currentStep.kind);
+      if (!allowed.includes(status)) {
+        return NextResponse.json(
+          {
+            error: allowed.includes("pass")
+              ? "이 단계는 대기·진행·합격·불합격만 사용할 수 있습니다."
+              : "이 단계는 대기·진행·완료만 사용할 수 있습니다.",
+          },
+          { status: 400 },
+        );
+      }
+
+      const cascaded = applyProcessStepStatusChange(
+        application.process,
+        stepIndex,
+        status,
+      );
+      const postingRaw = String(form.get("posting") ?? "");
+      const postingFromForm = postingRaw
+        ? parseCareerPostingFormValue(postingRaw)
+        : undefined;
+      if (postingRaw && !postingFromForm) {
+        return NextResponse.json(
+          { error: "채용공고 형식이 올바르지 않습니다." },
+          { status: 400 },
+        );
+      }
+
+      const process = cascaded.map((step, index) =>
         index === stepIndex
           ? {
               ...step,
               note,
               date,
               status,
+              posting:
+                postingFromForm !== undefined
+                  ? postingFromForm
+                  : step.posting,
             }
           : step,
       );
@@ -379,6 +417,20 @@ export async function POST(request: Request) {
 
     const requestedSlug = String(form.get("slug") ?? "").trim();
     const slugSeed = requestedSlug || `${company}-${season}`;
+    // 한글만 있는 회사명은 slugify 후 연도만 남아 URL이 충돌함 (예: 2026)
+    if (
+      mode === "new" &&
+      !requestedSlug &&
+      /^\d{4}$/.test(slugifyPart(slugSeed))
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "한글 회사명은 영문 슬러그가 필요합니다. 예: miraeasset-capital-2026",
+        },
+        { status: 400 },
+      );
+    }
     const resolved = resolveSlug(mode, requestedSlug, slugSeed, (slug) =>
       Boolean(getCareerApplication(slug)),
     );
@@ -398,9 +450,7 @@ export async function POST(request: Request) {
       ? Math.max(0, Number.parseInt(roundsRaw, 10) || 0)
       : outcome === "fail" && typeof failAt === "number"
         ? failAt
-        : outcome === "preparing"
-          ? 0
-          : 2;
+        : 2;
 
     const process = rebuildApplicationProcess(outcome, {
       prefix: resolved.slug,

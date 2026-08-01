@@ -5,9 +5,43 @@
     "title": "독산역 롯데캐슬",
     "kind": "private-rental",
     "status": "active",
-    "moveInAt": "2026-09-14",
+    "moveInAt": "2026-08-27",
     "location": "독산역",
-    "note": "이사 프로젝트 · ①계약·예약~⑦마무리. 예산(비용관리)은 다음.",
+    "note": "이사 프로젝트 · ①계약·예약~⑦마무리. 예산(비용관리)은 다음.\r\n\r\n(08606) 서울특별시 금천구 독산동  1160 독산역롯데캐슬 0102동 3005호\r\n(08606) 서울특별시 금천구 벚꽃로 100 독산역롯데캐슬 0102동 3005호",
+    "categories": [
+      {
+        "id": "booking",
+        "label": "계약·예약"
+      },
+      {
+        "id": "purchase",
+        "label": "구매·준비"
+      },
+      {
+        "id": "checkout",
+        "label": "퇴실 정산"
+      },
+      {
+        "id": "move-day",
+        "label": "이사 당일"
+      },
+      {
+        "id": "install",
+        "label": "입주 및 설치"
+      },
+      {
+        "id": "admin",
+        "label": "행정 처리"
+      },
+      {
+        "id": "wrapup",
+        "label": "마무리"
+      },
+      {
+        "id": "category",
+        "label": "테스트"
+      }
+    ],
     "tasks": [
       {
         "id": "10-01-이사-날짜-확정",
@@ -17,7 +51,8 @@
         "status": "todo",
         "window": "D-30 ~ D-21",
         "windowOrder": 10,
-        "sortOrder": 1
+        "sortOrder": 1,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "2026-07-25-1",
@@ -37,20 +72,48 @@
         "title": "(2차) 예비세입자 방문",
         "phase": "booking",
         "parentSlug": "10-01-이사-날짜-확정",
-        "status": "doing",
+        "status": "done",
         "dueDate": "2026-07-30",
         "startedAt": "2026-07-29",
-        "sortOrder": 2
+        "sortOrder": 2,
+        "doneAt": "2026-07-31"
+      },
+      {
+        "id": "2026-08-27",
+        "slug": "2026-08-27",
+        "title": "입주일자 확정",
+        "phase": "booking",
+        "parentSlug": "10-01-이사-날짜-확정",
+        "status": "done",
+        "dueDate": "2026-08-27",
+        "sortOrder": 3,
+        "startedAt": "2026-07-31",
+        "doneAt": "2026-07-31"
+      },
+      {
+        "id": "2026-08-15",
+        "slug": "2026-08-15",
+        "title": "중개수수료 입금",
+        "phase": "booking",
+        "parentSlug": "10-01-이사-날짜-확정",
+        "status": "todo",
+        "dueDate": "2026-08-27",
+        "note": "500,000원",
+        "sortOrder": 4
       },
       {
         "id": "10-02-입주일-잔금일-확인",
         "slug": "10-02-입주일-잔금일-확인",
         "title": "입주일/잔금일 확인",
         "phase": "booking",
-        "status": "todo",
+        "status": "done",
         "window": "D-30 ~ D-21",
         "windowOrder": 10,
-        "sortOrder": 2
+        "dueDate": "2026-08-27",
+        "note": "입주일: 2026-08-27\r\n잔금일: 2026-08-27",
+        "sortOrder": 2,
+        "startedAt": "2026-07-31",
+        "doneAt": "2026-07-31"
       },
       {
         "id": "10-03-이사업체-견적-및-예약",
@@ -60,7 +123,8 @@
         "status": "todo",
         "window": "D-30 ~ D-21",
         "windowOrder": 10,
-        "sortOrder": 3
+        "sortOrder": 3,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "10-04-입주청소-예약",
@@ -70,6 +134,8 @@
         "status": "todo",
         "window": "D-30 ~ D-21",
         "windowOrder": 10,
+        "dueDate": "2026-08-24",
+        "note": "입주청소 예약 필요",
         "sortOrder": 4
       },
       {
@@ -77,10 +143,12 @@
         "slug": "10-05-에어컨-설치-일정-예약",
         "title": "에어컨 설치 일정 예약",
         "phase": "booking",
-        "status": "todo",
+        "status": "doing",
         "window": "D-30 ~ D-21",
         "windowOrder": 10,
-        "sortOrder": 5
+        "sortOrder": 5,
+        "dueDate": "2026-08-27",
+        "startedAt": "2026-07-31"
       },
       {
         "id": "10-06-인터넷-이전-신청",
@@ -90,7 +158,21 @@
         "status": "todo",
         "window": "D-30 ~ D-21",
         "windowOrder": 10,
-        "sortOrder": 6
+        "sortOrder": 6,
+        "dueDate": "2026-08-27"
+      },
+      {
+        "id": "2026-07-31-hctu",
+        "slug": "2026-07-31-hctu",
+        "title": "인터넷 이전신청 접수",
+        "phase": "booking",
+        "parentSlug": "10-06-인터넷-이전-신청",
+        "status": "done",
+        "dueDate": "2026-07-31",
+        "startedAt": "2026-07-31",
+        "note": "홈고객센터: 080-854-7000\r\n재약정 1년: 설치비 36,300원 무료 & 상품권(롯데) 30,000원\r\n설치예약: 2026-08-27 17:00 / (장비: 기가 Wi-Fi(GAPM-7500R) / 유선홈GW(HGWD-1G))",
+        "sortOrder": 1,
+        "doneAt": "2026-07-31"
       },
       {
         "id": "30-07-도시가스-이전-신청",
@@ -100,7 +182,34 @@
         "status": "todo",
         "window": "D-14 ~ D-7",
         "windowOrder": 30,
-        "sortOrder": 7
+        "sortOrder": 7,
+        "dueDate": "2026-08-27"
+      },
+      {
+        "id": "2026-07-31-1-34-12",
+        "slug": "2026-07-31-1-34-12",
+        "title": "전출 신청 - 현재집(종로구 대학로1길 34-12)",
+        "phase": "booking",
+        "parentSlug": "30-07-도시가스-이전-신청",
+        "status": "done",
+        "dueDate": "2026-07-31",
+        "startedAt": "2026-07-31",
+        "note": "예스코 고객센터: 1544-3131\r\n오전시간: 10:00~12:00 \r\n당일 연락해서 방문 예정 / 이사나간 다음이면 계량기 잠금 이후, 사진 찍고 보내서 정산할 수 있음",
+        "sortOrder": 1,
+        "doneAt": "2026-07-31"
+      },
+      {
+        "id": "2026-07-31-100-bch1",
+        "slug": "2026-07-31-100-bch1",
+        "title": "전입 신청 - (금천구 벚꽃로 100)",
+        "phase": "booking",
+        "parentSlug": "30-07-도시가스-이전-신청",
+        "status": "done",
+        "dueDate": "2026-07-31",
+        "startedAt": "2026-07-31",
+        "note": "귀뚜라미에너지 고객센터: 1670-4700\r\n예약일시: 2026-08-27 17:00~18:00",
+        "sortOrder": 2,
+        "doneAt": "2026-07-31"
       },
       {
         "id": "40-08-관리사무소-이사-예약",
@@ -110,7 +219,8 @@
         "status": "todo",
         "window": "D-7 ~ D-3",
         "windowOrder": 40,
-        "sortOrder": 8
+        "sortOrder": 8,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "40-09-엘리베이터-예약",
@@ -120,7 +230,8 @@
         "status": "todo",
         "window": "D-7 ~ D-3",
         "windowOrder": 40,
-        "sortOrder": 9
+        "sortOrder": 9,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "10-01-가전-가구-구매-계획",
@@ -130,7 +241,8 @@
         "status": "todo",
         "window": "D-30 ~ D-21",
         "windowOrder": 10,
-        "sortOrder": 1
+        "sortOrder": 1,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "2026-09-14",
@@ -139,7 +251,7 @@
         "phase": "purchase",
         "parentSlug": "10-01-가전-가구-구매-계획",
         "status": "doing",
-        "dueDate": "2026-09-14",
+        "dueDate": "2026-08-27",
         "startedAt": "2026-07-29",
         "sortOrder": 1
       },
@@ -150,7 +262,7 @@
         "phase": "purchase",
         "parentSlug": "10-01-가전-가구-구매-계획",
         "status": "doing",
-        "dueDate": "2026-09-14",
+        "dueDate": "2026-08-27",
         "startedAt": "2026-07-29",
         "sortOrder": 2
       },
@@ -161,7 +273,7 @@
         "phase": "purchase",
         "parentSlug": "10-01-가전-가구-구매-계획",
         "status": "doing",
-        "dueDate": "2026-09-14",
+        "dueDate": "2026-08-27",
         "startedAt": "2026-07-29",
         "sortOrder": 3
       },
@@ -203,7 +315,7 @@
         "status": "todo",
         "window": "D-20 ~ D-14",
         "windowOrder": 20,
-        "dueDate": "2026-09-14",
+        "dueDate": "2026-08-27",
         "sortOrder": 2
       },
       {
@@ -213,7 +325,7 @@
         "phase": "purchase",
         "parentSlug": "20-02-냉장고-구매",
         "status": "todo",
-        "dueDate": "2026-09-14",
+        "dueDate": "2026-08-27",
         "sortOrder": 1
       },
       {
@@ -223,7 +335,7 @@
         "phase": "purchase",
         "parentSlug": "20-02-냉장고-구매",
         "status": "todo",
-        "dueDate": "2026-09-14",
+        "dueDate": "2026-08-27",
         "sortOrder": 2
       },
       {
@@ -234,7 +346,8 @@
         "status": "todo",
         "window": "D-20 ~ D-14",
         "windowOrder": 20,
-        "sortOrder": 6
+        "sortOrder": 6,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "2026-09-13",
@@ -304,8 +417,10 @@
         "title": "책상",
         "phase": "purchase",
         "parentSlug": "2026-09-13",
-        "status": "todo",
+        "status": "doing",
         "dueDate": "2026-09-13",
+        "startedAt": "2026-07-31",
+        "note": "40,000원",
         "sortOrder": 5
       },
       {
@@ -314,8 +429,10 @@
         "title": "침대+매트리스",
         "phase": "purchase",
         "parentSlug": "2026-09-13",
-        "status": "todo",
+        "status": "doing",
         "dueDate": "2026-09-13",
+        "startedAt": "2026-07-31",
+        "note": "매트리스: 80,000원\r\n프레임: 40,000원",
         "sortOrder": 6
       },
       {
@@ -335,7 +452,7 @@
         "phase": "purchase",
         "parentSlug": "20-06-불필요한-물건-정리",
         "status": "todo",
-        "dueDate": "2026-09-14",
+        "dueDate": "2026-08-27",
         "sortOrder": 3
       },
       {
@@ -346,7 +463,8 @@
         "status": "todo",
         "window": "D-7 ~ D-3",
         "windowOrder": 40,
-        "sortOrder": 9
+        "sortOrder": 9,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "40-10-냉장고-음식-정리",
@@ -356,7 +474,8 @@
         "status": "todo",
         "window": "D-7 ~ D-3",
         "windowOrder": 40,
-        "sortOrder": 10
+        "sortOrder": 10,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "40-12-우편물-확인",
@@ -366,7 +485,8 @@
         "status": "todo",
         "window": "D-7 ~ D-3",
         "windowOrder": 40,
-        "sortOrder": 12
+        "sortOrder": 12,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "50-01-월세-일할-계산",
@@ -376,7 +496,8 @@
         "status": "todo",
         "window": "D-2 ~ D-1 · 퇴실 정산",
         "windowOrder": 50,
-        "sortOrder": 1
+        "sortOrder": 1,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "50-02-관리비-정산",
@@ -386,7 +507,8 @@
         "status": "todo",
         "window": "D-2 ~ D-1 · 퇴실 정산",
         "windowOrder": 50,
-        "sortOrder": 2
+        "sortOrder": 2,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "50-03-전기요금-정산",
@@ -396,7 +518,8 @@
         "status": "todo",
         "window": "D-2 ~ D-1 · 퇴실 정산",
         "windowOrder": 50,
-        "sortOrder": 3
+        "sortOrder": 3,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "50-04-수도요금-정산",
@@ -406,7 +529,8 @@
         "status": "todo",
         "window": "D-2 ~ D-1 · 퇴실 정산",
         "windowOrder": 50,
-        "sortOrder": 4
+        "sortOrder": 4,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "50-05-도시가스-최종-정산",
@@ -416,7 +540,8 @@
         "status": "todo",
         "window": "D-2 ~ D-1 · 퇴실 정산",
         "windowOrder": 50,
-        "sortOrder": 5
+        "sortOrder": 5,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "50-06-인터넷-해지-이전-확인",
@@ -426,7 +551,8 @@
         "status": "todo",
         "window": "D-2 ~ D-1 · 퇴실 정산",
         "windowOrder": 50,
-        "sortOrder": 6
+        "sortOrder": 6,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "50-07-집-사진-촬영",
@@ -436,7 +562,8 @@
         "status": "todo",
         "window": "D-2 ~ D-1 · 퇴실 정산",
         "windowOrder": 50,
-        "sortOrder": 7
+        "sortOrder": 7,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "60-08-보증금-반환-확인",
@@ -446,7 +573,8 @@
         "status": "todo",
         "window": "D-DAY · 퇴실",
         "windowOrder": 60,
-        "sortOrder": 8
+        "sortOrder": 8,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "90-09-보증금-반환-최종-확인",
@@ -456,7 +584,8 @@
         "status": "todo",
         "window": "D+30",
         "windowOrder": 90,
-        "sortOrder": 9
+        "sortOrder": 9,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "60-01-이사업체-도착",
@@ -466,7 +595,8 @@
         "status": "todo",
         "window": "D-DAY · 퇴실",
         "windowOrder": 60,
-        "sortOrder": 1
+        "sortOrder": 1,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "60-02-기존-집-최종-확인",
@@ -476,7 +606,8 @@
         "status": "todo",
         "window": "D-DAY · 퇴실",
         "windowOrder": 60,
-        "sortOrder": 2
+        "sortOrder": 2,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "60-03-집주인-점검",
@@ -486,7 +617,8 @@
         "status": "todo",
         "window": "D-DAY · 퇴실",
         "windowOrder": 60,
-        "sortOrder": 3
+        "sortOrder": 3,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "60-04-열쇠-반납",
@@ -496,7 +628,8 @@
         "status": "todo",
         "window": "D-DAY · 퇴실",
         "windowOrder": 60,
-        "sortOrder": 4
+        "sortOrder": 4,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "65-05-새-집-입주",
@@ -506,7 +639,8 @@
         "status": "todo",
         "window": "D-DAY · 입주",
         "windowOrder": 65,
-        "sortOrder": 5
+        "sortOrder": 5,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "65-01-하자-사진-촬영",
@@ -516,7 +650,8 @@
         "status": "todo",
         "window": "D-DAY · 입주",
         "windowOrder": 65,
-        "sortOrder": 1
+        "sortOrder": 1,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "65-02-입주청소-확인",
@@ -526,7 +661,8 @@
         "status": "todo",
         "window": "D-DAY · 입주",
         "windowOrder": 65,
-        "sortOrder": 2
+        "sortOrder": 2,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "65-03-냉장고-설치",
@@ -536,7 +672,8 @@
         "status": "todo",
         "window": "D-DAY · 입주",
         "windowOrder": 65,
-        "sortOrder": 3
+        "sortOrder": 3,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "65-04-세탁기-설치",
@@ -546,7 +683,8 @@
         "status": "todo",
         "window": "D-DAY · 입주",
         "windowOrder": 65,
-        "sortOrder": 4
+        "sortOrder": 4,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "65-05-에어컨-설치",
@@ -556,7 +694,8 @@
         "status": "todo",
         "window": "D-DAY · 입주",
         "windowOrder": 65,
-        "sortOrder": 5
+        "sortOrder": 5,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "65-06-인터넷-설치",
@@ -566,7 +705,8 @@
         "status": "todo",
         "window": "D-DAY · 입주",
         "windowOrder": 65,
-        "sortOrder": 6
+        "sortOrder": 6,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "30-01-주소-변경-준비",
@@ -576,7 +716,8 @@
         "status": "todo",
         "window": "D-14 ~ D-7",
         "windowOrder": 30,
-        "sortOrder": 1
+        "sortOrder": 1,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "30-02-회사-주소-변경",
@@ -586,7 +727,8 @@
         "status": "todo",
         "window": "D-14 ~ D-7",
         "windowOrder": 30,
-        "sortOrder": 2
+        "sortOrder": 2,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "30-03-은행-보험-주소-변경",
@@ -596,7 +738,8 @@
         "status": "todo",
         "window": "D-14 ~ D-7",
         "windowOrder": 30,
-        "sortOrder": 3
+        "sortOrder": 3,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "30-04-카드사-주소-변경",
@@ -606,7 +749,8 @@
         "status": "todo",
         "window": "D-14 ~ D-7",
         "windowOrder": 30,
-        "sortOrder": 4
+        "sortOrder": 4,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "30-05-택배-주소-변경",
@@ -616,7 +760,8 @@
         "status": "todo",
         "window": "D-14 ~ D-7",
         "windowOrder": 30,
-        "sortOrder": 5
+        "sortOrder": 5,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "70-06-전입신고",
@@ -626,7 +771,8 @@
         "status": "todo",
         "window": "D+1 ~ D+3",
         "windowOrder": 70,
-        "sortOrder": 6
+        "sortOrder": 6,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "70-07-확정일자",
@@ -636,7 +782,8 @@
         "status": "todo",
         "window": "D+1 ~ D+3",
         "windowOrder": 70,
-        "sortOrder": 7
+        "sortOrder": 7,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "70-08-관리사무소-등록",
@@ -646,7 +793,8 @@
         "status": "todo",
         "window": "D+1 ~ D+3",
         "windowOrder": 70,
-        "sortOrder": 8
+        "sortOrder": 8,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "70-09-차량-등록",
@@ -656,7 +804,8 @@
         "status": "todo",
         "window": "D+1 ~ D+3",
         "windowOrder": 70,
-        "sortOrder": 9
+        "sortOrder": 9,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "70-10-공동현관-등록",
@@ -666,7 +815,8 @@
         "status": "todo",
         "window": "D+1 ~ D+3",
         "windowOrder": 70,
-        "sortOrder": 10
+        "sortOrder": 10,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "70-11-비밀번호-변경",
@@ -676,7 +826,8 @@
         "status": "todo",
         "window": "D+1 ~ D+3",
         "windowOrder": 70,
-        "sortOrder": 11
+        "sortOrder": 11,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "80-01-자동이체-등록",
@@ -686,7 +837,8 @@
         "status": "todo",
         "window": "D+7",
         "windowOrder": 80,
-        "sortOrder": 1
+        "sortOrder": 1,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "80-02-월세-자동이체",
@@ -696,7 +848,8 @@
         "status": "todo",
         "window": "D+7",
         "windowOrder": 80,
-        "sortOrder": 2
+        "sortOrder": 2,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "80-03-관리비-자동이체",
@@ -706,7 +859,8 @@
         "status": "todo",
         "window": "D+7",
         "windowOrder": 80,
-        "sortOrder": 3
+        "sortOrder": 3,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "80-04-인터넷-정상-확인",
@@ -716,7 +870,8 @@
         "status": "todo",
         "window": "D+7",
         "windowOrder": 80,
-        "sortOrder": 4
+        "sortOrder": 4,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "80-05-택배-주소-확인",
@@ -726,7 +881,8 @@
         "status": "todo",
         "window": "D+7",
         "windowOrder": 80,
-        "sortOrder": 5
+        "sortOrder": 5,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "80-06-남은-박스-정리",
@@ -736,7 +892,8 @@
         "status": "todo",
         "window": "D+7",
         "windowOrder": 80,
-        "sortOrder": 6
+        "sortOrder": 6,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "90-07-첫-관리비-확인",
@@ -746,7 +903,8 @@
         "status": "todo",
         "window": "D+30",
         "windowOrder": 90,
-        "sortOrder": 7
+        "sortOrder": 7,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "90-08-월세-확인",
@@ -756,7 +914,8 @@
         "status": "todo",
         "window": "D+30",
         "windowOrder": 90,
-        "sortOrder": 8
+        "sortOrder": 8,
+        "dueDate": "2026-08-27"
       },
       {
         "id": "90-09-하자-발생-여부-점검",
@@ -766,41 +925,8 @@
         "status": "todo",
         "window": "D+30",
         "windowOrder": 90,
-        "sortOrder": 9
-      }
-    ],
-    "categories": [
-      {
-        "id": "booking",
-        "label": "계약·예약"
-      },
-      {
-        "id": "purchase",
-        "label": "구매·준비"
-      },
-      {
-        "id": "checkout",
-        "label": "퇴실 정산"
-      },
-      {
-        "id": "move-day",
-        "label": "이사 당일"
-      },
-      {
-        "id": "install",
-        "label": "입주 및 설치"
-      },
-      {
-        "id": "admin",
-        "label": "행정 처리"
-      },
-      {
-        "id": "wrapup",
-        "label": "마무리"
-      },
-      {
-        "id": "category",
-        "label": "테스트"
+        "sortOrder": 9,
+        "dueDate": "2026-08-27"
       }
     ]
   }

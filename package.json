@@ -12,7 +12,8 @@
     "db:down": "docker compose down",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx scripts/seed-from-content.ts"
+    "db:seed": "tsx scripts/seed-from-content.ts",
+    "crawl:subscriptions": "npx tsx scripts/crawl-subscriptions.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

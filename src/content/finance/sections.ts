@@ -3,7 +3,8 @@ export type FinanceSectionId =
   | "occasions"
   | "invest"
   | "claims"
-  | "property";
+  | "property"
+  | "listings";
 
 export const FINANCE_SECTIONS: {
   id: FinanceSectionId;
@@ -40,6 +41,12 @@ export const FINANCE_SECTIONS: {
     label: "Real Estate",
     href: "/finance/property",
     summary: "WBS 이사 일정 · 간트 · 체크",
+  },
+  {
+    id: "listings",
+    label: "청약 공고",
+    href: "/finance/listings",
+    summary: "청약홈·민간임대 공고 크롤링 적재 · 텔레그램 알림",
   },
 ];
 

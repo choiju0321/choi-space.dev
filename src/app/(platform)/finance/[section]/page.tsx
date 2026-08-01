@@ -7,6 +7,7 @@ import { FinanceInvestView } from "@/features/finance/finance-invest-view";
 import { FinanceLedgerView } from "@/features/finance/finance-ledger-view";
 import { FinanceOccasionsView } from "@/features/finance/finance-occasions-view";
 import { FinancePropertyView } from "@/features/finance/finance-property-view";
+import { FinanceListingsView } from "@/features/finance/finance-listings-view";
 import { FinanceSectionView } from "@/features/finance/finance-hub-view";
 import { HealthSessionGate } from "@/features/health/health-session-gate";
 import {
@@ -20,6 +21,7 @@ import {
   getFinanceMedicalLedgerEntries,
   getFinanceOccasions,
   getFinancePropertyCases,
+  getFinancePropertyListings,
 } from "@/lib/content/get-finance";
 import { hasWriteSession, isWriteSecretConfigured } from "@/lib/write/auth";
 
@@ -59,7 +61,8 @@ export default async function FinanceSectionPage({
         className={
           section === "ledger" ||
           section === "claims" ||
-          section === "property"
+          section === "property" ||
+          section === "listings"
             ? "max-w-4xl"
             : "max-w-3xl"
         }
@@ -80,6 +83,8 @@ export default async function FinanceSectionPage({
             <Suspense fallback={null}>
               <FinancePropertyView cases={getFinancePropertyCases()} />
             </Suspense>
+          ) : section === "listings" ? (
+            <FinanceListingsView listings={getFinancePropertyListings()} />
           ) : (
             <FinanceSectionView section={section} />
           )
